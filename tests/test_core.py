@@ -1,0 +1,129 @@
+import json
+from pathlib import Path
+
+import numpy as np
+import pytest
+
+from cama.adapters.local import HashEmbedder
+from cama.config import Config
+from cama.engine import Engine
+from cama.memory.active_set import ActiveSet
+from cama.memory.assembler import Assembler
+from cama.metrics import RunRecorder
+from cama.store.sqlite_store import EmbeddingSpaceMismatch, SQLiteStore
+from cama.types import Block, Kind
+
+SCENARIO = Path(__file__).parent.parent / "scenarios" / "assistant_fr_v1.jsonl"
+
+
+def blk(i, kind=Kind.TEMP, pinned=False, content="x", t=None):
+    t = float(i) if t is None else t
+    return Block(id=f"b{i}", kind=kind, title=f"t{i}", content=content, pinned=pinned,
+                 created_at=t, modified_at=t, accessed_at=t)
+
+
+def test_render_order_ignores_access_recency():
+    s = ActiveSet(capacity=10, max_tokens=10_000)
+    for b in [blk(1, Kind.TEMP), blk(2, Kind.FONDAMENTAL), blk(3, Kind.PROJET)]:
+        s.admit(b)
+    before = [b.id for b in s.render_order()]
+    s.touch("b2", 99.0)
+    assert [b.id for b in s.render_order()] == before == ["b2", "b3", "b1"]
+
+
+def test_modified_block_moves_to_end_of_its_class():
+    s = ActiveSet(capacity=10, max_tokens=10_000)
+    for b in [blk(1, Kind.PROJET), blk(2, Kind.PROJET), blk(3, Kind.TEMP)]:
+        s.admit(b)
+    b1 = s.get("b1")
+    b1.modified_at, b1.version = 50.0, 2
+    s.admit(b1)
+    assert [b.id for b in s.render_order()] == ["b2", "b1", "b3"]
+
+
+def test_cache_aware_eviction_prefers_latest_rendered_among_lru_window():
+    s = ActiveSet(capacity=3, max_tokens=10_000, victim_window=2)
+    s.admit(blk(1, Kind.TEMP))         # rendered last
+    s.admit(blk(2, Kind.FONDAMENTAL))  # rendered first; least recently used together with b1
+    s.admit(blk(3, Kind.PROJET))
+    evicted, ok = s.admit(blk(4, Kind.PROJET))
+    assert ok and [b.id for b in evicted] == ["b1"]
+
+
+def test_pure_lru_when_window_is_one():
+    s = ActiveSet(capacity=2, max_tokens=10_000, victim_window=1)
+    s.admit(blk(1, Kind.FONDAMENTAL))
+    s.admit(blk(2, Kind.TEMP))
+    evicted, _ = s.admit(blk(3, Kind.TEMP))
+    assert [b.id for b in evicted] == ["b1"]
+
+
+def test_pinned_blocks_are_never_evicted_and_newcomer_rejected():
+    s = ActiveSet(capacity=2, max_tokens=10_000)
+    s.admit(blk(1, pinned=True))
+    s.admit(blk(2, pinned=True))
+    evicted, ok = s.admit(blk(3))
+    assert not ok and evicted == [] and s.ids() == {"b1", "b2"}
+
+
+def test_token_bound_is_enforced():
+    s = ActiveSet(capacity=100, max_tokens=60)
+    for i in range(5):
+        s.admit(blk(i, content="mot " * 40))
+    assert s.tokens() <= 60
+
+
+def test_stable_prefix_measured_across_turns():
+    a = Assembler()
+    blocks = [blk(1, Kind.FONDAMENTAL, content="stable"), blk(2, Kind.TEMP, content="v1")]
+    first = a.build("s", blocks, [], "q1")
+    assert first.stable_prefix_tokens == 0
+    second = a.build("s", blocks, [], "q2")
+    assert 0 < second.stable_prefix_tokens < second.total_tokens
+
+
+def test_store_rejects_non_unit_vectors_and_foreign_spaces(tmp_path):
+    st = SQLiteStore(tmp_path / "s.sqlite")
+    st.bind_embedding_space("hash-v1", 256)
+    b = blk(1)
+    b.vector = np.full(256, 0.5, dtype=np.float32)
+    with pytest.raises(ValueError):
+        st.upsert(b, "create")
+    with pytest.raises(EmbeddingSpaceMismatch):
+        st.bind_embedding_space("gemini:gemini-embedding-001", 768)
+
+
+async def test_hash_embedder_unit_norm():
+    m = await HashEmbedder().embed(["bonjour le monde", ""], "document")
+    assert np.allclose(np.linalg.norm(m, axis=1), 1.0)
+
+
+@pytest.mark.parametrize("mode", ["cama", "topk", "naive"])
+async def test_end_to_end_scenario_echo(tmp_path, mode):
+    cfg = Config(mode=mode, data_dir=tmp_path / "data", runs_dir=tmp_path / "runs",
+                 archive_dir=tmp_path / "archive")
+    rec = RunRecorder(cfg.runs_dir, f"t-{mode}")
+    rec.manifest(cfg.as_dict())
+    eng = Engine(cfg, rec, session="t")
+    await eng.start()
+    steps = [json.loads(line) for line in SCENARIO.read_text().splitlines() if line.strip()]
+    await eng.seed(steps[0]["seed"])
+    tiers = []
+    for step in steps[1:]:
+        res = await eng.turn(step["user"])
+        await eng.drain()
+        if res.record["route"]:
+            tiers.append(res.record["route"]["tier"])
+        assert len(eng.active) <= cfg.capacity
+    counts = eng.store.count()
+    await eng.close()
+
+    turns = [json.loads(x) for x in (cfg.runs_dir / f"t-{mode}" / "turns.jsonl").read_text().splitlines()]
+    assert len(turns) == len(steps) - 1
+    if mode == "naive":
+        assert turns[-1]["context"]["total_tokens_est"] > turns[0]["context"]["total_tokens_est"]
+    else:
+        assert "lexical" in tiers and "l3_fault" in tiers
+        assert counts["journal_unsynced"] == 0  # cold path synced everything to L4
+        replica = (cfg.archive_dir / "cama.jsonl").read_text().splitlines()
+        assert len(replica) == counts["journal"]

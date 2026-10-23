@@ -1,0 +1,39 @@
+# Online profile on a constrained container.
+#   docker compose up -d --build
+#   docker compose exec -it cama cama chat
+#   docker compose exec cama cama run /scenarios/assistant_fr_v1.jsonl --fresh
+name: cama
+
+services:
+  cama:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        CAMA_CODE_SHA: ${CAMA_CODE_SHA:-unknown}
+    image: cama:dev
+    container_name: cama-online
+    env_file:
+      - path: .env          # GEMINI_API_KEY (never committed)
+        required: false
+    environment:
+      CAMA_LLM: ${CAMA_LLM:-echo}
+      CAMA_EMBEDDER: ${CAMA_EMBEDDER:-hash}
+      CAMA_MODEL: ${CAMA_MODEL:-gemini-flash-lite-latest}
+      CAMA_MODE: ${CAMA_MODE:-cama}
+      CAMA_ONLINE: "1"
+      CAMA_LOG_LEVEL: ${CAMA_LOG_LEVEL:-INFO}
+    # "Modest device" limits. Change them per experiment; they are recorded in each run manifest.
+    cpus: ${CAMA_CPUS:-1.0}
+    mem_limit: ${CAMA_MEM:-1g}
+    memswap_limit: ${CAMA_MEM:-1g}   # equal to mem_limit: no swap
+    pids_limit: 128
+    volumes:
+      - cama-data:/data              # L3 store + journal (SQLite), persists across restarts
+      - cama-archive:/archive        # L4 replica, fed by the cold path
+      - ./runs:/runs                 # metrics and logs, readable from the host
+      - ./scenarios:/scenarios:ro    # scripted conversations
+
+volumes:
+  cama-data:
+  cama-archive:

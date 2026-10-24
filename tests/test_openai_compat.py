@@ -75,9 +75,14 @@ async def test_a_request_carries_tools_and_json_mode_and_returns_tool_calls():
     assert out.tool_calls[0].name == "weather" and out.cached_tokens == 32
 
 
+async def _nosleep(_s):
+    return None
+
+
 async def test_rate_limits_and_server_errors_are_retryable_and_client_errors_are_not():
     for status, retryable in ((429, True), (503, True), (400, False), (401, False)):
         llm = _llm(lambda r, s=status: httpx.Response(s, text="nope"))
+        llm.sleep = _nosleep
         with pytest.raises(ProviderError) as e:
             await llm.generate("SYS", [Message("user", text="q")])
         assert e.value.retryable is retryable
@@ -101,3 +106,32 @@ def test_the_nebius_model_is_priced_and_implicit_only():
     p = load_pricing(ROOT / "pricing.toml")["deepseek-ai/DeepSeek-V4-Flash-0731"]
     assert price_for({"x": p}, "x") is not None
     assert p["explicit_cache"] is False and p["cache_read"] < p["input"]
+
+
+async def test_a_short_outage_is_ridden_out_and_counted():
+    answers = iter([503, 503, 200])
+
+    def handler(request):
+        code = next(answers)
+        return httpx.Response(code, json=_reply()) if code == 200 else httpx.Response(code, text="down")
+    llm = _llm(handler)
+    waits = []
+
+    async def sleep(s):
+        waits.append(s)
+    llm.sleep = sleep
+    out = await llm.generate("SYS", [Message("user", text="q")])
+    assert out.text == "ok" and llm.retried == 2 and waits == [2.0, 4.0]
+
+
+async def test_a_client_error_is_never_retried():
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        return httpx.Response(400, text="bad")
+    llm = _llm(handler)
+    llm.sleep = _nosleep
+    with pytest.raises(ProviderError):
+        await llm.generate("SYS", [Message("user", text="q")])
+    assert len(calls) == 1

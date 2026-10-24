@@ -25,6 +25,12 @@ was measured or found. A line leaves this page only through a ledger event that 
 
 ## Open problems
 
+- **Nebius was unstable on 2026-10-24 afternoon** (503 on 8 of 12 calls over a minute): the
+  replicates of the 200 turn rows, statement-triggered extraction and the render order ablation
+  are not measured yet (only one ablation pair completed).
+- **On Gemini 4 Argon naive was the cheapest** over 32 turns (`docs/measured/argon.md`): a large
+  memory is re-billed when calls add under 2050 tokens. cama's case on Argon is unproven.
+
 - **The stable render order has no ablation.** With an implicit-only provider
   `CAMA_PREFIX_CACHE=none` changes the label, not the request; decision 0002 needs a switch that
   renders by recency to be tested directly.

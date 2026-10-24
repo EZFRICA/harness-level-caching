@@ -15,9 +15,13 @@ Two things keep the measured prefix honest:
 
 from __future__ import annotations
 
+import asyncio
 import json
+import logging
 
 import httpx
+
+log = logging.getLogger("cama.adapters.openai_compat")
 
 from cama.types import LLMResult, Message, ToolCall, ToolSpec
 
@@ -91,12 +95,19 @@ def parse_response(body: dict) -> LLMResult:
 
 class OpenAICompatLLM:
     def __init__(self, model: str, base_url: str, api_key: str = "", salt: str = "",
-                 timeout_s: float = 120.0, transport: httpx.AsyncBaseTransport | None = None):
+                 timeout_s: float = 120.0, transport: httpx.AsyncBaseTransport | None = None,
+                 retries: int = 4, backoff_s: float = 2.0, sleep=asyncio.sleep):
         if not base_url:
             raise ValueError("CAMA_OAI_BASE_URL is required for CAMA_LLM=openai_compat")
         self.name = f"openai_compat:{model}"
         self.model = model
         self.salt = salt
+        # A provider outage of a minute (Nebius, 2026-10-24: 8 of 12 calls answered 503 over a
+        # minute) used to end the run. Retryable errors wait 2, 4, 8, 16 s; each wait is counted.
+        self.retries = retries
+        self.backoff_s = backoff_s
+        self.sleep = sleep
+        self.retried = 0
         headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
         self.client = httpx.AsyncClient(base_url=base_url.rstrip("/"), headers=headers, timeout=timeout_s,
                                         transport=transport)
@@ -114,7 +125,15 @@ class OpenAICompatLLM:
             payload["tools"] = spec
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
-        r = await self.client.post("/chat/completions", json=payload)
-        if r.status_code != 200:
-            raise ProviderError(r.status_code, r.text)
-        return parse_response(r.json())
+        for attempt in range(self.retries + 1):
+            r = await self.client.post("/chat/completions", json=payload)
+            if r.status_code == 200:
+                return parse_response(r.json())
+            err = ProviderError(r.status_code, r.text)
+            if not err.retryable or attempt == self.retries:
+                raise err
+            self.retried += 1
+            wait = self.backoff_s * 2 ** attempt
+            log.warning("provider answered %s, retry %d in %.0f s", r.status_code, attempt + 1, wait)
+            await self.sleep(wait)
+        raise AssertionError("unreachable")

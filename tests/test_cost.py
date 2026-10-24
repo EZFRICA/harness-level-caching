@@ -86,7 +86,7 @@ def _cfg(tmp_path, **kw):
 
 def test_a_paid_model_without_a_price_is_refused(tmp_path):
     with pytest.raises(ValueError, match="no price"):
-        Engine(_cfg(tmp_path, llm="gemini", model="gemini-4-argon"), RunRecorder(tmp_path / "r", "x"))
+        Engine(_cfg(tmp_path, llm="gemini", model="gemini-3.8-flash"), RunRecorder(tmp_path / "r", "x"))  # still unpriced
 
 
 def test_the_prefix_cache_mode_follows_the_model_capability(tmp_path):

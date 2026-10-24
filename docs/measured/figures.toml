@@ -394,3 +394,24 @@ limits = [
   "Per-token prices are 0 (self-hosted); the cost is GPU time, not reported per run.",
   "The cama with 0013 run over 200 turns was repeated after an accidental VM reset cut the first attempt at turn 139 (kept apart, not frozen).",
 ]
+
+[[figure]]
+id = "recall-across-providers"
+file = "providers.md"
+title = "The recall scenario on seven models across Nebius, Vertex AI and a self-hosted L4"
+question = "Do the recall and cache findings of naive, cama and cama with decision 0013 hold across models and providers?"
+runs = ["nebius-nemotron3super-onnx-memory-naive-v1", "nebius-nemotron3super-onnx-memory-cama-v1", "nebius-nemotron3super-onnx-memory-cama-d13-v1", "nebius-dsv4flash-onnx-b-memory-naive-v1", "nebius-dsv4flash-onnx-b-memory-cama-v1", "nebius-dsv4flash-onnx-b-memory-cama-d13-v1", "nebius-glm53-onnx-memory-naive-v1", "nebius-glm53-onnx-memory-cama-v1", "nebius-glm53-onnx-memory-cama-d13-v1", "vertex-dsv41flash-onnx-memory-naive-v1", "vertex-dsv41flash-onnx-memory-cama-v1", "vertex-dsv41flash-onnx-memory-cama-d13-v1", "vertex-glm52-onnx-memory-naive-v1", "vertex-glm52-onnx-memory-cama-v1", "vertex-glm52-onnx-memory-cama-d13-v1", "vertex-g35lite-onnx-memory-naive-v1", "vertex-g35lite-onnx-memory-cama-v1", "vertex-g35lite-onnx-memory-cama-d13-v1", "vertex-argon-onnx-memory-naive-v1", "vertex-argon-onnx-memory-cama-v1", "vertex-argon-onnx-memory-cama-d13-v1", "vllm-l4-dsv2lite-notools-onnx-memory-naive-v1", "vllm-l4-dsv2lite-notools-onnx-memory-cama-v1", "vllm-l4-dsv2lite-notools-onnx-memory-cama-d13-v1"]
+columns = ["run", "model", "mode", "recall", "hot", "prompt", "cached_share", "cost"]
+reproduce = "docker compose exec -T -e CAMA_EMBEDDER=onnx -e CAMA_OAI_SALT=<run id> <provider flags> [-e CAMA_EXTRACT_REPLACE=on -e CAMA_EXTRACT_EVERY=2 -e CAMA_MEMORY_REFRESH=epoch -e CAMA_PAGE_IN_TAIL=on -e CAMA_WINDOW_EPOCH=10] cama cama run /scenarios/memory_fr_v1.jsonl --fresh --mode <naive|cama> --run-id <run id>; provider flags: Nebius CAMA_LLM=openai_compat CAMA_OAI_BASE_URL=https://api.tokenfactory.nebius.com/v1 CAMA_OAI_KEY_ENV=NEBIUS_API_KEY; Vertex MaaS CAMA_OAI_BASE_URL=https://aiplatform.googleapis.com/v1/projects/<project>/locations/global/endpoints/openapi CAMA_OAI_KEY_FILE=<token file>; Vertex Gemini CAMA_LLM=gemini CAMA_GEMINI_VERTEX_PROJECT=<project> CAMA_GEMINI_TOKEN_FILE=<token file> CAMA_PREFIX_CACHE=implicit; L4 CAMA_OAI_BASE_URL=<vLLM> CAMA_TOOLS=off"
+reading = [
+  "naive recalled 13 of 13 on every hosted model and was the cheapest arm on each of them over these 32 turns.",
+  "cama with decision 0013 recalled 13 of 13 on Nemotron-3-Super, DeepSeek-V4-Flash, DeepSeek-V4.1-Flash and Gemini 3.5 Flash-Lite, but 11 on GLM-5.3, 8 on GLM-5.2 and 12 on Argon. In the GLM-5.2 run the flight number, the demo budget and the booking number never reached memory while plain cama, extracting every turn, stored all six checked facts: extracting two exchanges per call loses facts with GLM.",
+  "No Gemini run on Vertex reported a cached token: these prompts stay under the 4096 token implicit minimum of both models.",
+  "DeepSeek-V2-Lite on the L4 (tools off) recalled 7, 1 and 3 of 13: 19 of its 47 extraction calls in the cama run timed out on runaway outputs and its extractions evicted 13 blocks. The extracting model, not the cache, limits recall there.",
+]
+limits = [
+  "One run per cell; one 32 turn scenario; recall is a substring check of 13 planted facts.",
+  "The three streams (Nebius, Vertex, L4) ran at the same time in one container with 3 CPUs: turn times are not comparable across rows.",
+  "Vertex prices official as listed on 2026-10-24; whether the account's promotional credit covers Model Garden partner models is not verified.",
+  "Argon naive was rerun after a fix: its first attempt stopped at turn 15 when Vertex refused an empty model turn (kept apart, not frozen).",
+]

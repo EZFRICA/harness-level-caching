@@ -42,7 +42,9 @@ def _contents(messages: list[Message]) -> list[types.Content]:
             parts = [types.Part(text=m.text)] if m.text else []
             parts += [types.Part(function_call=types.FunctionCall(id=c.id, name=c.name, args=c.args))
                       for c in m.tool_calls]
-            out.append(types.Content(role="model", parts=parts))
+            # A model turn with no text and no call (Argon once billed 275 tokens of reasoning and
+            # returned no answer) is replayed as a placeholder: Vertex refuses a Content without parts.
+            out.append(types.Content(role="model", parts=parts or [types.Part(text="(no answer)")]))
         else:
             out.append(types.Content(role="user", parts=[types.Part(text=m.text)]))
     if pending:

@@ -26,6 +26,9 @@ was measured or found. A line leaves this page only through a ledger event that 
 | Implicit cache life, one sample per delay: Gemini 3.5 Flash-Lite hit at 15 s and 2 min, never from 5 min; Gemini 4 Argon never hit, even at 15 s on an identical 10k token prefix; Nebius hit at 15 s, 5, 15, 25 min and missed at 2, 10, 20, 30, 45, 60 min | `docs/measured/probes/cache-lifetime-2026-10-24.jsonl` | Flash-Lite's cache lasts minutes, not the 15 to 20 claimed by secondary sources; on Nebius the replica a request reaches matters as much as idle time |
 | Self-hosted vLLM: naive stopped at turn 198 when its history passed the 16384 token context | `docs/measured/vllm-l4.md` | naive's cheapness ends at the context window; cama's prompt stays bounded |
 
+| Extracting two exchanges per call (decision 0013, `CAMA_EXTRACT_EVERY=2`) lost facts with GLM-5.2 (8 of 13) and GLM-5.3 (11 of 13) where every-turn extraction kept them | `docs/measured/providers.md` | 0013's batching setting is model dependent; extract every turn unless a model is shown to tolerate batches |
+| A small extractor (DeepSeek-V2-Lite, 16B) timed out on 19 of 47 extraction calls and evicted planted facts | `docs/measured/providers.md` | cama needs an extractor that returns clean JSON |
+
 ## Open problems
 
 - **Nebius was unstable on 2026-10-24 afternoon** (503 on 8 of 12 calls over a minute): the

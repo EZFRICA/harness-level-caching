@@ -161,3 +161,9 @@ def test_gemini_on_vertex_builds_a_new_client_when_the_token_changes(tmp_path):
     assert llm.client is first and llm.name == "vertex:gemini-3.5-flash-lite"
     tok.write_text("t2")
     assert llm.client is not first
+
+
+def test_an_empty_model_turn_is_replayed_with_a_placeholder_part():
+    from cama.adapters.gemini import _contents
+    out = _contents([Message("user", text="q"), Message("assistant", text=""), Message("user", text="again")])
+    assert out[1].role == "model" and out[1].parts and out[1].parts[0].text == "(no answer)"

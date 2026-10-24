@@ -1,12 +1,13 @@
 ---
 id: 0012
-status: proposed
-evidence:
+status: accepted
+evidence: nebius-dsv4flash-onnx-web-rec-v1, nebius-dsv4flash-onnx-web-h3on-v1, nebius-dsv4flash-onnx-web-h3on-v2, nebius-dsv4flash-onnx-web-h3off-v1, nebius-dsv4flash-onnx-web-h3off-v2
 held_by: tests/test_web_search.py::test_an_h3_hit_returns_exactly_what_the_miss_returned, tests/test_web_search.py::test_a_recorded_query_is_replayed_identically_without_a_live_call, tests/test_web_search.py::test_the_web_tool_is_offered_only_when_switched_on
 ---
 # 0012: H3 is measured on a real web search, made repeatable by a tape
 
-Proposed: 2026-10-24, by Claude, within the owner's plan (Tavily track). Awaits the owner.
+Proposed: 2026-10-24, by Claude, within the owner's plan (Tavily track). Accepted by the owner on
+2026-10-24 ("applique le reste des recommandations").
 
 ## Context
 Every H3 figure so far used simulated tools with fixed latencies. The closest prior art

@@ -49,6 +49,8 @@ class Config:
     extract_replace: bool = False  # hypothesis H5: the extractor may replace a corrected fact's line
     memory_refresh: str = "turn"  # turn | epoch (hypothesis H7: rendered memory frozen until the window drops)
     page_in_tail: bool = False  # hypothesis H8 (with epoch refresh): a paged-in block is sent after the window
+    render_order: str = "stable"  # stable (decision 0002) | recency: ablation, blocks in order of last access
+    extract_policy: str = "every"  # every: batch by extract_every | statements: a stated fact is extracted at once
 
     tau_lexical: float = 0.6  # query-term containment for a tier-a hit
     min_lexical_overlap: int = 2
@@ -117,6 +119,8 @@ class Config:
             extract_replace=_env("CAMA_EXTRACT_REPLACE", "off") == "on",
             memory_refresh=_env("CAMA_MEMORY_REFRESH", "turn"),
             page_in_tail=_env("CAMA_PAGE_IN_TAIL", "off") == "on",
+            render_order=_env("CAMA_RENDER_ORDER", "stable"),
+            extract_policy=_env("CAMA_EXTRACT_POLICY", "every"),
             tau_lexical=float(_env("CAMA_TAU_LEXICAL", "0.6")),
             min_lexical_overlap=int(_env("CAMA_MIN_LEXICAL_OVERLAP", "2")),
             tau_active=float(_env("CAMA_TAU_ACTIVE", str(taus["active"]))),

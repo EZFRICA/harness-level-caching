@@ -74,3 +74,28 @@ def test_with_tail_page_ins_the_cached_head_stays_and_the_block_goes_last(tmp_pa
     eng._tail = []
     eng.turn_index = 6
     assert "c" in [b.id for b in eng._memory_view(quiet)]  # joins the head at the drop
+
+
+def test_a_statement_is_told_apart_from_a_question_or_a_request():
+    from cama.engine import states_a_fact
+    assert states_a_fact("Mon vol retour est prévu le 18 décembre.")
+    assert states_a_fact("Changement de programme : mon talk passe à 30 minutes.")
+    assert not states_a_fact("Quand est mon vol retour ?")
+    assert not states_a_fact("Calcule 12 * 75 pour l'hôtel.")
+    assert not states_a_fact("What is the next step for the trip?")
+    assert not states_a_fact("")
+
+
+def test_recency_order_moves_a_block_when_it_is_read(tmp_path):
+    import time as _t
+    from cama.types import Block, Kind
+    eng, quiet, _ = _engine(tmp_path, render_order="recency")
+    eng.active.admit(Block("a", Kind.FONDAMENTAL, "A", "- a"))
+    eng.active.get("a").accessed_at = _t.time() - 100
+    eng.active.get("b").accessed_at = _t.time()
+    assert [b.id for b in eng._memory_view(quiet)] == ["a", "b"]
+    eng.active.get("a").accessed_at = _t.time() + 1  # a read
+    assert [b.id for b in eng._memory_view(quiet)] == ["b", "a"]
+    stable = _engine(tmp_path / "s")[0]
+    stable.active.admit(Block("a", Kind.FONDAMENTAL, "A", "- a"))
+    assert [b.id for b in stable._memory_view(quiet)][0] == "a"  # stable: kind first, whatever was read

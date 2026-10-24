@@ -57,6 +57,22 @@ class TurnResult:
     record: dict
 
 
+_ASKS = ("quel", "quelle", "quels", "quelles", "quand", "comment", "combien", "pourquoi", "ou", "qui", "est-ce",
+         "calcule", "cherche", "convertis", "resume", "rappelle", "rappelle-moi", "reserve", "trouve", "donne",
+         "dis", "explique", "recapitule", "refais", "va-t-il", "ai-je", "a", "what", "when", "how", "why", "where",
+         "who", "which", "is", "are", "can", "could", "should", "do", "does", "find", "search", "compute",
+         "convert", "summarise", "summarize", "remind", "book", "show", "tell", "give", "list")
+
+
+def states_a_fact(text: str) -> bool:
+    """Hypothesis (CAMA_EXTRACT_POLICY=statements): a message that is neither a question nor a request
+    states something the memory may need now. A French and English heuristic, nothing more."""
+    from cama.probes import fold
+    t = fold(text)
+    first = t.split(" ", 1)[0].strip(",.:;!") if t else ""
+    return bool(t) and "?" not in t and first not in _ASKS
+
+
 def window_size(cfg: Config, turns_done: int) -> int:
     """Exchanges sent verbatim. With an epoch E the window only grows for E-1 turns, so the
     messages after the memory are append-only (a cacheable prefix), then it drops E at once."""
@@ -135,6 +151,8 @@ class Engine:
         append-only between drops; facts learnt meanwhile are still in the growing window. A
         page-in refreshes it at once: the query needs the block it brought."""
         live = self.active.render_order()
+        if self.cfg.render_order == "recency":  # ablation of decision 0002: reading a block moves it
+            live = sorted(live, key=lambda b: (b.accessed_at, b.id))
         if self.cfg.memory_refresh != "epoch" or self.cfg.window_epoch <= 1:
             return live
         boundary = self.turn_index % self.cfg.window_epoch == 0
@@ -285,7 +303,9 @@ class Engine:
 
         if cfg.mode != "naive":
             self._pending.append((user_text, out.text))
-            if not self._extract_queued and len(self._pending) >= cfg.extract_every:  # one call drains them all
+            due = len(self._pending) >= cfg.extract_every or (
+                cfg.extract_policy == "statements" and states_a_fact(user_text))
+            if not self._extract_queued and due:  # one call drains them all
                 self._extract_queued = True
                 await self.scheduler.push(f"extract#{self.turn_index}", self._extract_pending, PRIORITY_EXTRACT)
             if self.prefix_cache is not None:

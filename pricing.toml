@@ -26,10 +26,16 @@ explicit_cache = true
 implicit_min_tokens = 4096
 
 [models."gemini-4-argon"]
-read_on = "2026-10-23"
-source = "https://ai.google.dev/gemini-api/docs/caching"
-status = "unpriced"
-explicit_cache = false      # "not supported for Gemini 4 Argon and onward"
+read_on = "2026-10-24"
+source = "https://ai.google.dev/gemini-api/docs/pricing"
+status = "official"
+input = 2.00                # through 2026-11-30; 4.00 from 2026-12-01 (same page)
+output = 10.00              # thinking included; 20.00 from 2026-12-01
+cache_read = 0.10           # 0.20 from 2026-12-01
+cache_storage_hour = 0.0    # implicit only: nothing stored on our behalf
+cache_write = 0.0
+cache_write_status = "none"
+explicit_cache = false      # "not supported for Gemini 4 Argon and onward" (caching page)
 implicit_min_tokens = 4096
 
 [models."echo"]

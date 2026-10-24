@@ -42,6 +42,13 @@ def _h(text: str) -> str:
     return hashlib.blake2b(text.encode(), digest_size=8).hexdigest()
 
 
+def render_system(blocks: list[Block]) -> str:
+    """The cacheable part of a request: instructions + memory blocks in the given order."""
+    if not blocks:
+        return BASE_INSTRUCTIONS
+    return BASE_INSTRUCTIONS + "\n\n## MEMORY\n" + "".join(render_block(b) for b in blocks)
+
+
 class Assembler:
     def __init__(self) -> None:
         self._previous: dict[str, list[tuple[str, int]]] = {}

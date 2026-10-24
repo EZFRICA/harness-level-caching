@@ -1,0 +1,48 @@
+# Limits and open problems
+
+What CAMA does not do, or does badly, as of the last ledger event. Each line names where it
+was measured or found. A line leaves this page only through a ledger event that fixes it.
+
+## Measured limits
+
+| limit | where | consequence |
+|---|---|---|
+| The memory extraction is the largest cold cost; over 24 agentic turns CAMA cost more than naive | `docs/measured/agentic.md` | the cold path, not the prompt, decides the bill on short sessions |
+| Explicit prefix caching made turns slower on gemini-3.5-flash-lite (about 2.5 s against 1.8 s) | `docs/measured/agentic.md` | cost against latency is a deployment choice |
+| A memory under 1024 tokens cannot be cached explicitly; over 200 turns cama never reached it | `docs/measured/stress-sessions-gemini.md` | the saving came from the bounded prompt alone |
+| Gemini 4 Argon has no explicit caching and caches implicitly from 4096 tokens | `docs/prior-art-providers.md` | on the production model only a large stable prefix can be cached |
+| The ONNX embedding model needs more than 512 MB | `docs/measured/stress-device.md` | a 2 GB device needs a smaller embedder |
+| After a worker kill, an agent answers again after about 10 s | `docs/measured/stress-cluster.md` | bounded by the 6 s lease and client retries |
+| Doing the cold path's work costs throughput (4.2 to 2.9 requests per second on three workers) | ledger, fault events | the earlier figure was a starved cold path |
+| Many agents opening at once on one worker queue longer than client retries (28 of 384 lost at 32 agents) | `docs/measured/stress-scale.md` | a cold start limit; steady state holds |
+| With append-only extraction a corrected fact stays next to its stale value; cama recalled the stale one in 1 of 2 runs (fixed by `CAMA_EXTRACT_REPLACE=on`, 13/13 in 4 runs) | `docs/measured/recall.md` | replace is a switch, not yet the default |
+| An exact-key tool cache served 1 of 15 to 18 real web searches: the model rephrases its queries | `docs/measured/web.md` | H3 pays on deterministic tools, rarely on model-written queries |
+| A semantic key (cosine 0.90) served 2 more searches per run but 1 of 4 matches crossed a year (2024 got 2025) | `docs/measured/web.md` | a semantic tool key needs dates in the key or a judge |
+| On a 32 turn session naive recalled every fact and cost less than any cama variant | `docs/measured/recall.md` | cama's case rests on long sessions |
+| Over 200 turns on Nebius naive (97.7% cached) cost 0.0219 USD; the best cama (decision 0013, proposed) 0.0236, level only with batched extraction | `docs/measured/long-session.md` | with cheap cached reads an append-only history is hard to beat; cama's edge is a bounded prompt |
+| Extraction batched over 4 or 10 exchanges lost a correction in 3 of 6 runs; every 2 lost none in 6 | `docs/measured/recall-batching.md` | the cheapest extraction schedule is not safe yet |
+| On an implicit-only provider the stable order raised the cached share (75 to 78% against 55 to 63% for topk) but sent about 50% more prompt tokens, so the hot cost did not fall | `docs/measured/nebius.md` | a higher cached share is not a lower bill; extraction still dominates |
+
+## Open problems
+
+- **The stable render order has no ablation.** With an implicit-only provider
+  `CAMA_PREFIX_CACHE=none` changes the label, not the request; decision 0002 needs a switch that
+  renders by recency to be tested directly.
+- **Run manifests carry the last commit's sha**, so runs on uncommitted code are not told apart
+  by code version.
+
+- **Conversation history is not replicated.** After a takeover the new owner serves an empty or
+  stale recent window; only memory blocks and the journal are recovered.
+- **Recovery reads the whole journal** when no usable snapshot exists: recovery time grows with
+  an agent's age.
+- **Answer quality is not measured** anywhere. Every cost or latency gain is shown without the
+  evidence that answers stayed as good; a quality metric (a judged QA set, LongMemEval or
+  LoCoMo style) is the next measurement.
+- **Routing thresholds are in sample** for the MiniLM space; no holdout calibration yet.
+- **Cache-aware eviction (0003) has no measured effect**: no scenario forced enough evictions.
+- **The H2 cache rarely hits within one session**; its value across workers and restarts is
+  designed but not yet measured on its own.
+- **The echo provider's caches live in one process**: in cluster runs with the echo model a
+  cache name shared by another container fails once, then the step falls back uncached.
+- **The dashboard stream rereads frozen runs every second**: fine at a hundred runs, not at
+  thousands.

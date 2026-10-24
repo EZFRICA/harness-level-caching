@@ -70,10 +70,10 @@ class Scheduler:
                 try:
                     detail = await task.fn()
                     record.update(ok=True, run_ms=(time.perf_counter() - started) * 1000, **(detail or {}))
-                except Exception as e:  # noqa: BLE001 — cold path must survive any task failure
+                except Exception as e:  # noqa: BLE001: cold path must survive any task failure
                     record.update(ok=False, run_ms=(time.perf_counter() - started) * 1000, error=repr(e)[:300])
                     log.warning("cold task %s failed (attempt %d): %r", task.name, task.attempt, e)
-                    if task.attempt < self._max_attempts:
+                    if task.attempt < self._max_attempts and getattr(e, "retryable", True):
                         await asyncio.sleep(0.5 * 2 ** (task.attempt - 1))
                         await self.queue.put(
                             _Task(task.priority, next(self._seq), task.name, task.fn, time.perf_counter(),

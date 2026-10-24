@@ -36,7 +36,7 @@ def render_block(block: Block) -> str:
 
 
 class ActiveSet:
-    def __init__(self, capacity: int, max_tokens: int, victim_window: int = 3):
+    def __init__(self, capacity: int, max_tokens: int, victim_window: int):
         self.capacity = capacity
         self.max_tokens = max_tokens
         self.victim_window = max(1, victim_window)
@@ -103,9 +103,3 @@ class ActiveSet:
             return None
         order = {b.id: i for i, b in enumerate(self.render_order())}
         return max(candidates, key=lambda b: order[b.id])
-
-    def invalidated_tokens_if_removed(self, block_id: str) -> int:
-        """Prefix tokens that stop being reusable if this block leaves the prompt."""
-        rendered = self.render_order()
-        idx = next(i for i, b in enumerate(rendered) if b.id == block_id)
-        return sum(block_tokens(b) for b in rendered[idx:])

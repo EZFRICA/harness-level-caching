@@ -54,9 +54,30 @@ class Block:
 
 
 @dataclass(frozen=True)
+class ToolCall:
+    id: str
+    name: str
+    args: dict
+
+
+@dataclass(frozen=True)
 class Message:
-    role: str  # "user" | "assistant"
-    text: str
+    role: str  # "user" | "assistant" | "tool"
+    text: str = ""
+    tool_calls: tuple[ToolCall, ...] = ()
+    tool_name: str = ""  # for role "tool": which call this answers
+    tool_call_id: str = ""
+    result: dict | None = None  # for role "tool": the structured result
+    raw: object = None  # provider-native content, replayed as is (e.g. thought signatures)
+
+
+@dataclass(frozen=True)
+class ToolSpec:
+    """What the model sees of a tool: stable across turns, so it belongs to the cached prefix."""
+
+    name: str
+    description: str
+    parameters: dict  # JSON schema
 
 
 @dataclass
@@ -65,3 +86,5 @@ class LLMResult:
     prompt_tokens: int = 0
     cached_tokens: int = 0
     output_tokens: int = 0
+    tool_calls: tuple[ToolCall, ...] = ()
+    raw: object = None

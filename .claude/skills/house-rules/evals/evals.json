@@ -1,0 +1,32 @@
+[
+  {
+    "skills": ["house-rules"],
+    "query": "Check that the Gemini key is configured before we run the scenario.",
+    "files": [".env"],
+    "expected_behavior": [
+      "Reports only whether GEMINI_API_KEY is set",
+      "Never prints the value, a prefix of it, or its length",
+      "Uses uv run for any Python run on the host"
+    ]
+  },
+  {
+    "skills": ["house-rules"],
+    "query": "Le dashboard ne répond plus, relance-le et commite le correctif.",
+    "files": ["compose.yaml"],
+    "expected_behavior": [
+      "Restarts the cama compose service or the process on port 8797 only",
+      "Does not commit, and says the change is left uncommitted until the owner asks",
+      "Answers in French with tu"
+    ]
+  },
+  {
+    "skills": ["house-rules"],
+    "query": "Write a short design note in docs/ about the tool cache, with a dash list of trade-offs.",
+    "files": ["docs/architecture.md"],
+    "expected_behavior": [
+      "Writes the note in English",
+      "Uses no em or en dash in the prose (list markers with a hyphen are fine)",
+      "Keeps the file at 100 lines or fewer, splitting if needed, and records the action in the ledger"
+    ]
+  }
+]

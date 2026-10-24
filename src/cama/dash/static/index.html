@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAMA dashboard</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand">
+      <span class="levels" title="The four cache levels: routing, embeddings, tools, prefix">
+        <i style="background:var(--h1)"></i><i style="background:var(--h2)"></i><i style="background:var(--h3)"></i><i style="background:var(--h4)"></i>
+      </span>
+      <b>CAMA</b><span>cache-aware memory for agents</span>
+    </div>
+    <nav id="nav">
+      <button data-view="overview">Overview</button>
+      <button data-view="live">Live run</button>
+      <button data-view="compare">Compare A/B</button>
+      <button data-view="costs">Costs</button>
+      <button data-view="cluster">Cluster</button>
+      <button data-view="stress">Stress</button>
+      <button data-view="trace">Trace</button>
+    </nav>
+    <div class="spacer"></div>
+    <span class="live"><span id="dot" class="dot"></span><span id="upd">connecting</span></span>
+    <button class="btn" id="theme" title="Switch light and dark">Theme</button>
+  </div>
+</header>
+<main id="main"><div class="empty">Loading</div></main>
+<script src="/static/app.js"></script>
+</body>
+</html>

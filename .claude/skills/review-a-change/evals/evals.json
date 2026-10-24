@@ -1,0 +1,32 @@
+[
+  {
+    "skills": ["review-a-change"],
+    "query": "I changed ActiveSet.touch to also update modified_at so recently read blocks stay fresh. Review it.",
+    "files": ["src/cama/memory/active_set.py"],
+    "expected_behavior": [
+      "Flags that render order now follows reads, breaking the prefix cache invariant (decision 0002)",
+      "Points to test_render_order_ignores_access_recency failing or, if it passes, to the missing test",
+      "Asks for a decision record if the owner wants this behaviour anyway"
+    ]
+  },
+  {
+    "skills": ["review-a-change"],
+    "query": "The new tool cache is done, all tests pass. Can I report it finished?",
+    "files": ["src/cama/teu/cache.py"],
+    "expected_behavior": [
+      "Runs mutmut on the tool cache and reports survivors",
+      "Checks that side-effect tools are never served from cache by a test",
+      "Requires a live run with the level on and off, or reports it as not run live"
+    ]
+  },
+  {
+    "skills": ["review-a-change"],
+    "query": "Review the prefix cache change; I edited docs/measured/prefix-cache.md to add today's numbers.",
+    "files": ["docs/measured/prefix-cache.md"],
+    "expected_behavior": [
+      "Flags the hand edit: figure pages are generated and the regeneration test will fail",
+      "Asks for the run to be frozen and declared in figures.toml instead",
+      "Checks a ledger event exists for the change"
+    ]
+  }
+]

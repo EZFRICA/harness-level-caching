@@ -1,6 +1,6 @@
 """Run recording. One directory per run:
 
-    manifest.json  configuration, resource limits, versions — written before the first turn
+    manifest.json  configuration, resource limits, versions, written before the first turn
     turns.jsonl    one record per hot-path turn
     tasks.jsonl    one record per cold-path task
     cama.log       human-readable log
@@ -77,6 +77,13 @@ class RunRecorder:
             **(extra or {}),
         }
         (self.dir / "manifest.json").write_text(json.dumps(data, indent=2, ensure_ascii=False))
+
+    def note(self, extra: dict) -> None:
+        """Merge facts learnt during the run (a budget stop, the money spent) into the manifest."""
+        path = self.dir / "manifest.json"
+        data = json.loads(path.read_text())
+        data.update(extra)
+        path.write_text(json.dumps(data, indent=2, ensure_ascii=False))
 
     def turn(self, record: dict) -> None:
         self._write(self._turns, record)

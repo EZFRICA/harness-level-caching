@@ -1,0 +1,357 @@
+# Each figure is rendered by `uv run cama figures write` from the frozen runs in runs/.
+# Columns are defined in src/cama/trace/figures.py (COLUMNS). Never edit the .md pages.
+
+[[figure]]
+id = "embeddings-remote-vs-local"
+file = "embeddings.md"
+title = "Remote versus local query embeddings on the hot path"
+question = "What does routing cost a turn when the query embedding is a Gemini API call, and when it is a local ONNX model?"
+runs = ["gemini-cama-v1", "gemini-onnx-cama-v1", "gemini-topk-v1", "gemini-onnx-topk-v1"]
+columns = ["run", "date", "code", "mode", "model", "embedder", "hot", "memory", "no_embed", "rss"]
+reproduce = "CAMA_LLM=gemini CAMA_EMBEDDER=<gemini|onnx> docker compose up -d && docker compose exec cama cama run /scenarios/assistant_fr_v1.jsonl --fresh --mode <cama|topk>"
+reading = [
+  "The memory column (turn minus model call) falls by an order of magnitude when the query embedding is local; the remote embedding round trip was the memory cost.",
+  "The local model loads into the process: peak RSS grows by several hundred MB, which matters on a constrained device.",
+]
+limits = [
+  "One run per row, 23 turns, one synthetic French scenario; the warm-up turn is excluded from latency.",
+  "Routing thresholds differ per embedding space and are not calibrated on a holdout; tier counts are not comparable across rows.",
+  "Answer quality is not measured.",
+]
+
+[[figure]]
+id = "modes-flash-lite-latest"
+file = "modes.md"
+title = "Three context policies on gemini-flash-lite-latest with local embeddings"
+question = "How many prompt tokens does each context policy send over the same 23 turns, and at what latency?"
+runs = ["gemini-onnx-cama-v1", "gemini-onnx-topk-v1", "gemini-onnx-naive-v1"]
+columns = ["run", "date", "code", "mode", "model", "hot", "prompt", "cached", "cached_share"]
+reproduce = "CAMA_LLM=gemini CAMA_EMBEDDER=onnx docker compose up -d && docker compose exec cama cama run /scenarios/assistant_fr_v1.jsonl --fresh --mode <mode>"
+reading = [
+  "No provider cache was observed in any mode: Gemini implicit caching did not trigger at these prompt sizes.",
+  "Without a cache, cama sends more tokens than topk because it renders the whole active set every turn.",
+]
+limits = [
+  "One run per mode; latency medians have overlapping confidence intervals and are not a ranking.",
+  "23 turns is short: naive grows with the conversation and would cost more in a longer session.",
+  "Answer quality is not measured.",
+]
+
+[[figure]]
+id = "modes-g35lite"
+file = "modes.md"
+title = "Three context policies on gemini-3.5-flash-lite with local embeddings"
+question = "Same comparison on the owner's default lite model."
+runs = ["g35lite-onnx-cama-v1", "g35lite-onnx-cama-v2", "g35lite-onnx-topk-v1", "g35lite-onnx-naive-v1"]
+columns = ["run", "date", "code", "mode", "model", "hot", "memory", "prompt", "cached"]
+reproduce = "CAMA_LLM=gemini CAMA_EMBEDDER=onnx CAMA_PREFIX_CACHE=none docker compose up -d && docker compose exec cama cama run /scenarios/assistant_fr_v1.jsonl --fresh --mode <mode>"
+limits = [
+  "Prefix caching was not enabled in these runs (the feature did not exist yet).",
+  "cama v1 and v2 are two runs of the same configuration; their spread is a lower bound on run to run noise.",
+]
+
+[[figure]]
+id = "prefix-cache-explicit"
+file = "prefix-cache.md"
+title = "Explicit provider prefix cache created on the cold path"
+question = "With the stable active set cached explicitly by the cold path, how many prompt tokens are served from the provider cache?"
+runs = ["g35lite-onnx-cama-v2", "g35lite-onnx-cama-cache-v1"]
+columns = ["run", "date", "code", "prefix_cache", "hot", "prompt", "cached", "cached_share", "cache_turns"]
+reproduce = "CAMA_LLM=gemini CAMA_EMBEDDER=onnx docker compose up -d && docker compose exec cama cama run /scenarios/assistant_fr_v1.jsonl --fresh --mode cama"
+reading = [
+  "Turns 1 to 7 could not be cached: the rendered memory stayed under the provider minimum of 1024 tokens.",
+  "Five cache creations served the remaining turns; the one later miss followed a page fault that changed the prefix inside the turn.",
+]
+limits = [
+  "One run each. The money saved depends on the cache read and storage prices, not yet applied (cost model pending).",
+  "Cache creation time is paid on the cold path and is not in the turn latency.",
+]
+
+[[figure]]
+id = "agentic-cost-g35lite"
+file = "agentic.md"
+title = "Agentic turns on gemini-3.5-flash-lite: cost, latency and the mechanism behind each"
+question = "Over 24 tool-using turns, what does each harness cache change in money and in waiting time, against its ablation and the baselines?"
+runs = ["g35lite-onnx-agentic-cama-v1", "g35lite-onnx-agentic-cama-v2", "g35lite-onnx-agentic-cama-v3", "g35lite-onnx-agentic-nopc-v1", "g35lite-onnx-agentic-noh3-v1", "g35lite-onnx-agentic-topk-v1", "g35lite-onnx-agentic-naive-v1"]
+columns = ["run", "mode", "cache_mode", "hot", "model_calls", "cached_share", "h3", "cost", "cost_cold"]
+reproduce = "CAMA_LLM=gemini CAMA_EMBEDDER=onnx docker compose up -d && docker compose exec -T [-e CAMA_PREFIX_CACHE=none | -e CAMA_TOOL_CACHE=off] cama cama run /scenarios/agentic_fr_v1.jsonl --fresh --mode <cama|topk|naive>"
+reading = [
+  "The explicit prefix cache cuts the hot path cost by about 60% against its ablation (nopc), and every agentic step reuses it.",
+  "It also makes turns slower: the cama replicates sit around 2.4 to 2.7 s against 1.8 s without the cache, with confidence intervals apart. Explicit cached requests are slower on this provider.",
+  "The cold path dominates CAMA's bill: memory extraction costs more than the prefix cache saves, so naive, which has no cold path, is the cheapest arm over 24 turns.",
+  "The tool cache served 7 of 23 tool calls and removed about 200 ms of tool time per turn at the median; its effect on turn latency is inside the model's variance.",
+  "cama v2 and v3 were launched as ablations but the flag never reached the container; their manifests say so and they are kept as replicates.",
+]
+limits = [
+  "24 turns, one synthetic French scenario, simulated tools; latency stats skip the first turn.",
+  "Prices: official for input, output, cache read and storage; cache creation priced as input is an assumption.",
+  "Answer quality is not measured, so a cheaper arm is not shown to be as good.",
+]
+
+[[figure]]
+id = "agentic-h3-echo"
+file = "agentic.md"
+title = "The tool cache alone, with the echo model"
+question = "With the model cost removed, how much tool time does H3 save, and does it ever serve a side effect?"
+runs = ["echo-onnx-agentic-h3on-v1", "echo-onnx-agentic-h3off-v1"]
+columns = ["run", "hot", "model_calls", "h3"]
+reproduce = "CAMA_LLM=echo CAMA_EMBEDDER=onnx docker compose up -d && docker compose exec -T [-e CAMA_TOOL_CACHE=off] cama cama run /scenarios/agentic_fr_v1.jsonl --fresh"
+limits = [
+  "Echo model and simulated tool latencies: this isolates the mechanism, it is not a user facing latency.",
+  "Bookings were made on every request in both arms (never cached), as the test suite also checks.",
+]
+
+[[figure]]
+id = "cluster-faults"
+kind = "load"
+file = "stress-cluster.md"
+title = "The cluster under load and under faults"
+question = "Do three workers keep answering when one is killed or when the shared tier stops, and what is lost?"
+runs = ["cluster-s6-3w-v1", "cluster-s5-kill-w2-v2", "cluster-s5-kill-w2-v3", "cluster-s5-pg-down-v1"]
+columns = ["run", "workers", "agents", "fault", "ok", "failovers", "takeovers", "rps", "p50", "p95", "p99", "rto", "rpo"]
+reproduce = "./scripts/cluster_fresh.sh <id> && docker compose exec -T cama cama load --workers http://cama-w1:8797,http://cama-w2:8797,http://cama-w3:8797 --agents 9 --turns 24 --concurrency 9 --run-id <id>; then docker kill -s KILL cama-w2 or docker stop cama-postgres; then uv run python scripts/fault_facts.py"
+reading = [
+  "Every request was answered in every run, through a worker kill and a 30 s outage of the shared tier.",
+  "After a kill, an agent comes back on another worker in about 10 s: the 6 s lease plus the client's retry schedule. Without a short connect timeout the client waited for a silent dead worker and the worst request took 45 s (v2).",
+  "Nothing was lost at the kill: replication runs every second, not only when the worker is idle. Before that change, the first kill lost 26 journal rows per agent (ledger, fault event).",
+  "During the outage turns went on locally and the journal caught up when Postgres came back.",
+]
+limits = [
+  "Echo model with a latency model fitted on real calls (base about 1 s, weak fit); 9 agents of 24 turns; one run per fault.",
+  "Worker limits 1 CPU and 1 GB each, all on one machine: network faults between machines are not exercised.",
+  "RPO is read from the killed worker's volume after the run; RTO from the client's first answer with a higher epoch.",
+]
+
+[[figure]]
+id = "device-squeeze"
+file = "stress-device.md"
+title = "A modest device: half a CPU and little memory"
+question = "How much memory and time does the local harness need on half a CPU, with the ONNX embedding model and without it?"
+runs = ["echo-onnx-s4-cpu05-1g-v1", "echo-onnx-s4-cpu05-768m-v1", "echo-hash-s4-cpu05-512m-v1", "echo-hash-s4-cpu05-256m-v1"]
+columns = ["run", "embedder", "hot", "memory", "rss"]
+reproduce = "docker run --rm --cpus 0.5 --memory <limit> --memory-swap <limit> ... cama:dev cama run /scenarios/agentic_fr_v1.jsonl --fresh (see docs/journal for the full command)"
+reading = [
+  "With the ONNX model the process holds about 660 MB; at a 512 MB limit it was killed while loading the model (exit code 137, runs/echo-onnx-s4-cpu05-512m-v1.exit.json).",
+  "On half a CPU the harness itself costs about 15 ms per turn with ONNX: small next to a model call of about a second.",
+  "Without a neural embedder the harness runs in about 40 MB, but routing then has no semantic quality: that line shows the floor of the harness, not a usable configuration.",
+]
+limits = [
+  "Echo model with no latency: the turn column is the harness alone.",
+  "One run per limit; a phone's memory and CPU are not those of a container: to be checked on the Pixel 4 XL.",
+  "A smaller embedding model (EmbeddingGemma 2 ONNX, MiniLM L6) is the next measure for 2 GB devices.",
+]
+
+[[figure]]
+id = "long-sessions-echo"
+file = "stress-sessions.md"
+title = "Long sessions: 200 turns with recurring topics (S1) and with a new topic every turn (S2)"
+question = "Over a long session, how do the prompt and its cache evolve per policy, and what would the run cost on the priced model?"
+runs = ["echo-onnx-s1-zipf-cama-v1", "echo-onnx-s1-zipf-cama-stable-v1", "echo-onnx-s1-zipf-topk-v1", "echo-onnx-s1-zipf-topk-stable-v1", "echo-onnx-s1-zipf-naive-v1", "echo-onnx-s2-churn-cama-v1", "echo-onnx-s2-churn-topk-v1", "echo-onnx-s2-churn-naive-v1"]
+columns = ["run", "mode", "cache_mode", "request_last", "cached_share", "page_ins", "cost_projected"]
+reproduce = "uv run cama gen --kind <zipf|churn> --turns 200 && docker compose exec -T -e CAMA_TOOL_LATENCY_SCALE=0 [-e CAMA_CACHE_ADMISSION=always] cama cama run /scenarios/generated/<kind>_200_s20261023.jsonl --fresh --mode <mode>; then cama figures snapshot --price-as gemini-3.5-flash-lite"
+reading = [
+  "naive's last request is about 5500 tokens and grows with every turn; cama's stays near 1600 and topk's near 700: the memory is bounded by construction.",
+  "On the hot path alone, naive costs more than cama from turn 4 in S1 and from turn 38 in S2, where every turn is a page fault.",
+  "The v1 runs created a provider cache after every turn because the echo extractor rewrites memory every turn; the stable admission (decision 0010) removes that waste.",
+]
+limits = [
+  "Echo model: answers carry no meaning, the extractor writes every turn, and costs are projections at gemini-3.5-flash-lite prices, not money spent.",
+  "Generated English scenarios with fixed seed 20261023; one run per arm.",
+  "The same profile on the real model is measured separately (S1 on Gemini).",
+]
+
+[[figure]]
+id = "long-session-gemini"
+file = "stress-sessions-gemini.md"
+title = "A 200 turn session on gemini-3.5-flash-lite (S1, real model)"
+question = "Over 200 turns with recurring topics, what do the three policies cost and how fast do they answer, with real extraction and real provider caches?"
+runs = ["g35lite-onnx-s1-zipf-cama-v1", "g35lite-onnx-s1-zipf-topk-v1", "g35lite-onnx-s1-zipf-naive-v1"]
+columns = ["run", "mode", "cache_mode", "hot", "request_last", "cached_share", "cost", "cost_cold"]
+reproduce = "CAMA_LLM=gemini CAMA_EMBEDDER=onnx docker compose up -d && docker compose exec -T cama cama run /scenarios/generated/zipf_200_s20261023.jsonl --fresh --mode <mode>"
+reading = [
+  "cama cost 37% less than naive and answered faster, with the 95% intervals of the median turn apart.",
+  "cama created no provider cache: its stable part stayed just under the explicit minimum of 1024 tokens (163 creations skipped for that reason). Its saving came from the bounded prompt alone.",
+  "naive's prompt grew to about 11500 tokens and Gemini's implicit cache served 57% of its tokens, starting at turn 64 with a 3635 token prompt: implicit caching exists below the 5000 seen in the first probe.",
+  "topk was the cheapest: per query selection keeps the prompt smallest when no cache can be used.",
+  "Real extraction wrote memory 38 times in 200 turns (3 created, 35 updated) where the echo extractor wrote every turn.",
+]
+limits = [
+  "One run per mode, generated English scenario, simulated tools; answer quality is not measured.",
+  "The explicit cache could not engage at this memory size: a larger stable prefix is the next experiment.",
+]
+
+[[figure]]
+id = "cluster-scale"
+kind = "load"
+file = "stress-scale.md"
+title = "Agents per worker (S3) and workers (S6), before and after admission control"
+question = "How many agents can one worker carry, what happens past that point, and what do more workers give?"
+runs = ["cluster-s3-1w-1a-v1", "cluster-s3-1w-4a-v1", "cluster-s3-1w-16a-v1", "cluster-s3-1w-1a-v2", "cluster-s3-1w-4a-v2", "cluster-s3-1w-16a-v2", "cluster-s3-1w-32a-v2", "cluster-s6-1w-18a-v2", "cluster-s6-2w-18a-v2", "cluster-s6-3w-18a-v2"]
+columns = ["run", "workers", "agents", "ok", "rps", "p50", "p95", "p99"]
+reproduce = "./scripts/stress_scale.sh (fresh cluster per run, echo model with the fitted latency model, 12 turns per agent)"
+reading = [
+  "v1, without admission control: sixteen agents on one worker answered nothing (0 of 192). The worker never crashed; concurrent model inference starved its event loop and it stopped accepting connections.",
+  "v2, with one inference at a time, bounded agent opening and a fast busy answer: sixteen agents get 190 of 192 answers at 3.0 requests per second, thirty two agents 356 of 384 at 4.2.",
+  "The answers still missing come mostly from the first turn: many agents opening at once on one worker queue longer than the client's retries. A cold start limit, not a steady state one.",
+  "A second worker nearly doubles throughput for eighteen agents and halves the tail; the third adds little because eighteen agents cannot send more than about nine requests per second.",
+]
+limits = [
+  "Echo model with a latency model fitted on real calls; one run per point; all containers on one machine.",
+  "The v1 series stopped at sixteen agents: its next runs would have been built from changed code.",
+]
+
+[[figure]]
+id = "agentic-nebius-implicit"
+file = "nebius.md"
+title = "Agentic turns on an implicit-only provider (Nebius serverless, DeepSeek-V4-Flash-0731)"
+question = "When the provider caches prefixes on its own and offers no cache object, does keeping the whole active set in a stable order earn more cached tokens than per-query selection, and what does it cost?"
+runs = ["nebius-dsv4flash-onnx-agentic-cama-v1", "nebius-dsv4flash-onnx-agentic-cama-v2", "nebius-dsv4flash-onnx-agentic-cama-v3", "nebius-dsv4flash-onnx-agentic-topk-v1", "nebius-dsv4flash-onnx-agentic-topk-v2", "nebius-dsv4flash-onnx-agentic-topk-v3", "nebius-dsv4flash-onnx-agentic-naive-v1", "nebius-dsv4flash-onnx-agentic-naive-v2", "nebius-dsv4flash-onnx-agentic-naive-v3", "nebius-dsv4flash-onnx-agentic-noh3-v1"]
+columns = ["run", "mode", "cache_mode", "hot", "model_calls", "prompt", "cached_share", "h3", "cost", "cost_cold"]
+reproduce = "CAMA_EMBEDDER=onnx docker compose up -d && docker compose exec -T -e CAMA_LLM=openai_compat -e CAMA_MODEL=deepseek-ai/DeepSeek-V4-Flash-0731 -e CAMA_OAI_BASE_URL=https://api.tokenfactory.nebius.com/v1 -e CAMA_OAI_KEY_ENV=NEBIUS_API_KEY -e CAMA_OAI_SALT=<run id> [-e CAMA_TOOL_CACHE=off] cama cama run /scenarios/agentic_fr_v1.jsonl --fresh --mode <cama|topk|naive> --run-id <run id>"
+reading = [
+  "cama, which renders the whole active set in a stable order, had 75.0% to 78.5% of its prompt tokens served from the provider cache; topk, which selects blocks per query, had 55.2% to 62.7%, on three replicates each.",
+  "cama also sent more prompt tokens (about 77k against 50k to 54k), so its hot path cost is close to topk's: the higher cached share pays for the larger prompt, it does not make the run cheaper.",
+  "naive is the cheapest arm by a factor of about four because it has no cold path: memory extraction is more than half of cama's and topk's bill, as on Gemini.",
+  "naive also called fewer tools and answered faster; nothing here shows its answers were as good.",
+  "Switching H3 off (one run) left the cost inside the spread of the cama replicates.",
+]
+limits = [
+  "Three replicates per mode, one for noh3; 24 turns of one synthetic French scenario with simulated tools; latency stats skip the first turn.",
+  "Provider caching is best effort and its cache is shared between customers of a model: each run opens its system prompt with its own salt (its run id), so hits come from the run itself.",
+  "There is no ablation of the stable order itself: with an implicit-only provider CAMA_PREFIX_CACHE=none changes the label, not the request.",
+  "Prices official, read from the provider's model listing; these figures hold for this provider only, not for Gemini or a self-hosted server.",
+  "Answer quality is not measured.",
+]
+
+[[figure]]
+id = "web-h3-exact-key"
+file = "web.md"
+title = "The tool cache on a real web search (Tavily), exact keys"
+question = "When the tool is a real web search and the model writes the queries, how often does an exact-key tool cache serve a repeated question?"
+runs = ["nebius-dsv4flash-onnx-web-rec-v1", "nebius-dsv4flash-onnx-web-h3on-v1", "nebius-dsv4flash-onnx-web-h3on-v2", "nebius-dsv4flash-onnx-web-h3off-v1", "nebius-dsv4flash-onnx-web-h3off-v2"]
+columns = ["run", "hot", "model_calls", "h3", "cached_share", "cost"]
+reproduce = "docker compose exec -T -e CAMA_LLM=openai_compat -e CAMA_MODEL=deepseek-ai/DeepSeek-V4-Flash-0731 -e CAMA_OAI_BASE_URL=https://api.tokenfactory.nebius.com/v1 -e CAMA_OAI_KEY_ENV=NEBIUS_API_KEY -e CAMA_OAI_SALT=<run id> -e CAMA_WEB_SEARCH=on -e CAMA_WEB_TAPE=/runs/web-tapes/web_fr_v1.jsonl [-e CAMA_TOOL_CACHE=off] cama cama run /scenarios/web_fr_v1.jsonl --fresh --mode cama --run-id <run id>"
+reading = [
+  "With H3 on, the tool cache served 1 web search out of 15 to 18 in each run, although the scenario asks three questions twice word for word: the model rephrases its query each time, so an exact key rarely repeats.",
+  "The tape replayed 2 to 5 queries per run across runs, for the same reason; most searches were live calls.",
+  "The rec run recorded the tape; it is an H3 on run whose searches were all live.",
+]
+limits = [
+  "One synthetic French scenario of 16 turns, two runs per arm, one model; live Tavily answers, recorded on a tape shared by the runs.",
+  "Tool time per call is real (about 1.7 to 2.2 s live) or replayed with its recorded latency.",
+  "Tavily calls are not in the cost column: 65 live calls in these runs, inside the free monthly credits (1 credit per basic search, 0.008 USD per credit beyond them).",
+  "Answer quality is not measured.",
+]
+
+[[figure]]
+id = "memory-recall-hypotheses"
+file = "recall.md"
+title = "Recall of planted facts against cost: baselines and two cache hypotheses (Nebius)"
+question = "Over 32 turns that plant 9 facts (one corrected) and then ask for them back, how many facts does each arm recall, and what do the window epoch (H1) and extraction every two turns (H2) change in cost?"
+runs = ["nebius-dsv4flash-onnx-memory-naive-v1", "nebius-dsv4flash-onnx-memory-naive-v2", "nebius-dsv4flash-onnx-memory-topk-v1", "nebius-dsv4flash-onnx-memory-topk-v2", "nebius-dsv4flash-onnx-memory-cama-v1", "nebius-dsv4flash-onnx-memory-cama-v2", "nebius-dsv4flash-onnx-memory-cama-epoch3-v1", "nebius-dsv4flash-onnx-memory-cama-epoch3-v2", "nebius-dsv4flash-onnx-memory-cama-every2-v1", "nebius-dsv4flash-onnx-memory-cama-every2-v2", "nebius-dsv4flash-onnx-memory-cama-epoch3-every2-v1", "nebius-dsv4flash-onnx-memory-cama-epoch3-every2-v2"]
+columns = ["run", "mode", "recall", "hot", "prompt", "cached_share", "cost", "cost_cold"]
+reproduce = "docker compose exec -T -e CAMA_LLM=openai_compat -e CAMA_MODEL=deepseek-ai/DeepSeek-V4-Flash-0731 -e CAMA_OAI_BASE_URL=https://api.tokenfactory.nebius.com/v1 -e CAMA_OAI_KEY_ENV=NEBIUS_API_KEY -e CAMA_OAI_SALT=<run id> [-e CAMA_WINDOW_EPOCH=3] [-e CAMA_EXTRACT_EVERY=2] cama cama run /scenarios/memory_fr_v1.jsonl --fresh --mode <cama|topk|naive> --run-id <run id>"
+reading = [
+  "naive recalled 13 of 13 facts in both runs and was the cheapest and fastest arm: over 32 turns the full history is short, append-only and mostly cached.",
+  "topk recalled 10 and 8 of 13: per-query selection left out blocks the probes needed. cama recalled 12 or 13.",
+  "Every cama miss is the same probe (turn 26): the talk length went from 30 to 25 and back to 30; the extractor can only append, judged 30 already present, and the block ended with the stale 25 as its latest line.",
+  "H1 (window epoch 3) sent more prompt tokens without a higher cached share: no measured gain.",
+  "H2 (extraction every two turns) gave the two lowest cold path costs of the cama variants with the same recall; two runs per arm do not settle it.",
+]
+limits = [
+  "Two runs per arm, one synthetic French scenario of 32 turns, one model; recall is a substring check of 13 planted facts, not overall answer quality.",
+  "Extraction calls are priced with their cached tokens (fixed on 2026-10-24); earlier figures price them as uncached.",
+  "Short session: naive's history never grew large here, so this says nothing about long sessions.",
+]
+
+[[figure]]
+id = "web-semantic-key"
+file = "web.md"
+title = "A semantic key for the web search (hypothesis, threshold 0.90)"
+question = "If a web query close enough to one already answered in the session gets that answer (cosine of local embeddings at least 0.90), how many more searches are served, and are the matches right?"
+runs = ["nebius-dsv4flash-onnx-web-sem090-v1", "nebius-dsv4flash-onnx-web-sem090-v2", "nebius-dsv4flash-onnx-web-h3on-v1", "nebius-dsv4flash-onnx-web-h3on-v2"]
+columns = ["run", "hot", "model_calls", "h3", "cost"]
+reproduce = "as web-h3-exact-key, with -e CAMA_WEB_SEMANTIC_TAU=0.90"
+reading = [
+  "The semantic key served 2 more web searches per run (3 of 18 counting the exact hit, against 1 of 15 to 18 with exact keys); the tool cache column counts exact hits only.",
+  "Of the 4 semantic matches, one is wrong: a query about 2024 got the answer recorded for 2025. One more matched a query that also asked for the venue to one that did not.",
+  "The local embedding model scores queries that differ only by a year at 0.95 and above (measured on the 65 recorded queries), so no threshold separates them.",
+]
+limits = [
+  "Two runs, one scenario, one model; the threshold was chosen on the same tape it was used on (in sample).",
+  "Matches were judged by reading the 4 pairs, not by a rule.",
+]
+
+[[figure]]
+id = "memory-recall-replace"
+file = "recall.md"
+title = "H5: the extractor may replace a corrected fact"
+question = "If the extractor can replace the line of a corrected fact instead of appending next to it, does cama stop recalling stale values, and at what cost?"
+runs = ["nebius-dsv4flash-onnx-memory-cama-replace-v1", "nebius-dsv4flash-onnx-memory-cama-replace-v2", "nebius-dsv4flash-onnx-memory-cama-replace-every2-v1", "nebius-dsv4flash-onnx-memory-cama-replace-every2-v2", "nebius-dsv4flash-onnx-memory-cama-v1", "nebius-dsv4flash-onnx-memory-cama-v2"]
+columns = ["run", "recall", "hot", "prompt", "cached_share", "cost", "cost_cold"]
+reproduce = "as memory-recall-hypotheses, with -e CAMA_EXTRACT_REPLACE=on [-e CAMA_EXTRACT_EVERY=2]"
+reading = [
+  "With replace on, cama recalled 13 of 13 facts in all four runs, including the corrected talk length that plain cama missed once in two runs.",
+  "The extractor replaced 4 to 6 lines per run and never named a line it could not find.",
+  "Replace with extraction every two turns had the lowest total cost of every cama run on this scenario (0.0086 and 0.0090 USD), with full recall.",
+]
+limits = [
+  "Two runs per arm, one scenario with one corrected fact; a substring check of 13 facts.",
+  "The baseline cama runs are the two of memory-recall-hypotheses, recorded the same day on the same model.",
+]
+
+[[figure]]
+id = "long-session-nebius"
+file = "long-session.md"
+title = "200 turns on an implicit-only provider: naive, cama and the cache-synchronised variants"
+question = "Over a 200 turn session with recurring topics on Nebius, where cached reads cost 14 times less than input, which policy costs least, and how close do the append-only variants of cama come?"
+runs = ["nebius-dsv4flash-onnx-s1-zipf-naive-v1", "nebius-dsv4flash-onnx-s1-zipf-cama-v1", "nebius-dsv4flash-onnx-s1-zipf-cama-replace-every2-v1", "nebius-dsv4flash-onnx-s1-zipf-cama-replace-every2-epoch20-v1", "nebius-dsv4flash-onnx-s1-zipf-cama-h7e10-v1", "nebius-dsv4flash-onnx-s1-zipf-cama-h7e20-v1", "nebius-dsv4flash-onnx-s1-zipf-cama-h8e20-v1", "nebius-dsv4flash-onnx-s1-zipf-cama-h9e20-v1", "nebius-dsv4flash-onnx-s1-zipf-cama-h9e20x4-v1"]
+columns = ["run", "mode", "hot", "prompt", "request_last", "cached_share", "page_ins", "cost", "cost_cold"]
+reproduce = "docker compose exec -T -e CAMA_LLM=openai_compat -e CAMA_MODEL=deepseek-ai/DeepSeek-V4-Flash-0731 -e CAMA_OAI_BASE_URL=https://api.tokenfactory.nebius.com/v1 -e CAMA_OAI_KEY_ENV=NEBIUS_API_KEY -e CAMA_OAI_SALT=<run id> [-e CAMA_EXTRACT_REPLACE=on -e CAMA_EXTRACT_EVERY=2] [-e CAMA_WINDOW_EPOCH=<E>] [-e CAMA_MEMORY_REFRESH=epoch] cama cama run /scenarios/generated/zipf_200_s20261023.jsonl --fresh --mode <naive|cama> --run-id <run id>"
+reading = [
+  "naive was the cheapest: its prompt grew to about 12900 tokens but stayed append-only, so 97.7% of it was read from cache at the cheap rate. This reverses the Gemini result over the same scenario (docs/measured/stress-sessions-gemini.md), where cama cost 37% less.",
+  "Plain cama was 53% cached: memory changed on 57 of 199 turns, and each change left the first call almost uncached.",
+  "Freezing the rendered memory until the window drops (H7, memory refresh by epoch) cut cama's cost by 30% at E=20 and made it the fastest arm; the remaining breaks are page-ins, which still refresh the memory at the head.",
+  "A growing window alone (epoch 20 with memory refreshed every turn) raised the cached share to 60% but its total did not fall.",
+  "Sending paged-in blocks after the window instead of refreshing the head (H8) raised the cached share to 82.9% and made cama's hot path cheaper than naive's (0.0126 against 0.0219 USD); extraction (0.0110) is what keeps its total just above naive.",
+  "Extracting once per epoch (h9e20) brought the total level with naive (0.0216 against 0.0219, one run each); every 4 turns cost more (0.0291) in its single run. On the recall scenario batched extraction lost corrections (docs/measured/recall-batching.md).",
+]
+limits = [
+  "One run per row; a generated English scenario with simulated tools; one model and one provider.",
+  "Recall is not measured on this scenario; the H7 recall check is in docs/measured/recall.md.",
+  "Extraction priced with its cached tokens on every row.",
+]
+
+[[figure]]
+id = "memory-recall-h7"
+file = "recall.md"
+title = "H7: memory frozen until the window drops, on the recall scenario"
+question = "Does freezing the rendered memory for ten turns, while the window grows, lose any planted fact, and what does it save?"
+runs = ["nebius-dsv4flash-onnx-memory-cama-h7e10-v1", "nebius-dsv4flash-onnx-memory-cama-h7e10-v2", "nebius-dsv4flash-onnx-memory-cama-replace-every2-v1", "nebius-dsv4flash-onnx-memory-cama-replace-every2-v2", "nebius-dsv4flash-onnx-memory-naive-v1", "nebius-dsv4flash-onnx-memory-naive-v2"]
+columns = ["run", "mode", "recall", "hot", "prompt", "cached_share", "cost", "cost_cold"]
+reproduce = "as memory-recall-hypotheses, with -e CAMA_EXTRACT_REPLACE=on -e CAMA_EXTRACT_EVERY=2 -e CAMA_MEMORY_REFRESH=epoch -e CAMA_WINDOW_EPOCH=10"
+reading = [
+  "H7 recalled 13 of 13 facts in both runs, like the replace and every2 variant it extends.",
+  "Its cached share rose to 83 to 84% and its cost fell to 0.0067 USD per run, against 0.0086 to 0.0090 without the frozen memory: about a quarter less, and faster turns.",
+  "naive stays cheaper on this short session.",
+]
+limits = [
+  "Two runs per arm, one scenario of 32 turns; recall is a substring check of 13 facts.",
+]
+
+[[figure]]
+id = "memory-recall-batching"
+file = "recall-batching.md"
+title = "Tail page-ins (H8) and extraction batched per epoch (H9) on the recall scenario"
+question = "With the memory frozen per epoch, does sending page-ins at the tail lose facts, and can extraction wait for the epoch (one batched call) without losing corrections?"
+runs = ["nebius-dsv4flash-onnx-memory-cama-h8e10-v1", "nebius-dsv4flash-onnx-memory-cama-h8e10-v2", "nebius-dsv4flash-onnx-memory-cama-h9e10x4-v1", "nebius-dsv4flash-onnx-memory-cama-h9e10x4-v2", "nebius-dsv4flash-onnx-memory-cama-h9e10-v1", "nebius-dsv4flash-onnx-memory-cama-h9e10-v2", "nebius-dsv4flash-onnx-memory-cama-h9e10-v3", "nebius-dsv4flash-onnx-memory-cama-h9e10-v4"]
+columns = ["run", "recall", "hot", "cached_share", "cost", "cost_cold"]
+reproduce = "as memory-recall-hypotheses, with -e CAMA_EXTRACT_REPLACE=on -e CAMA_MEMORY_REFRESH=epoch -e CAMA_PAGE_IN_TAIL=on -e CAMA_WINDOW_EPOCH=10 -e CAMA_EXTRACT_EVERY=<2 for h8, 4 for h9e10x4, 10 for h9e10>"
+reading = [
+  "H8 (extraction every 2 turns) recalled 13 of 13 in both runs at 0.0071 to 0.0073 USD.",
+  "Extraction every 10 turns cost 0.0053 to 0.0062 USD but missed a fact in 1 of 4 runs: a corrected date sat in a batch of 8 exchanges and was not replaced. Every 4 turns missed one fact in both runs.",
+  "Every run with extraction every 2 turns, across H5, H7 and H8, recalled all 13 facts (6 of 6).",
+]
+limits = [
+  "Two to four runs per setting on one scenario: the ordering between batch sizes 4 and 10 is within noise; only every 2 never missed.",
+]

@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /opt/cama
 COPY pyproject.toml ./
 COPY src ./src
-RUN pip install . && useradd --create-home --uid 1000 cama \
+RUN pip install ".[local]" && useradd --create-home --uid 1000 cama \
     && mkdir -p /data /runs /archive /scenarios && chown cama:cama /data /runs /archive
 
 ARG CAMA_CODE_SHA=unknown

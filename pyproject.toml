@@ -6,10 +6,15 @@ requires-python = ">=3.11"
 dependencies = [
     "numpy>=1.26",
     "google-genai>=1.0",
+    "asyncpg>=0.32.0",
+    "fastapi>=0.161.1",
+    "uvicorn>=0.54.0",
+    "httpx>=0.28.1",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-asyncio>=0.23"]
+local = ["fastembed>=0.8.0,<0.9"]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "hypothesis>=6.100", "mutmut>=3.2"]
 
 [project.scripts]
 cama = "cama.cli:main"
@@ -21,6 +26,15 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+cama = ["dash/static/*"]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+
+[tool.mutmut]
+paths_to_mutate = ["src/cama/memory/active_set.py", "src/cama/memory/prefix_cache.py", "src/cama/trace/ledger.py",
+                   "src/cama/teu/cache.py", "src/cama/cost.py", "src/cama/cluster/coordinator.py"]
+tests_dir = ["tests/"]
+also_copy = ["src/cama/", "scenarios/", "docs/", ".claude/", "CLAUDE.md", "README.md", "pricing.toml"]

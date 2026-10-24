@@ -1,0 +1,32 @@
+[
+  {
+    "skills": ["run-an-experiment"],
+    "query": "Is cama faster than naive? The last runs say 1074 ms against 1146 ms.",
+    "files": ["docs/measured/modes.md"],
+    "expected_behavior": [
+      "Reads the confidence intervals and says the difference is not measured if they overlap",
+      "Notes the model call dominates the turn latency and that each arm is one run",
+      "Proposes repeated runs per arm before any claim"
+    ]
+  },
+  {
+    "skills": ["run-an-experiment"],
+    "query": "Show that cache-aware eviction helps.",
+    "files": ["src/cama/memory/active_set.py", "docs/decisions/0003-cache-aware-eviction.md"],
+    "expected_behavior": [
+      "Designs two arms differing only by CAMA_VICTIM_WINDOW (3 versus 1) on fresh stores",
+      "Chooses a scenario that forces evictions, since the current one barely evicts",
+      "Freezes the runs, declares a figure in figures.toml and records a measurement in the ledger"
+    ]
+  },
+  {
+    "skills": ["run-an-experiment"],
+    "query": "Put in the docs that the prefix cache saves 58 percent.",
+    "files": ["docs/measured/prefix-cache.md"],
+    "expected_behavior": [
+      "Does not type the number into a document; points to the generated figure",
+      "Distinguishes cached tokens from money saved, which needs the price table",
+      "Keeps the limits (one run, synthetic scenario) next to the number"
+    ]
+  }
+]

@@ -1,4 +1,9 @@
-"""Gemini adapters (online profile)."""
+"""Gemini adapters (online profile).
+
+Tool declarations are part of the cacheable prefix: Gemini refuses a request that sets
+`system_instruction` or `tools` next to `cached_content`, so both go into the cache and the
+request carries only the cache name and the turn's contents.
+"""
 
 from __future__ import annotations
 
@@ -8,7 +13,41 @@ import numpy as np
 from google import genai
 from google.genai import types
 
-from cama.types import LLMResult, Message
+from cama.types import LLMResult, Message, ToolCall, ToolSpec
+
+
+def _tools(specs: list[ToolSpec] | None) -> list[types.Tool] | None:
+    if not specs:
+        return None
+    return [types.Tool(function_declarations=[
+        types.FunctionDeclaration(name=s.name, description=s.description, parameters_json_schema=s.parameters)
+        for s in specs
+    ])]
+
+
+def _contents(messages: list[Message]) -> list[types.Content]:
+    out: list[types.Content] = []
+    pending: list[types.Part] = []
+    for m in messages:
+        if m.role == "tool":
+            pending.append(types.Part(function_response=types.FunctionResponse(
+                id=m.tool_call_id or None, name=m.tool_name, response=m.result or {})))
+            continue
+        if pending:
+            out.append(types.Content(role="user", parts=pending))
+            pending = []
+        if m.role == "assistant" and m.raw is not None:
+            out.append(m.raw)  # replays thought signatures and function calls exactly
+        elif m.role == "assistant":
+            parts = [types.Part(text=m.text)] if m.text else []
+            parts += [types.Part(function_call=types.FunctionCall(id=c.id, name=c.name, args=c.args))
+                      for c in m.tool_calls]
+            out.append(types.Content(role="model", parts=parts))
+        else:
+            out.append(types.Content(role="user", parts=[types.Part(text=m.text)]))
+    if pending:
+        out.append(types.Content(role="user", parts=pending))
+    return out
 
 
 class GeminiLLM:
@@ -18,25 +57,43 @@ class GeminiLLM:
         self.client = genai.Client(api_key=api_key)
 
     async def generate(
-        self, system: str, messages: list[Message], *, temperature: float = 0.7, json_mode: bool = False
+        self, system: str, messages: list[Message], *, temperature: float = 0.7, json_mode: bool = False,
+        cached_content: str | None = None, tools: list[ToolSpec] | None = None,
     ) -> LLMResult:
-        contents = [
-            types.Content(role="user" if m.role == "user" else "model", parts=[types.Part(text=m.text)])
-            for m in messages
-        ]
         config = types.GenerateContentConfig(
-            system_instruction=system,
+            system_instruction=None if cached_content else system,
+            tools=None if cached_content else _tools(tools),
+            cached_content=cached_content,
             temperature=temperature,
             response_mime_type="application/json" if json_mode else None,
+            automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
         )
-        r = await self.client.aio.models.generate_content(model=self.model, contents=contents, config=config)
+        r = await self.client.aio.models.generate_content(
+            model=self.model, contents=_contents(messages), config=config)
         u = r.usage_metadata
+        calls = tuple(ToolCall(id=c.id or f"call-{i}", name=c.name, args=dict(c.args or {}))
+                      for i, c in enumerate(r.function_calls or []))
+        raw = r.candidates[0].content if r.candidates else None
+        text = "".join(p.text for p in (raw.parts or []) if p.text and not p.thought) if raw else ""
         return LLMResult(
-            text=r.text or "",
+            text=text,
             prompt_tokens=(u.prompt_token_count or 0) if u else 0,
             cached_tokens=(u.cached_content_token_count or 0) if u else 0,
             output_tokens=((u.candidates_token_count or 0) + (u.thoughts_token_count or 0)) if u else 0,
+            tool_calls=calls,
+            raw=raw,
         )
+
+    async def create_cache(self, system: str, tools: list[ToolSpec] | None, ttl_s: int) -> tuple[str, int]:
+        c = await self.client.aio.caches.create(
+            model=self.model,
+            config=types.CreateCachedContentConfig(system_instruction=system, tools=_tools(tools), ttl=f"{ttl_s}s"),
+        )
+        tokens = (c.usage_metadata.total_token_count or 0) if c.usage_metadata else 0
+        return c.name, tokens
+
+    async def delete_cache(self, name: str) -> None:
+        await self.client.aio.caches.delete(name=name)
 
 
 class GeminiEmbedder:

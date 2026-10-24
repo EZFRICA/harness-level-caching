@@ -13,8 +13,19 @@ class LLM(Protocol):
     name: str
 
     async def generate(
-        self, system: str, messages: list[Message], *, temperature: float = 0.7, json_mode: bool = False
-    ) -> LLMResult: ...
+        self, system: str, messages: list[Message], *, temperature: float = 0.7, json_mode: bool = False,
+        cached_content: str | None = None,
+    ) -> LLMResult:
+        """`cached_content` names a provider cache holding exactly `system`; then `system` is not resent."""
+        ...
+
+
+class CachingLLM(LLM, Protocol):
+    async def create_cache(self, system: str, ttl_s: int) -> tuple[str, int]:
+        """Create a provider cache for `system`. Returns (cache name, cached tokens)."""
+        ...
+
+    async def delete_cache(self, name: str) -> None: ...
 
 
 class Embedder(Protocol):

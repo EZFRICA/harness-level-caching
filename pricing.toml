@@ -1,0 +1,71 @@
+# Prices and cache capabilities per model, USD per 1M tokens (storage: per 1M tokens per hour).
+# No provider returns a price: this table is ours. Every value carries its source and status:
+#   official    read on the provider's pricing or documentation page on `read_on`
+#   assumption  not stated by the provider; used, and reported as an assumption
+#   local       computed on the machine, priced at 0 (CPU and RAM are reported instead)
+# Sources and reading notes: docs/prior-art-providers.md.
+
+[models."gemini-3.5-flash-lite"]
+read_on = "2026-10-23"
+source = "https://ai.google.dev/gemini-api/docs/pricing"
+status = "official"
+input = 0.30
+output = 2.50               # thinking tokens are billed as output
+cache_read = 0.03
+cache_storage_hour = 1.00
+cache_write = 0.30          # creation priced as input
+cache_write_status = "assumption"
+explicit_cache = true       # Gemini 3 and 2.5 models, beta
+implicit_min_tokens = 0     # not listed by the provider; 0 means unknown, not none
+
+[models."gemini-3.8-flash"]
+read_on = "2026-10-23"
+source = "https://ai.google.dev/gemini-api/docs/caching"
+status = "unpriced"         # prices not read yet: cost figures for this model are absent
+explicit_cache = true
+implicit_min_tokens = 4096
+
+[models."gemini-4-argon"]
+read_on = "2026-10-23"
+source = "https://ai.google.dev/gemini-api/docs/caching"
+status = "unpriced"
+explicit_cache = false      # "not supported for Gemini 4 Argon and onward"
+implicit_min_tokens = 4096
+
+[models."echo"]
+read_on = "2026-10-23"
+source = "src/cama/adapters/local.py"
+status = "local"
+input = 0.0
+output = 0.0
+cache_read = 0.0
+cache_storage_hour = 0.0
+cache_write = 0.0
+cache_write_status = "local"
+explicit_cache = true
+implicit_min_tokens = 0
+
+# Nebius Token Factory, serverless. Prices are per token in the provider's own model listing
+# (GET /v1/models?verbose=true, field `pricing`), converted here to USD per 1M tokens.
+# Caching is implicit and best effort; there is no cache object, so no write or storage cost.
+[models."deepseek-ai/DeepSeek-V4-Flash-0731"]
+read_on = "2026-10-24"
+source = "https://api.tokenfactory.nebius.com/v1/models?verbose=true"
+status = "official"
+input = 0.14
+output = 0.28               # completion tokens, reasoning included
+cache_read = 0.01           # input_cache_read
+cache_storage_hour = 0.0
+cache_write = 0.0
+cache_write_status = "none" # implicit caching only: nothing to create
+explicit_cache = false
+implicit_min_tokens = 0     # not documented; caching is per internal block
+
+# Tool prices, per call. Not read by the cost model yet: tool spend is reported from the call
+# counters in each run (turns.jsonl, field `web`). Source read on 2026-10-24.
+[tools."tavily-search-basic"]
+read_on = "2026-10-24"
+source = "https://docs.tavily.com/documentation/api-credits.md"
+status = "official"
+credits_per_call = 1        # search_depth basic
+usd_per_credit = 0.008      # pay as you go; the free plan gives 1000 credits per month

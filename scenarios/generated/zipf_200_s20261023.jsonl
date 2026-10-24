@@ -1,0 +1,201 @@
+{"seed": [{"id": "profile", "kind": "fondamental", "pinned": true, "title": "User profile", "content": "- Applied AI engineer between Nantes and Abidjan.\n- Prefers short answers."}, {"id": "trip-abidjan", "kind": "projet", "active": false, "title": "Trip to Abidjan", "content": "- departure 8 December, return 20 December, hotel on the Plateau."}, {"id": "devfest-talk", "kind": "projet", "active": false, "title": "DevFest talk", "content": "- 40 minute talk on offline agents, slides due 1 December."}, {"id": "research-cache", "kind": "projet", "active": false, "title": "Cache-aware memory research", "content": "- measure cost and latency of harness caches."}, {"id": "phone-tests", "kind": "projet", "active": false, "title": "Pixel 4 XL tests", "content": "- Termux, llama.cpp, pin to A55 cores for a low-end profile."}, {"id": "funding", "kind": "projet", "active": false, "title": "Research funding", "content": "- French Tech Emergence, i-Lab, CIFRE thesis."}, {"id": "half-marathon", "kind": "projet", "active": false, "title": "Half marathon plan", "content": "- Nantes in April, under 1h50, long run on Sundays."}, {"id": "taxes", "kind": "projet", "active": false, "title": "Tax return", "content": "- conference income as non commercial profits, keep travel receipts."}, {"id": "recipe-attieke", "kind": "projet", "active": false, "title": "Attieke recipe", "content": "- grilled fish, onions, tomatoes, two hours of marinade."}, {"id": "community", "kind": "projet", "active": false, "title": "Developer community", "content": "- GDG Cloud Abidjan meetups, speakers for the next season."}, {"id": "hiring", "kind": "projet", "active": false, "title": "Hiring an intern", "content": "- Python and data, six months, start in February."}, {"id": "car", "kind": "projet", "active": false, "title": "Car maintenance", "content": "- service due at 60000 km, winter tyres in November."}, {"id": "apartment", "kind": "projet", "active": false, "title": "Apartment move", "content": "- lease ends in March, boxes, moving company quotes."}, {"id": "reading", "kind": "projet", "active": false, "title": "Reading list", "content": "- MemGPT, vLLM PagedAttention, LongMemEval, LoCoMo."}, {"id": "health", "kind": "projet", "active": false, "title": "Health check", "content": "- annual check up booked, blood test fasting."}, {"id": "family", "kind": "projet", "active": false, "title": "Family visit", "content": "- parents arriving in Nantes on 2 January for two weeks."}, {"id": "budget", "kind": "projet", "active": false, "title": "Monthly budget", "content": "- rent, savings goal 500 euros, cloud bill under 30 euros."}, {"id": "course", "kind": "projet", "active": false, "title": "Online course", "content": "- distributed systems course, lecture 6 on consensus."}, {"id": "garden", "kind": "projet", "active": false, "title": "Balcony garden", "content": "- tomatoes and basil, water every two days in summer."}, {"id": "guitar", "kind": "projet", "active": false, "title": "Guitar practice", "content": "- fingerpicking, 20 minutes a day, song for the wedding."}, {"id": "wedding", "kind": "projet", "active": false, "title": "Friend's wedding", "content": "- Cotonou in June, best man speech, flights to book."}, {"id": "visa", "kind": "projet", "active": false, "title": "Visa paperwork", "content": "- e-visa for Cote d'Ivoire, passport valid until 2031."}, {"id": "cloud-bill", "kind": "projet", "active": false, "title": "Cloud bill", "content": "- BigQuery scans, set a budget alert at 20 euros."}, {"id": "paper", "kind": "projet", "active": false, "title": "Paper draft", "content": "- workshop deadline in January, related work section first."}, {"id": "patent", "kind": "projet", "active": false, "title": "Patent filing", "content": "- INPI provisional before any publication, 13 euros."}, {"id": "laptop", "kind": "projet", "active": false, "title": "Laptop upgrade", "content": "- MacBook with 16 GB RAM, keep the M2 for tests."}, {"id": "language", "kind": "projet", "active": false, "title": "Learning Swahili", "content": "- ten words a day, Akili and Urithi vocabulary."}, {"id": "newsletter", "kind": "projet", "active": false, "title": "Newsletter", "content": "- monthly issue on agent memory, 400 subscribers."}, {"id": "dentist", "kind": "projet", "active": false, "title": "Dentist", "content": "- appointment on 14 November at 9 am."}, {"id": "gift", "kind": "projet", "active": false, "title": "Birthday gift", "content": "- sister's birthday on 30 November, a book and headphones."}, {"id": "conference-cfp", "kind": "projet", "active": false, "title": "Conference CFP", "content": "- submit to the cloud summit, abstract of 300 words."}]}
+{"user": "What is the next step for trip to abidjan?"}
+{"user": "What did I note about devfest talk?"}
+{"user": "Remind me where I am with devfest talk."}
+{"user": "What is the next step for devfest talk?"}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Remind me where I am with trip to abidjan."}
+{"user": "Summarise cache-aware memory research in two lines."}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Any update needed on health check?"}
+{"user": "New fact for trip to abidjan: it moved by one week."}
+{"user": "Remind me where I am with trip to abidjan."}
+{"user": "What is the next step for developer community?"}
+{"user": "Remind me where I am with research funding."}
+{"user": "Any update needed on devfest talk?"}
+{"user": "Any update needed on hiring an intern?"}
+{"user": "Note for car maintenance: done the first part today."}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Remind me where I am with reading list."}
+{"user": "What is the next step for half marathon plan?"}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "Any update needed on half marathon plan?"}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "Note for pixel 4 xl tests: done the first part today."}
+{"user": "New fact for half marathon plan: it moved by one week."}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "Remind me where I am with pixel 4 xl tests."}
+{"user": "Update devfest talk: I added a constraint about the budget."}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "New fact for cloud bill: it moved by one week."}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "What did I note about half marathon plan?"}
+{"user": "Update devfest talk: I added a constraint about the budget."}
+{"user": "Summarise cache-aware memory research in two lines."}
+{"user": "Any update needed on devfest talk?"}
+{"user": "What did I note about pixel 4 xl tests?"}
+{"user": "Any update needed on cache-aware memory research?"}
+{"user": "New fact for devfest talk: it moved by one week."}
+{"user": "Update attieke recipe: I added a constraint about the budget."}
+{"user": "What is the next step for devfest talk?"}
+{"user": "What did I note about attieke recipe?"}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Note for reading list: done the first part today."}
+{"user": "What is the next step for paper draft?"}
+{"user": "Remind me where I am with half marathon plan."}
+{"user": "What did I note about pixel 4 xl tests?"}
+{"user": "New fact for devfest talk: it moved by one week."}
+{"user": "Any update needed on attieke recipe?"}
+{"user": "Any update needed on family visit?"}
+{"user": "Note for tax return: done the first part today."}
+{"user": "What did I note about devfest talk?"}
+{"user": "Summarise online course in two lines."}
+{"user": "What is the next step for cache-aware memory research?"}
+{"user": "What is the next step for friend's wedding?"}
+{"user": "Any update needed on devfest talk?"}
+{"user": "Any update needed on car maintenance?"}
+{"user": "What is the next step for research funding?"}
+{"user": "Note for trip to abidjan: done the first part today."}
+{"user": "Any update needed on devfest talk?"}
+{"user": "What did I note about cache-aware memory research?"}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "What is the next step for half marathon plan?"}
+{"user": "Summarise cache-aware memory research in two lines."}
+{"user": "What did I note about visa paperwork?"}
+{"user": "Summarise conference cfp in two lines."}
+{"user": "Update cache-aware memory research: I added a constraint about the budget."}
+{"user": "What did I note about half marathon plan?"}
+{"user": "Summarise research funding in two lines."}
+{"user": "Remind me where I am with half marathon plan."}
+{"user": "Any update needed on pixel 4 xl tests?"}
+{"user": "What is the next step for friend's wedding?"}
+{"user": "New fact for family visit: it moved by one week."}
+{"user": "Summarise cache-aware memory research in two lines."}
+{"user": "Update trip to abidjan: I added a constraint about the budget."}
+{"user": "What did I note about tax return?"}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "Summarise learning swahili in two lines."}
+{"user": "Summarise pixel 4 xl tests in two lines."}
+{"user": "Remind me where I am with pixel 4 xl tests."}
+{"user": "Remind me where I am with trip to abidjan."}
+{"user": "What did I note about devfest talk?"}
+{"user": "Remind me where I am with cache-aware memory research."}
+{"user": "Update trip to abidjan: I added a constraint about the budget."}
+{"user": "Any update needed on visa paperwork?"}
+{"user": "New fact for tax return: it moved by one week."}
+{"user": "Summarise cloud bill in two lines."}
+{"user": "Any update needed on devfest talk?"}
+{"user": "Summarise hiring an intern in two lines."}
+{"user": "Remind me where I am with devfest talk."}
+{"user": "What did I note about devfest talk?"}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "New fact for trip to abidjan: it moved by one week."}
+{"user": "Any update needed on patent filing?"}
+{"user": "Update patent filing: I added a constraint about the budget."}
+{"user": "Remind me where I am with tax return."}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "Update trip to abidjan: I added a constraint about the budget."}
+{"user": "Update devfest talk: I added a constraint about the budget."}
+{"user": "What is the next step for online course?"}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Any update needed on research funding?"}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "Summarise developer community in two lines."}
+{"user": "Any update needed on tax return?"}
+{"user": "What is the next step for visa paperwork?"}
+{"user": "What is the next step for half marathon plan?"}
+{"user": "Note for learning swahili: done the first part today."}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "New fact for devfest talk: it moved by one week."}
+{"user": "Note for trip to abidjan: done the first part today."}
+{"user": "Summarise car maintenance in two lines."}
+{"user": "What did I note about cache-aware memory research?"}
+{"user": "Note for trip to abidjan: done the first part today."}
+{"user": "Remind me where I am with trip to abidjan."}
+{"user": "Note for cache-aware memory research: done the first part today."}
+{"user": "Summarise devfest talk in two lines."}
+{"user": "Summarise half marathon plan in two lines."}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Summarise family visit in two lines."}
+{"user": "New fact for trip to abidjan: it moved by one week."}
+{"user": "What is the next step for tax return?"}
+{"user": "Summarise developer community in two lines."}
+{"user": "Summarise devfest talk in two lines."}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "What did I note about cache-aware memory research?"}
+{"user": "New fact for research funding: it moved by one week."}
+{"user": "Update friend's wedding: I added a constraint about the budget."}
+{"user": "Summarise cache-aware memory research in two lines."}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "New fact for conference cfp: it moved by one week."}
+{"user": "What is the next step for trip to abidjan?"}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "What did I note about monthly budget?"}
+{"user": "New fact for devfest talk: it moved by one week."}
+{"user": "What is the next step for devfest talk?"}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "Remind me where I am with devfest talk."}
+{"user": "What is the next step for paper draft?"}
+{"user": "Remind me where I am with attieke recipe."}
+{"user": "What did I note about devfest talk?"}
+{"user": "Summarise devfest talk in two lines."}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Any update needed on tax return?"}
+{"user": "What is the next step for apartment move?"}
+{"user": "Summarise tax return in two lines."}
+{"user": "Any update needed on developer community?"}
+{"user": "Any update needed on devfest talk?"}
+{"user": "Note for trip to abidjan: done the first part today."}
+{"user": "New fact for half marathon plan: it moved by one week."}
+{"user": "Remind me where I am with pixel 4 xl tests."}
+{"user": "Any update needed on devfest talk?"}
+{"user": "New fact for dentist: it moved by one week."}
+{"user": "Remind me where I am with cloud bill."}
+{"user": "What is the next step for developer community?"}
+{"user": "What did I note about developer community?"}
+{"user": "What did I note about devfest talk?"}
+{"user": "What is the next step for conference cfp?"}
+{"user": "Any update needed on research funding?"}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "New fact for trip to abidjan: it moved by one week."}
+{"user": "New fact for trip to abidjan: it moved by one week."}
+{"user": "Remind me where I am with devfest talk."}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "Remind me where I am with developer community."}
+{"user": "Remind me where I am with devfest talk."}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "Remind me where I am with half marathon plan."}
+{"user": "Remind me where I am with reading list."}
+{"user": "Note for developer community: done the first part today."}
+{"user": "New fact for trip to abidjan: it moved by one week."}
+{"user": "Any update needed on pixel 4 xl tests?"}
+{"user": "What is the next step for developer community?"}
+{"user": "Update health check: I added a constraint about the budget."}
+{"user": "What did I note about half marathon plan?"}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "Remind me where I am with pixel 4 xl tests."}
+{"user": "What is the next step for trip to abidjan?"}
+{"user": "Any update needed on attieke recipe?"}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "Summarise devfest talk in two lines."}
+{"user": "Summarise pixel 4 xl tests in two lines."}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Note for health check: done the first part today."}
+{"user": "What did I note about half marathon plan?"}
+{"user": "Any update needed on newsletter?"}
+{"user": "Note for birthday gift: done the first part today."}
+{"user": "Remind me where I am with half marathon plan."}
+{"user": "Note for trip to abidjan: done the first part today."}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Summarise devfest talk in two lines."}
+{"user": "What did I note about devfest talk?"}
+{"user": "Summarise half marathon plan in two lines."}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "What is the next step for trip to abidjan?"}

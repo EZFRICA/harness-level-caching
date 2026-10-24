@@ -103,6 +103,8 @@ class SQLiteStore:
             "content": block.content,
             "pinned": block.pinned,
             "version": block.version,
+            "active": bool(is_active),
+            "modified_at": block.modified_at,
         }
         with self.db:
             self.db.execute(
@@ -187,6 +189,40 @@ class SQLiteStore:
              "payload": json.loads(r["payload"])}
             for r in rows
         ]
+
+    def unsynced_count(self) -> int:
+        return self.db.execute("SELECT COUNT(*) FROM journal WHERE synced=0").fetchone()[0]
+
+    def max_seq(self) -> int:
+        return self.db.execute("SELECT COALESCE(MAX(seq), 0) FROM journal").fetchone()[0]
+
+    def snapshot_data(self) -> dict:
+        """The state of every block without vectors: enough to rebuild, with re-embedding."""
+        rows = self.db.execute(
+            "SELECT id, kind, title, content, pinned, version, active, modified_at FROM blocks").fetchall()
+        return {"seq": self.max_seq(), "blocks": {r["id"]: {
+            "kind": r["kind"], "title": r["title"], "content": r["content"], "pinned": bool(r["pinned"]),
+            "version": r["version"], "active": bool(r["active"]), "modified_at": r["modified_at"]} for r in rows}}
+
+    def rebuild(self, blocks: dict, vectors: dict, journal_rows: list[dict]) -> None:
+        """Replace the local state with a recovered one. Nothing here is journaled again: the
+        recovered rows are imported as already synced, so the numbering continues after them."""
+        with self.db:
+            self.db.execute("DELETE FROM blocks")
+            self.db.execute("DELETE FROM journal")
+            for bid, b in blocks.items():
+                vec = vectors.get(bid)
+                self.db.execute(
+                    "INSERT INTO blocks (id, kind, title, content, pinned, created_at, modified_at, accessed_at, "
+                    "version, vector, active) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                    (bid, b["kind"], b["title"], b["content"], int(b["pinned"]), b["modified_at"], b["modified_at"],
+                     b["modified_at"], b["version"], None if vec is None else vec.astype("float32").tobytes(),
+                     int(b["active"])))
+            self.db.executemany(
+                "INSERT INTO journal (seq, ts, op, block_id, payload, synced) VALUES (?,?,?,?,?,1)",
+                [(r["seq"], r["ts"], r["op"], r["block_id"], json.dumps(r["payload"], ensure_ascii=False))
+                 for r in journal_rows])
+        self._matrix = None
 
     def mark_synced(self, seqs: list[int]) -> None:
         if not seqs:

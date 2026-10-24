@@ -1,9 +1,9 @@
 """Cascade router (①): try the cheapest evidence first, touch L3 only on a miss.
 
-  a. lexical   — query-term containment against active blocks. No embedding call.
-  b. active    — embed the query once, cosine against the ≤capacity active vectors in RAM.
-  c. l3_fault  — scan every stored vector; page the best matches into the active set.
-  miss         — nothing relevant anywhere; the prompt is unchanged.
+  a. lexical:  query-term containment against active blocks. No embedding call.
+  b. active:   embed the query once, cosine against the ≤capacity active vectors in RAM.
+  c. l3_fault: scan every stored vector; page the best matches into the active set.
+  miss:         nothing relevant anywhere; the prompt is unchanged.
 
 The router decides what is *in* the active set and refreshes recency. In `cama`
 mode it does not decide what is in the prompt: the whole active set is rendered in

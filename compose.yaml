@@ -13,15 +13,26 @@ services:
         CAMA_CODE_SHA: ${CAMA_CODE_SHA:-unknown}
     image: cama:dev
     container_name: cama-online
+    # Main process = live dashboard (http://cama.cama.orb.local); experiments run with `docker compose exec`.
+    command: ["cama", "dashboard", "--host", "0.0.0.0", "--port", "8797"]
+    labels:
+      dev.orbstack.http-port: "8797"
+    ports:
+      - "127.0.0.1:8797:8797"        # http://localhost:8797
     env_file:
       - path: .env          # GEMINI_API_KEY (never committed)
         required: false
     environment:
       CAMA_LLM: ${CAMA_LLM:-echo}
       CAMA_EMBEDDER: ${CAMA_EMBEDDER:-hash}
-      CAMA_MODEL: ${CAMA_MODEL:-gemini-flash-lite-latest}
+      CAMA_MODEL: ${CAMA_MODEL:-gemini-3.5-flash-lite}
       CAMA_MODE: ${CAMA_MODE:-cama}
       CAMA_ONLINE: "1"
+      CAMA_PRICING: /config/pricing.toml
+      CAMA_MAX_USD: ${CAMA_MAX_USD:-2}
+      CAMA_COORDINATOR: postgresql://cama:cama-local@postgres:5432/cama   # read by the dashboard in cluster mode
+      CAMA_MEASURED_DIR: /docs/measured
+      CAMA_LEDGER: /docs/ledger.jsonl
       CAMA_LOG_LEVEL: ${CAMA_LOG_LEVEL:-INFO}
     # "Modest device" limits. Change them per experiment; they are recorded in each run manifest.
     cpus: ${CAMA_CPUS:-1.0}
@@ -33,7 +44,89 @@ services:
       - cama-archive:/archive        # L4 replica, fed by the cold path
       - ./runs:/runs                 # metrics and logs, readable from the host
       - ./scenarios:/scenarios:ro    # scripted conversations
+      - ./models:/models:ro          # local ONNX embedding model (never downloaded at runtime)
+      - ./pricing.toml:/config/pricing.toml:ro   # prices and cache capabilities, with provenance
+      - ./docs:/docs:ro              # frozen runs and the ledger, read by the dashboard
+
+  # ── cluster profile: docker compose --profile cluster up -d ─────────────────────────────
+  postgres:
+    profiles: [cluster]
+    image: postgres:17-alpine
+    container_name: cama-postgres
+    environment:
+      POSTGRES_USER: cama
+      POSTGRES_PASSWORD: cama-local      # local test credential, the port is not published
+      POSTGRES_DB: cama
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cama"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  cama-w1: &worker
+    profiles: [cluster]
+    image: cama:dev
+    container_name: cama-w1
+    command: ["cama", "serve", "--worker", "w1"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment: &worker-env
+      CAMA_LLM: ${CAMA_LLM:-echo}
+      CAMA_EMBEDDER: ${CAMA_EMBEDDER:-onnx}
+      CAMA_MODEL: ${CAMA_MODEL:-gemini-3.5-flash-lite}
+      CAMA_PRICING: /config/pricing.toml
+      CAMA_MAX_USD: ${CAMA_MAX_USD:-2}
+      CAMA_COORDINATOR: postgresql://cama:cama-local@postgres:5432/cama
+      CAMA_CLUSTER_RUN: ${CAMA_CLUSTER_RUN:-cluster}
+      CAMA_TOOL_LATENCY_SCALE: ${CAMA_TOOL_LATENCY_SCALE:-1}
+      CAMA_ECHO_BASE_MS: ${CAMA_ECHO_BASE_MS:-1000}
+      CAMA_ECHO_MS_PER_OUTPUT_TOKEN: ${CAMA_ECHO_MS_PER_OUTPUT_TOKEN:-3}
+      CAMA_ECHO_CACHED_EXTRA_MS: ${CAMA_ECHO_CACHED_EXTRA_MS:-100}
+      CAMA_FAULT_LLM_ERROR_RATE: ${CAMA_FAULT_LLM_ERROR_RATE:-0}
+      CAMA_FAULT_TOOL_ERROR_RATE: ${CAMA_FAULT_TOOL_ERROR_RATE:-0}
+      CAMA_LOG_LEVEL: WARNING
+    env_file:
+      - path: .env
+        required: false
+    cpus: ${CAMA_CPUS:-1.0}
+    mem_limit: ${CAMA_MEM:-1g}
+    memswap_limit: ${CAMA_MEM:-1g}
+    volumes:
+      - w1-data:/data
+      - ./runs:/runs
+      - ./scenarios:/scenarios:ro
+      - ./models:/models:ro
+      - ./pricing.toml:/config/pricing.toml:ro
+
+  cama-w2:
+    <<: *worker
+    container_name: cama-w2
+    command: ["cama", "serve", "--worker", "w2"]
+    volumes:
+      - w2-data:/data
+      - ./runs:/runs
+      - ./scenarios:/scenarios:ro
+      - ./models:/models:ro
+      - ./pricing.toml:/config/pricing.toml:ro
+
+  cama-w3:
+    <<: *worker
+    container_name: cama-w3
+    command: ["cama", "serve", "--worker", "w3"]
+    volumes:
+      - w3-data:/data
+      - ./runs:/runs
+      - ./scenarios:/scenarios:ro
+      - ./models:/models:ro
+      - ./pricing.toml:/config/pricing.toml:ro
 
 volumes:
   cama-data:
   cama-archive:
+  pg-data:
+  w1-data:
+  w2-data:
+  w3-data:

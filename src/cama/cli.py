@@ -281,14 +281,14 @@ def main(argv: list[str] | None = None) -> None:
 
     c = sub.add_parser("chat")
     c.add_argument("--session", default="default")
-    c.add_argument("--mode", choices=["cama", "topk", "naive"])
+    c.add_argument("--mode", choices=["cama", "topk", "naive", "compact"])
     c.add_argument("--store")
     c.add_argument("--run-id")
 
     r = sub.add_parser("run")
     r.add_argument("scenario")
     r.add_argument("--session", help="default: the run id")
-    r.add_argument("--mode", choices=["cama", "topk", "naive"])
+    r.add_argument("--mode", choices=["cama", "topk", "naive", "compact"])
     r.add_argument("--store", help="store name under the data volume (default: CAMA_STORE)")
     r.add_argument("--fresh", action="store_true",
                    help="start from an empty store (default name run-<run_id>), for comparable experiments")

@@ -415,3 +415,23 @@ limits = [
   "Vertex prices official as listed on 2026-10-24; whether the account's promotional credit covers Model Garden partner models is not verified.",
   "Argon naive was rerun after a fix: its first attempt stopped at turn 15 when Vertex refused an empty model turn (kept apart, not frozen).",
 ]
+
+[[figure]]
+id = "decisive-long-facts"
+file = "decisive.md"
+title = "The decisive test: cama with decision 0013 against a history folded into a summary, over 500 turns"
+question = "Over a 500 turn session where 24 facts are stated, 6 corrected and each asked for 65 to 415 turns later, does cama with decision 0013 beat the realistic alternative (full history folded into a running summary when it grows) in recall and in cost?"
+runs = ["nebius-dsv4flash-onnx-longfacts-naive-v1", "nebius-dsv4flash-onnx-longfacts-naive-v2", "nebius-dsv4flash-onnx-longfacts-compact-v1", "nebius-dsv4flash-onnx-longfacts-compact-v2", "nebius-dsv4flash-onnx-longfacts-cama-v1", "nebius-dsv4flash-onnx-longfacts-cama-v2"]
+columns = ["run", "mode", "turns", "recall", "hot", "prompt", "request_last", "cached_share", "cost", "cost_cold"]
+reproduce = "docker compose exec -T -e CAMA_EMBEDDER=onnx -e CAMA_LLM=openai_compat -e CAMA_OAI_BASE_URL=https://api.tokenfactory.nebius.com/v1 -e CAMA_OAI_KEY_ENV=NEBIUS_API_KEY -e CAMA_MODEL=deepseek-ai/DeepSeek-V4-Flash-0731 -e CAMA_OAI_SALT=<run id> [-e CAMA_EXTRACT_REPLACE=on -e CAMA_EXTRACT_EVERY=1 -e CAMA_MEMORY_REFRESH=epoch -e CAMA_PAGE_IN_TAIL=on -e CAMA_WINDOW_EPOCH=20] cama cama run /scenarios/long_facts_en_v1.jsonl --fresh --mode <naive|compact|cama> --run-id <run id> (scenario from scripts/gen_long_facts.py 500 20261025)"
+reading = [
+  "compact (history folded into a running summary past 6000 tokens, last 4 exchanges verbatim) recalled every fact in both runs once scoring ignores thousands separators, and was the cheapest arm: 0.049 and 0.052 USD for 500 turns.",
+  "cama with decision 0013 (extraction every turn) recalled 21 and 22 of 24 and cost 0.073 and 0.075 USD: its hot path was the cheapest of the three, but memory extraction on every turn cost 0.036 to 0.039 USD against 0.006 to 0.010 for compaction. It answered that it had no record of a course, a doctor's name and a flight number that were stated earlier.",
+  "naive also recalled every fact, at about twice compact's cost; its last request reached 33k and 42k tokens.",
+  "The recall column comes from the run manifests, scored before the separator fix: one probe (budget 9800, answered as 9,800) counts as missed there for every arm. Rescored with scripts in the ledger event: naive 24 and 24, compact 24 and 24, cama 21 and 22.",
+]
+limits = [
+  "Two runs per arm, one generated English scenario, one model (DeepSeek-V4-Flash at Nebius) used for answers, extraction and compaction.",
+  "One compaction setting (6000 tokens, keep 4) and one cama setting (decision 0013 with every-turn extraction); neither was tuned.",
+  "Recall is a substring check of 24 planted facts, not overall answer quality.",
+]

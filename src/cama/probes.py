@@ -15,6 +15,8 @@ import unicodedata
 def fold(text: str) -> str:
     text = unicodedata.normalize("NFKD", text.lower())
     text = "".join(c for c in text if not unicodedata.combining(c))
+    # Thousands separators inside a number ("9,800", "9 800") would hide "9800" (seen on 2026-10-25).
+    text = re.sub(r"(?<=\d)[,.\u202f\u00a0 ](?=\d{3}\b)", "", text)
     return re.sub(r"\s+", " ", text).strip()
 
 

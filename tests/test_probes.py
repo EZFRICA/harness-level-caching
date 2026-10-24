@@ -26,3 +26,9 @@ def test_scores_are_frozen_with_the_run_but_answers_are_not():
     m = recall_of(summary([{"turn": 3, "found": [True, False], "answer": "secret text", "expect": ["x", "y"]}]))
     assert (m["found"], m["facts"]) == (1, 2) and m["by_turn"] == [{"turn": 3, "found": [True, False]}]
     assert "secret text" not in str(m)
+
+
+def test_a_number_written_with_thousands_separators_still_matches():
+    assert score("Your budget is **€9,800** (corrected).", ["9800"]) == [True]
+    assert score("Le budget est de 9 800 euros.", ["9800"]) == [True]
+    assert score("Code 4719.", ["4719"]) == [True]

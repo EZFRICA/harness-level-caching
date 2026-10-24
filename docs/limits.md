@@ -23,6 +23,9 @@ was measured or found. A line leaves this page only through a ledger event that 
 | Extraction batched over 4 or 10 exchanges lost a correction in 3 of 6 runs; every 2 lost none in 6 | `docs/measured/recall-batching.md` | the cheapest extraction schedule is not safe yet |
 | On an implicit-only provider the stable order raised the cached share (75 to 78% against 55 to 63% for topk) but sent about 50% more prompt tokens, so the hot cost did not fall | `docs/measured/nebius.md` | a higher cached share is not a lower bill; extraction still dominates |
 
+| Implicit cache life, one sample per delay: Gemini 3.5 Flash-Lite hit at 15 s and 2 min, never from 5 min; Gemini 4 Argon never hit, even at 15 s on an identical 10k token prefix; Nebius hit at 15 s, 5, 15, 25 min and missed at 2, 10, 20, 30, 45, 60 min | `docs/measured/probes/cache-lifetime-2026-10-24.jsonl` | Flash-Lite's cache lasts minutes, not the 15 to 20 claimed by secondary sources; on Nebius the replica a request reaches matters as much as idle time |
+| Self-hosted vLLM: naive stopped at turn 198 when its history passed the 16384 token context | `docs/measured/vllm-l4.md` | naive's cheapness ends at the context window; cama's prompt stays bounded |
+
 ## Open problems
 
 - **Nebius was unstable on 2026-10-24 afternoon** (503 on 8 of 12 calls over a minute): the

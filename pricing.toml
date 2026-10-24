@@ -75,3 +75,18 @@ source = "https://docs.tavily.com/documentation/api-credits.md"
 status = "official"
 credits_per_call = 1        # search_depth basic
 usd_per_credit = 0.008      # pay as you go; the free plan gives 1000 credits per month
+
+# Self-hosted vLLM on one NVIDIA L4 (GCP g2-standard-8), prefix caching on. Billed per GPU hour,
+# not per token: per-token prices are 0 and the cost of a run is its GPU time (reported apart).
+[models."Qwen/Qwen2.5-7B-Instruct"]
+read_on = "2026-10-24"
+source = "self-hosted vLLM 0.32.0, inference-engineering-learn"
+status = "local"
+input = 0.0
+output = 0.0
+cache_read = 0.0
+cache_storage_hour = 0.0
+cache_write = 0.0
+cache_write_status = "local"
+explicit_cache = false
+implicit_min_tokens = 0     # vLLM caches per 16 token block

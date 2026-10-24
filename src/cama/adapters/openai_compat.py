@@ -96,7 +96,7 @@ def parse_response(body: dict) -> LLMResult:
 class OpenAICompatLLM:
     def __init__(self, model: str, base_url: str, api_key: str = "", salt: str = "",
                  timeout_s: float = 120.0, transport: httpx.AsyncBaseTransport | None = None,
-                 retries: int = 4, backoff_s: float = 2.0, sleep=asyncio.sleep):
+                 retries: int = 4, backoff_s: float = 2.0, sleep=asyncio.sleep, key_file: str = ""):
         if not base_url:
             raise ValueError("CAMA_OAI_BASE_URL is required for CAMA_LLM=openai_compat")
         self.name = f"openai_compat:{model}"
@@ -108,9 +108,18 @@ class OpenAICompatLLM:
         self.backoff_s = backoff_s
         self.sleep = sleep
         self.retried = 0
+        # A short-lived token (Vertex AI: one hour) is re-read from this file before every request,
+        # so a long run outlives it. The file lives outside the repository; its content is never logged.
+        self.key_file = key_file
         headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
         self.client = httpx.AsyncClient(base_url=base_url.rstrip("/"), headers=headers, timeout=timeout_s,
                                         transport=transport)
+
+    def _auth(self) -> dict:
+        if not self.key_file:
+            return {}
+        with open(self.key_file) as f:
+            return {"Authorization": f"Bearer {f.read().strip()}"}
 
     async def generate(
         self, system: str, messages: list[Message], *, temperature: float = 0.7, json_mode: bool = False,
@@ -126,7 +135,7 @@ class OpenAICompatLLM:
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
         for attempt in range(self.retries + 1):
-            r = await self.client.post("/chat/completions", json=payload)
+            r = await self.client.post("/chat/completions", json=payload, headers=self._auth())
             if r.status_code == 200:
                 return parse_response(r.json())
             err = ProviderError(r.status_code, r.text)

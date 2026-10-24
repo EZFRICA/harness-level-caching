@@ -39,6 +39,9 @@ class Config:
     oai_base_url: str = ""  # openai_compat: server base URL (Nebius, vLLM)
     oai_key_env: str = ""  # openai_compat: name of the variable holding the key (never the key)
     oai_salt: str = ""  # openai_compat: run salt opening the system prompt (shared caches)
+    oai_key_file: str = ""  # openai_compat: file holding a short-lived token, re-read per request
+    gemini_vertex_project: str = ""  # gemini through Vertex AI (location global) instead of the Gemini API
+    gemini_token_file: str = ""  # gemini on Vertex: file holding a short-lived access token
 
     capacity: int = 12  # max blocks in the active set
     max_memory_tokens: int = 1500  # max approx tokens of the rendered active set
@@ -110,6 +113,9 @@ class Config:
             oai_base_url=_env("CAMA_OAI_BASE_URL", ""),
             oai_key_env=_env("CAMA_OAI_KEY_ENV", ""),
             oai_salt=_env("CAMA_OAI_SALT", ""),
+            oai_key_file=_env("CAMA_OAI_KEY_FILE", ""),
+            gemini_vertex_project=_env("CAMA_GEMINI_VERTEX_PROJECT", ""),
+            gemini_token_file=_env("CAMA_GEMINI_TOKEN_FILE", ""),
             capacity=int(_env("CAMA_CAPACITY", "12")),
             max_memory_tokens=int(_env("CAMA_MAX_MEMORY_TOKENS", "1500")),
             victim_window=int(_env("CAMA_VICTIM_WINDOW", "3")),

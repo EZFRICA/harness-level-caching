@@ -135,3 +135,29 @@ async def test_a_client_error_is_never_retried():
     with pytest.raises(ProviderError):
         await llm.generate("SYS", [Message("user", text="q")])
     assert len(calls) == 1
+
+
+async def test_a_short_lived_token_is_read_from_its_file_before_every_request(tmp_path):
+    key = tmp_path / "token"
+    key.write_text("first\n")
+    seen = []
+
+    def handler(request):
+        seen.append(request.headers.get("authorization"))
+        return httpx.Response(200, json=_reply())
+    llm = OpenAICompatLLM("m", "https://fake/v1", "", "", transport=httpx.MockTransport(handler), key_file=str(key))
+    await llm.generate("SYS", [Message("user", text="q")])
+    key.write_text("second")
+    await llm.generate("SYS", [Message("user", text="q")])
+    assert seen == ["Bearer first", "Bearer second"]
+
+
+def test_gemini_on_vertex_builds_a_new_client_when_the_token_changes(tmp_path):
+    from cama.adapters.gemini import GeminiLLM
+    tok = tmp_path / "token"
+    tok.write_text("t1")
+    llm = GeminiLLM("gemini-3.5-flash-lite", "", vertex_project="p", token_file=str(tok))
+    first = llm.client
+    assert llm.client is first and llm.name == "vertex:gemini-3.5-flash-lite"
+    tok.write_text("t2")
+    assert llm.client is not first

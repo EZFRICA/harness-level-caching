@@ -17,6 +17,8 @@ def make_llm(cfg: Config) -> LLM:
     if cfg.llm == "gemini":
         from cama.adapters.gemini import GeminiLLM
 
+        if cfg.gemini_vertex_project:
+            return GeminiLLM(cfg.model, "", vertex_project=cfg.gemini_vertex_project, token_file=cfg.gemini_token_file)
         return GeminiLLM(cfg.model, _api_key())
     if cfg.llm == "openai_compat":
         from cama.adapters.openai_compat import OpenAICompatLLM
@@ -24,7 +26,7 @@ def make_llm(cfg: Config) -> LLM:
         key = os.environ.get(cfg.oai_key_env, "") if cfg.oai_key_env else ""
         if cfg.oai_key_env and not key:
             raise RuntimeError(f"{cfg.oai_key_env} is not set")
-        return OpenAICompatLLM(cfg.model, cfg.oai_base_url, key, cfg.oai_salt)
+        return OpenAICompatLLM(cfg.model, cfg.oai_base_url, key, cfg.oai_salt, key_file=cfg.oai_key_file)
     raise ValueError(f"unknown CAMA_LLM={cfg.llm!r}")
 
 

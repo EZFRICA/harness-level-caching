@@ -51,10 +51,27 @@ def _contents(messages: list[Message]) -> list[types.Content]:
 
 
 class GeminiLLM:
-    def __init__(self, model: str, api_key: str):
-        self.name = f"gemini:{model}"
+    def __init__(self, model: str, api_key: str, vertex_project: str = "", token_file: str = ""):
+        self.name = f"gemini:{model}" if not vertex_project else f"vertex:{model}"
         self.model = model
-        self.client = genai.Client(api_key=api_key)
+        self.vertex_project = vertex_project
+        self.token_file = token_file
+        self._token = None
+        self._client = None if vertex_project else genai.Client(api_key=api_key)
+
+    @property
+    def client(self) -> genai.Client:
+        """Vertex AI: a client per access token, re-read from its file (tokens last an hour)."""
+        if not self.vertex_project:
+            return self._client
+        with open(self.token_file) as f:
+            token = f.read().strip()
+        if token != self._token:
+            from google.oauth2.credentials import Credentials
+            self._client = genai.Client(vertexai=True, project=self.vertex_project, location="global",
+                                        credentials=Credentials(token, quota_project_id=self.vertex_project))
+            self._token = token
+        return self._client
 
     async def generate(
         self, system: str, messages: list[Message], *, temperature: float = 0.7, json_mode: bool = False,

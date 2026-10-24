@@ -90,3 +90,73 @@ cache_write = 0.0
 cache_write_status = "local"
 explicit_cache = false
 implicit_min_tokens = 0     # vLLM caches per 16 token block
+
+# Same self-hosted vLLM on one L4, FP8 weights quantised at load. Billed per GPU hour.
+[models."deepseek-ai/DeepSeek-V2-Lite-Chat"]
+read_on = "2026-10-24"
+source = "self-hosted vLLM 0.32.0 --quantization fp8, inference-engineering-learn"
+status = "local"
+input = 0.0
+output = 0.0
+cache_read = 0.0
+cache_storage_hour = 0.0
+cache_write = 0.0
+cache_write_status = "local"
+explicit_cache = false
+implicit_min_tokens = 0
+
+# Vertex AI Model Garden, models as a service, location global. Read 2026-10-24 on
+# https://cloud.google.com/vertex-ai/generative-ai/pricing ("Cache Hit" / "Cached Input" rows).
+# Gemini through Vertex (global) lists the same prices as the Gemini API entries above.
+[models."deepseek-ai/deepseek-v4.1-flash-maas"]
+read_on = "2026-10-24"
+source = "https://cloud.google.com/vertex-ai/generative-ai/pricing"
+status = "official"
+input = 0.30
+output = 1.20
+cache_read = 0.03
+cache_storage_hour = 0.0
+cache_write = 0.0
+cache_write_status = "none"
+explicit_cache = false
+implicit_min_tokens = 0
+
+[models."zai-org/glm-5.2-maas"]
+read_on = "2026-10-24"
+source = "https://cloud.google.com/vertex-ai/generative-ai/pricing"
+status = "official"
+input = 1.40
+output = 4.40
+cache_read = 0.14
+cache_storage_hour = 0.0
+cache_write = 0.0
+cache_write_status = "none"
+explicit_cache = false
+implicit_min_tokens = 0
+
+# Nebius Token Factory, from the provider's model listing (per token, converted per 1M).
+[models."nvidia/nemotron-3-super-120b-a12b"]
+read_on = "2026-10-24"
+source = "https://api.tokenfactory.nebius.com/v1/models?verbose=true"
+status = "official"
+input = 0.30
+output = 0.90
+cache_read = 0.06
+cache_storage_hour = 0.0
+cache_write = 0.0
+cache_write_status = "none"
+explicit_cache = false
+implicit_min_tokens = 0
+
+[models."zai-org/GLM-5.3"]
+read_on = "2026-10-24"
+source = "https://api.tokenfactory.nebius.com/v1/models?verbose=true"
+status = "official"
+input = 1.40
+output = 4.40
+cache_read = 0.26
+cache_storage_hour = 0.0
+cache_write = 0.0
+cache_write_status = "none"
+explicit_cache = false
+implicit_min_tokens = 0

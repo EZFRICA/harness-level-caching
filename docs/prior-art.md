@@ -10,6 +10,7 @@ not be read in a primary source is labelled **unverified** and is never used as 
 | `prior-art-providers.md` | provider prompt caching (Gemini, Anthropic, OpenAI), Gemini prices, Manus, "Don't Break the Cache" |
 | `prior-art-serving.md` | inference-server KV caching: vLLM, SGLang, Prompt Cache, LMCache, CacheBlend, KVFlow, Continuum, CacheScout, Leyline |
 | `prior-art-tools.md` | tool, workflow and plan caching (hierarchical agentic caching, Cortex, workload-aware, APC) and GPTCache |
+| `prior-art-gateways.md` | gateways that route with the cache in mind (OpenRouter sticky routing, LiteLLM affinity and auto router, Portkey) |
 | `prior-art-sources.md` | every source with its URL, version and access date |
 
 ## The map

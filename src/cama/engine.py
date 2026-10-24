@@ -31,7 +31,8 @@ from cama.scheduler import Scheduler
 from cama.store.sqlite_store import SQLiteStore
 from cama.teu.cache import ToolCache
 from cama.teu.tools import Bookings, FaultConfig, ToolRunner, default_tools
-from cama.types import Block, Kind
+from cama.tokens import approx_tokens
+from cama.types import Block, Kind, Message
 
 log = get_logger(__name__)
 
@@ -73,6 +74,13 @@ def states_a_fact(text: str) -> bool:
     return bool(t) and "?" not in t and first not in _ASKS
 
 
+COMPACT_SYSTEM = """You maintain the running summary of a conversation between a user and an assistant.
+Rewrite the summary to include everything in PREVIOUS SUMMARY plus the CONVERSATION TO FOLD.
+Keep every fact the user stated about themselves, their work and their plans: names, numbers,
+codes, dates, places, references. When a fact was corrected, keep only the latest value.
+Drop small talk and the assistant's suggestions. Output the summary only, as short bullet points."""
+
+
 def window_size(cfg: Config, turns_done: int) -> int:
     """Exchanges sent verbatim. With an epoch E the window only grows for E-1 turns, so the
     messages after the memory are append-only (a cacheable prefix), then it drops E at once."""
@@ -82,7 +90,7 @@ def window_size(cfg: Config, turns_done: int) -> int:
 class Engine:
     def __init__(self, cfg: Config, recorder: RunRecorder, session: str = "default", shared=None,
                  worker: str = "local", lease=None, budget=None):
-        if cfg.mode not in {"cama", "topk", "naive"}:
+        if cfg.mode not in {"cama", "topk", "naive", "compact"}:
             raise ValueError(f"unknown mode {cfg.mode!r}")
         self.cfg = cfg
         self.recorder = recorder
@@ -137,6 +145,9 @@ class Engine:
                              if self.cache_mode == "explicit" else None)
         self._last_system: str | None = None
         self._frozen: list[Block] | None = None  # memory rendered until the next epoch (H7)
+        self._summary = ""  # compact mode: the running summary of the folded history
+        self._compact_from = 0  # compact mode: history rows already folded into the summary
+        self._compact_queued = False
         self._tail: list[Block] = []  # blocks paged in this turn, sent after the window (H8)
         self._last_sent_hash: str | None = None  # the prefix the last turn actually sent
         self._sightings: dict[str, int] = {}  # prefix hash -> turns that sent it
@@ -256,6 +267,10 @@ class Engine:
         if cfg.mode == "naive":
             blocks: list[Block] = []
             history = self.store.history(self.session)
+        elif cfg.mode == "compact":  # baseline: full history, older part folded into a summary
+            blocks = [Block("conversation-summary", Kind.PROJET, "Conversation summary", self._summary)] \
+                if self._summary else []
+            history = self.store.history(self.session)[self._compact_from:]
         else:
             route = await self.router.route(user_text)
             timings.update({f"route_{k}": v for k, v in route.timings_ms.items()})
@@ -301,7 +316,12 @@ class Engine:
         hot_ms = (time.perf_counter() - t0) * 1000
         self.turn_index += 1
 
-        if cfg.mode != "naive":
+        if cfg.mode == "compact" and not self._compact_queued:
+            unfolded = self.store.history(self.session)[self._compact_from:]
+            if sum(approx_tokens(m.text) for m in unfolded) > cfg.compact_at:
+                self._compact_queued = True
+                await self.scheduler.push(f"compact#{self.turn_index}", self._compact, PRIORITY_EXTRACT)
+        if cfg.mode in ("cama", "topk"):
             self._pending.append((user_text, out.text))
             due = len(self._pending) >= cfg.extract_every or (
                 cfg.extract_policy == "statements" and states_a_fact(user_text))
@@ -371,6 +391,25 @@ class Engine:
             await self.scheduler.push(f"extract#{self.turn_index}+", self._extract_pending, PRIORITY_EXTRACT)
         rep = await self.extractor.run_many(batch)
         return {**self._report(rep), "exchanges": len(batch)}
+
+    async def _compact(self) -> dict:
+        """Fold all but the last `compact_keep` exchanges into the running summary (one model call)."""
+        try:
+            rows = self.store.history(self.session)[self._compact_from:]
+            fold = rows[:max(0, len(rows) - 2 * self.cfg.compact_keep)]
+            if not fold:
+                return {"folded": 0}
+            convo = "\n".join(f"{m.role.upper()}: {m.text}" for m in fold)
+            prompt = f"PREVIOUS SUMMARY:\n{self._summary or '(none)'}\n\nCONVERSATION TO FOLD:\n{convo}"
+            out = await self.llm.generate(COMPACT_SYSTEM, [Message("user", prompt)], temperature=0.0)
+            if out.text.strip():
+                self._summary = out.text.strip()
+                self._compact_from += len(fold)
+            return {"folded": len(fold), "summary_tokens_est": approx_tokens(self._summary),
+                    "prompt_tokens": out.prompt_tokens, "cached_tokens": out.cached_tokens,
+                    "output_tokens": out.output_tokens}
+        finally:
+            self._compact_queued = False
 
     def _report(self, rep) -> dict:
         return {

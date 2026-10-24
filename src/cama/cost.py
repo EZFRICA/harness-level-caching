@@ -65,7 +65,10 @@ def run_cost(manifest: dict, turns: list[dict], tasks: list[dict], pricing: dict
     for i, x in enumerate(creates):  # a cache lives until the next creation replaces it, or the run ends
         until = creates[i + 1]["ts"] if i + 1 < len(creates) else end
         storage += x.get("tokens", 0) * max(0.0, until - x["ts"]) / 3600 * p["cache_storage_hour"] / M
-    cold = {"extraction": extraction, "cache_write": cache_write, "cache_storage": storage}
+    comp = [x for x in tasks if x["task"].startswith("compact") and x.get("ok")]
+    compaction = sum(sum(call_cost(p, x.get("prompt_tokens", 0), x.get("cached_tokens", 0),
+                                   x.get("output_tokens", 0)).values()) for x in comp)
+    cold = {"extraction": extraction, "compaction": compaction, "cache_write": cache_write, "cache_storage": storage}
     total_hot, total_cold = sum(hot.values()), sum(cold.values())
     assumptions = []
     if p.get("cache_write_status") == "assumption" and creates:

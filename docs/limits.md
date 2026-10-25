@@ -29,7 +29,7 @@ was measured or found. A line leaves this page only through a ledger event that 
 | Extracting two exchanges per call (decision 0013, `CAMA_EXTRACT_EVERY=2`) lost facts with GLM-5.2 (8 of 13) and GLM-5.3 (11 of 13) where every-turn extraction kept them | `docs/measured/providers.md` | 0013's batching setting is model dependent; extract every turn unless a model is shown to tolerate batches |
 | A small extractor (DeepSeek-V2-Lite, 16B) timed out on 19 of 47 extraction calls and evicted planted facts | `docs/measured/providers.md` | cama needs an extractor that returns clean JSON |
 
-| **Decisive test, 500 turns: a history folded into a summary (compact) recalled 24 of 24 for about 0.05 USD; cama with decision 0013 recalled 21 and 22 for about 0.074 USD** | `docs/measured/decisive.md` | on this test cama loses to the simple alternative in both recall and cost; per-turn extraction is the cost, bounded memory the recall loss |
+| **Decisive test, 500 turns: a history folded into a summary (compact) recalled 24 of 24 for about 0.05 USD; cama with decision 0013 recalled 21 and 22 for about 0.074 USD** | `docs/measured/decisive.md` | on this test cama loses to the simple alternative in both recall and cost; per-turn extraction is the cost. The three missed facts were stored and paged out to L3, and the page fault did not bring them back: a routing failure, not a loss (checked in both runs' stores) |
 
 ## Open problems
 

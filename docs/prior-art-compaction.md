@@ -3,11 +3,15 @@
 Read on 2026-10-25 in the arXiv PDFs and official docs listed at the end. Written after the
 decisive test (`docs/measured/decisive.md`), where a history folded into a summary beat cama
 with decision 0013 over 500 turns. It maps what exists against cama's two measured defects:
-(1) memory extraction on every turn costs more than an occasional summary; (2) a bounded
-memory loses facts that a summary keeps. And against the open lead: compaction that follows
-each provider's cache rules.
+(1) memory extraction on every turn costs more than an occasional summary; (2) facts the
+summary kept were missed by cama. Correction after checking both runs' stores: those facts
+were extracted and paged out to L3, and the page fault did not bring them back. Defect (2) is
+a recall failure of a mechanism cama inherits from APU and Urithi, which already keep every
+paged-out block in L3 and page it back on relevance (apu-urithi apu/mmu/dll.py), and cite
+retrieved units by id with a code check (learner/tutor/answer.py). The lead: compaction that
+follows each provider's cache rules.
 
-## Defect 2, lost facts: keep everything, recall by address
+## Defect 2, missed recall: what others add to page-in
 
 - **ARC, Addressable Recall Compaction** (arXiv 2607.25066v1). Tool observations go to an
   append-only, ID-addressable log; compaction replaces old ones with citations the agent can
@@ -52,8 +56,10 @@ each provider's cache rules.
 
 - Compaction that respects the prefix cache is TokenPilot's contribution, published June 2026;
   cama's decision 0013 is a later, narrower instance and cannot claim it.
-- The two defects have published answers: lossless archive with addressed recall (ARC) for
-  lost facts, offline consolidation (LightMem) or LLM-free eviction (CWL) for cost.
+- Keeping everything and recalling it is APU and Urithi's design already; ARC's addition is an
+  explicit recall by id that the agent requests, beside similarity page-in. The defect to fix
+  is the page fault's miss (thresholds uncalibrated, `docs/limits.md`). For cost: offline
+  consolidation (LightMem) or LLM-free eviction (CWL).
 - Not found in the papers read: compaction timed by measured provider cache life and replica
   routing (`docs/measured/probes/`). TokenPilot models a cache discount, not its expiry.
 - Any next experiment must use summary compaction and TokenPilot as baselines, not naive.

@@ -11,6 +11,7 @@ not be read in a primary source is labelled **unverified** and is never used as 
 | `prior-art-serving.md` | inference-server KV caching: vLLM, SGLang, Prompt Cache, LMCache, CacheBlend, KVFlow, Continuum, CacheScout, Leyline |
 | `prior-art-tools.md` | tool, workflow and plan caching (hierarchical agentic caching, Cortex, workload-aware, APC) and GPTCache |
 | `prior-art-gateways.md` | gateways that route with the cache in mind (OpenRouter sticky routing, LiteLLM affinity and auto router, Portkey) |
+| `prior-art-compaction.md` | compaction and memory for long sessions (ARC, CWL, LightMem, TokenPilot, Anthropic and ADK compaction) against cama's two measured defects |
 | `prior-art-sources.md` | every source with its URL, version and access date |
 
 ## The map

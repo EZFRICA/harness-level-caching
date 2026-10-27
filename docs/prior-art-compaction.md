@@ -52,6 +52,19 @@ follows each provider's cache rules.
   against 78.4; Claw-Eval continuous 10.58 USD against 16.59 at 60.8 against 61.6.
 - Gateways already keep a session on the warm cache (`docs/prior-art-gateways.md`).
 
+## Cache engineering below the prompt: AKV (Tsinghua, arXiv 2610.28577v1, 20 Oct 2026)
+
+- Trimming or summarising changes the prefix and forces a re-prefill; AKV lets the agent act on
+  its own KV cache instead: `drop` excludes spans from attention, `repos` re-indexes positions,
+  without changing the text. A serving engine on SGLang v0.5.20 keeps a stateless API and
+  handles that identical tokens can carry different cache states (Sections 3, 4, A).
+- Tool-response rolling drop (keep the latest 12 tool responses) against threshold summaries
+  at 96K or 192K and at 48K tokens: average score +1.7 points, average cost -27.7%, on
+  GPT-OSS-120B, MiniMax-M2.7, MiroThinker-1.7-Mini over BrowseComp-Plus, xbench-DS, GAIA-Text,
+  SWE-Verified (abstract, Section 5). KV cache reads are 82.4% of the API cost (Figure 13).
+- It needs a serving engine it controls; a provider API exposes no such operation. Same
+  family as Leyline (`docs/prior-art-serving.md`), which it does not cite; it cites TokenPilot.
+
 ## What this changes for cama
 
 - Compaction that respects the prefix cache is TokenPilot's contribution, published June 2026;
@@ -70,6 +83,7 @@ follows each provider's cache rules.
 - https://arxiv.org/abs/2608.01326 (Context Compaction Theory)
 - https://arxiv.org/abs/2510.18866 (LightMem), https://arxiv.org/abs/2504.13171 (Sleep-time)
 - https://arxiv.org/abs/2605.23296 (Parallel compaction), https://arxiv.org/abs/2606.17016 (TokenPilot)
+- https://arxiv.org/abs/2610.28577 (AKV, Cache Engineering for Agents), read 2026-10-27
 - https://platform.claude.com/docs/en/build-with-claude/compaction and .../compaction-threshold
 - https://adk.dev/context/compaction/
 - Seen as titles only, not read: ACON 2510.00615, Context-Folding 2510.11967, AgentFold

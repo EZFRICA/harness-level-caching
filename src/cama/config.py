@@ -51,6 +51,7 @@ class Config:
     extract_every: int = 1  # extract after every N exchanges, in one call (cama/topk)
     extract_replace: bool = False  # hypothesis H5: the extractor may replace a corrected fact's line
     memory_refresh: str = "turn"  # turn | epoch (hypothesis H7: rendered memory frozen until the window drops)
+    route_policy: str = "cascade"  # cascade | urithi (whole-store search, per-kind thresholds, words beside meaning)
     compact_at: int = 6000  # compact mode: fold the history once its unfolded part passes this (approx tokens)
     compact_keep: int = 4  # compact mode: exchanges kept verbatim after a fold
     page_in_tail: bool = False  # hypothesis H8 (with epoch refresh): a paged-in block is sent after the window
@@ -126,6 +127,7 @@ class Config:
             extract_every=int(_env("CAMA_EXTRACT_EVERY", "1")),
             extract_replace=_env("CAMA_EXTRACT_REPLACE", "off") == "on",
             memory_refresh=_env("CAMA_MEMORY_REFRESH", "turn"),
+            route_policy=_env("CAMA_ROUTE_POLICY", "cascade"),
             compact_at=int(_env("CAMA_COMPACT_AT", "6000")),
             compact_keep=int(_env("CAMA_COMPACT_KEEP", "4")),
             page_in_tail=_env("CAMA_PAGE_IN_TAIL", "off") == "on",

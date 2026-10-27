@@ -18,11 +18,17 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from cama.config import Config
+from cama.memory import keywords
 from cama.memory.active_set import ActiveSet
 from cama.ports import Embedder
 from cama.store.sqlite_store import SQLiteStore
 from cama.tokens import containment, lexical_set
-from cama.types import Block
+from cama.types import Block, Kind
+
+URITHI_LIMIT = 12  # candidates per search, as in apu-urithi search_block_index(limit=12)
+# apu-urithi apu/config.py CERTAINTY_THRESHOLDS, calibrated on the same 384-dim MiniLM space:
+# fundamental 0.40, project and knowledge 0.45, temporary 0.50.
+URITHI_THRESHOLDS = {Kind.FONDAMENTAL: 0.40, Kind.PROJET: 0.45, Kind.TEMP: 0.50}
 
 
 @dataclass
@@ -53,6 +59,8 @@ class Router:
         return terms
 
     async def route(self, query: str) -> RouteResult:
+        if self.cfg.route_policy == "urithi":
+            return await self._route_urithi(query)
         res = RouteResult()
         now = time.time()
 
@@ -113,6 +121,56 @@ class Router:
                 res.rejected.append(block.id)
         res.timings_ms["l3"] = (time.perf_counter() - t) * 1000
         res.tier = "l3_fault" if res.paged_in else "miss"
+        return res
+
+    async def _route_urithi(self, query: str) -> RouteResult:
+        """apu-urithi's search (apu/mmu/dll.py search_memory, library/keywords.py), taken as is:
+        every question searches the whole store, never stopping at a weak active hit; a block
+        counts if its cosine passes the threshold of its kind (calibrated there on this MiniLM
+        space) or if it is the best keyword match; meaning and words are fused by rank; blocks
+        found outside the active set are paged in."""
+        res = RouteResult(tier="miss")
+        now = time.time()
+        t = time.perf_counter()
+        qv = (await self.embedder.embed([query], "query"))[0]
+        res.embed_calls = 1
+        res.timings_ms["embed_query"] = (time.perf_counter() - t) * 1000
+        t = time.perf_counter()
+        by_meaning, scanned = self.store.search(qv, k=URITHI_LIMIT, exclude=set())
+        res.l3_rows_scanned = scanned
+        rows = self.store.db.execute("SELECT id, title, content FROM blocks").fetchall()
+        scores = keywords.bm25(query, [f"{r['title']}\n{r['content']}" for r in rows])
+        by_words = [rows[i]["id"] for i in sorted(range(len(rows)), key=lambda i: -scores[i]) if scores[i] > 0]
+        cos = dict(by_meaning)
+        accepted = []
+        for bid in keywords.fuse([b for b, _ in by_meaning], by_words[:URITHI_LIMIT]):
+            block = self.active.get(bid) or self.store.get(bid)
+            if block is None:
+                continue
+            passes = cos.get(bid, -1.0) >= URITHI_THRESHOLDS.get(block.kind, 0.45)
+            if passes or (by_words and bid == by_words[0]):
+                accepted.append((block, cos.get(bid, 0.0)))
+            if len(accepted) >= self.cfg.page_in_k:
+                break
+        for block, score in accepted:
+            res.hits.append((block.id, score))
+            if block.id in self.active.ids():
+                self.active.touch(block.id, now)
+                self.store.touch(block.id, now)
+                continue
+            block.accessed_at = now
+            evicted, admitted = self.active.admit(block)
+            for v in evicted:
+                self.store.set_active(v.id, False)
+                res.evicted.append(v.id)
+            if admitted:
+                self.store.set_active(block.id, True)
+                self.store.touch(block.id, now)
+                res.paged_in.append(block.id)
+            else:
+                res.rejected.append(block.id)
+        res.timings_ms["urithi"] = (time.perf_counter() - t) * 1000
+        res.tier = "l3_fault" if res.paged_in else ("active" if res.hits else "miss")
         return res
 
     def _touch(self, hits: list[tuple[str, float]], now: float) -> None:

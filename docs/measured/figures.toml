@@ -435,3 +435,21 @@ limits = [
   "One compaction setting (6000 tokens, keep 4) and one cama setting (decision 0013 with every-turn extraction); neither was tuned.",
   "Recall is a substring check of 24 planted facts, not overall answer quality.",
 ]
+
+[[figure]]
+id = "decisive-urithi"
+file = "decisive-urithi.md"
+title = "The decisive test again, with apu-urithi's routing and statement-triggered extraction"
+question = "With apu-urithi's routing (whole-store search, per-kind thresholds, words beside meaning) and extraction only of messages that state a fact, does cama with decision 0013 catch up with a history folded into a summary over 500 turns?"
+runs = ["nebius-dsv4flash-onnx-longfacts-compact-v1", "nebius-dsv4flash-onnx-longfacts-compact-v2", "nebius-dsv4flash-onnx-longfacts-cama-v1", "nebius-dsv4flash-onnx-longfacts-cama-v2", "nebius-dsv4flash-onnx-longfacts-cama-urithi-v1", "nebius-dsv4flash-onnx-longfacts-cama-urithi-v2", "nebius-dsv4flash-onnx-longfacts-cama-urithi-stmt-v1", "nebius-dsv4flash-onnx-longfacts-cama-urithi-stmt-v2"]
+columns = ["run", "mode", "turns", "recall", "hot", "prompt", "cached_share", "cost", "cost_cold"]
+reproduce = "as decisive-long-facts, cama arms with -e CAMA_ROUTE_POLICY=urithi [-e CAMA_EXTRACT_EVERY=10 -e CAMA_EXTRACT_POLICY=statements | -e CAMA_EXTRACT_EVERY=1]"
+reading = [
+  "With apu-urithi's routing, cama recalled 24 of 24 in all four runs, against 21 of 24 with the cascade router: the three facts the cascade left in L3 were paged back in.",
+  "Extracting only the messages that state a fact, and the rest every 10 turns, cut cama's cold path from about 0.037 to 0.020 to 0.022 USD and its total to 0.055 and 0.060 USD, with full recall.",
+  "compact stays the cheapest arm at 0.049 and 0.052 USD, also with full recall once its scores ignore thousands separators (the table shows its manifest scores, 23, recorded before that fix): cama is now level on recall and 6 to 22 percent dearer.",
+]
+limits = [
+  "Two runs per arm, one generated English scenario, one model at Nebius; compact and the first cama arm were recorded on 2026-10-25, the urithi arms on 2026-10-27.",
+  "Statement detection is a French and English heuristic tuned by hand; recall is a substring check of 24 facts.",
+]

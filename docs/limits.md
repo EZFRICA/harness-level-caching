@@ -33,6 +33,8 @@ was measured or found. A line leaves this page only through a ledger event that 
 
 | Gemini implicit cache on 2026-10-27, ~13.3k token prompts with a ~10.1k token identical prefix: 0 hits in 54 of 54 valid arms on the Gemini API and 41 of 41 on Vertex, every idle delay from 15 s to 30 min, and 0 in 20 sequential calls 2 s apart; on 2026-10-24 Flash-Lite had hit at 15 s and 2 min | `docs/measured/probes/cache-lifetime-*-2026-10-27.jsonl` | no cache life can be stated for Gemini; implicit caching did not reproduce across days on this account |
 
+| With apu-urithi's routing and statement-triggered extraction, cama recalled 24 of 24 like compact but cost 0.055 to 0.060 USD against 0.049 to 0.052 over 500 turns | `docs/measured/decisive-urithi.md` | both defects addressed; cama is level on recall, still not cheaper than a summary |
+
 ## Open problems
 
 - **Nebius was unstable on 2026-10-24 afternoon** (503 on 8 of 12 calls over a minute): the

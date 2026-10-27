@@ -1,0 +1,4 @@
+{"entry": "vertex", "model": "gemini-3.5-flash-lite", "sequential_2s": [[13227, 0], [13225, 0], [13209, 0], [13213, 0], [13221, 0]], "at": "2026-10-27T18:59:09Z"}
+{"entry": "vertex", "model": "gemini-4-argon", "sequential_2s": [[13278, 0], [13261, 0], [13265, 0], [null, 0], [13264, 0]], "at": "2026-10-27T19:01:27Z"}
+{"entry": "aistudio", "model": "gemini-3.5-flash-lite", "sequential_2s": [[13308, 0], [13282, 0], [13287, 0], [13289, 0], [13260, 0]], "at": "2026-10-27 (morning, values copied from the session output)"}
+{"entry": "aistudio", "model": "gemini-4-argon", "sequential_2s": [[13278, 0], [13274, 0], [13280, 0], [13273, 0], [13269, 0]], "at": "2026-10-27 (morning, values copied from the session output)"}

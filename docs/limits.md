@@ -31,6 +31,8 @@ was measured or found. A line leaves this page only through a ledger event that 
 
 | **Decisive test, 500 turns: a history folded into a summary (compact) recalled 24 of 24 for about 0.05 USD; cama with decision 0013 recalled 21 and 22 for about 0.074 USD** | `docs/measured/decisive.md` | on this test cama loses to the simple alternative in both recall and cost; per-turn extraction is the cost. The three missed facts were stored and paged out to L3, and the page fault did not bring them back: a routing failure, not a loss (checked in both runs' stores) |
 
+| Gemini implicit cache on 2026-10-27, ~13.3k token prompts with a ~10.1k token identical prefix: 0 hits in 54 of 54 valid arms on the Gemini API and 41 of 41 on Vertex, every idle delay from 15 s to 30 min, and 0 in 20 sequential calls 2 s apart; on 2026-10-24 Flash-Lite had hit at 15 s and 2 min | `docs/measured/probes/cache-lifetime-*-2026-10-27.jsonl` | no cache life can be stated for Gemini; implicit caching did not reproduce across days on this account |
+
 ## Open problems
 
 - **Nebius was unstable on 2026-10-24 afternoon** (503 on 8 of 12 calls over a minute): the

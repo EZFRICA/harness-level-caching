@@ -25,6 +25,13 @@ existing work in `docs/prior-art.md`, every action in `docs/ledger.jsonl` (rende
   Gemini API and Vertex AI; provider caching cannot be assumed, it has to be measured.
 - `docs/measured/web.md`: an exact-key tool cache rarely hits on model-written web queries.
 
+## Reproduce the memory comparison
+
+`scripts/reproduce.sh setup` fetches the embedding model and starts the container (Docker, uv
+and `NEBIUS_API_KEY` in `.env`); `scripts/reproduce.sh <arm> [scenario]` runs one arm (`naive`,
+`summary`, `verbatim`, `extract`, `extract-statements`) with the settings of the frozen runs and
+prints its report. Try `/scenarios/generated/smoke_facts_100_v1.jsonl` first (100 turns).
+
 ## Install as a package
 
 With access to this repository, pip installs the code from GitHub (`[local]` adds the ONNX

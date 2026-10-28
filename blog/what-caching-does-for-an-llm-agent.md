@@ -65,6 +65,10 @@ Keeping everything is fine for a while, because most of the history comes from t
 
 The summary does one extra model call now and then, eleven or twelve times over the whole conversation, to fold old turns into a few bullet points. Between two folds the prompt only grows at the end, so the cache keeps working.
 
+You can see it in the small dashboard I built to watch the runs. The blue line is the summary: the prompt grows, then drops back each time old turns get folded away. The red line is the extracted memory. It stays small, but it changes more often, so less of it comes from the cache (83% against 96%), and the notes it keeps writing in the background cost more than the answers themselves.
+
+![The dashboard comparing the summary (A) with the extracted memory (B) over 1500 turns](img/5-dashboard.png)
+
 My fact extraction does its extra work much more often. Even when I only wrote notes for messages that state something, it cost about a third more than the summary. A small memory with a stable order does make each prompt cheaper. It just does not make up for the cost of keeping that memory up to date.
 
 ## What went wrong, and what fixed it

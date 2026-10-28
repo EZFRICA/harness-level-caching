@@ -54,6 +54,7 @@ class Config:
     route_policy: str = "cascade"  # cascade | urithi (whole-store search, per-kind thresholds, words beside meaning)
     compact_at: int = 6000  # compact mode: fold the history once its unfolded part passes this (approx tokens)
     compact_keep: int = 4  # compact mode: exchanges kept verbatim after a fold
+    verbatim_recall: bool = False  # hypothesis H9 (compact): stored user messages recalled verbatim at the tail
     page_in_tail: bool = False  # hypothesis H8 (with epoch refresh): a paged-in block is sent after the window
     render_order: str = "stable"  # stable (decision 0002) | recency: ablation, blocks in order of last access
     extract_policy: str = "every"  # every: batch by extract_every | statements: a stated fact is extracted at once
@@ -130,6 +131,7 @@ class Config:
             route_policy=_env("CAMA_ROUTE_POLICY", "cascade"),
             compact_at=int(_env("CAMA_COMPACT_AT", "6000")),
             compact_keep=int(_env("CAMA_COMPACT_KEEP", "4")),
+            verbatim_recall=_env("CAMA_VERBATIM_RECALL", "off") == "on",
             page_in_tail=_env("CAMA_PAGE_IN_TAIL", "off") == "on",
             render_order=_env("CAMA_RENDER_ORDER", "stable"),
             extract_policy=_env("CAMA_EXTRACT_POLICY", "every"),

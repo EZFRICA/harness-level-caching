@@ -131,27 +131,8 @@ class Router:
         found outside the active set are paged in."""
         res = RouteResult(tier="miss")
         now = time.time()
+        accepted = await self._urithi_select(query, res)
         t = time.perf_counter()
-        qv = (await self.embedder.embed([query], "query"))[0]
-        res.embed_calls = 1
-        res.timings_ms["embed_query"] = (time.perf_counter() - t) * 1000
-        t = time.perf_counter()
-        by_meaning, scanned = self.store.search(qv, k=URITHI_LIMIT, exclude=set())
-        res.l3_rows_scanned = scanned
-        rows = self.store.db.execute("SELECT id, title, content FROM blocks").fetchall()
-        scores = keywords.bm25(query, [f"{r['title']}\n{r['content']}" for r in rows])
-        by_words = [rows[i]["id"] for i in sorted(range(len(rows)), key=lambda i: -scores[i]) if scores[i] > 0]
-        cos = dict(by_meaning)
-        accepted = []
-        for bid in keywords.fuse([b for b, _ in by_meaning], by_words[:URITHI_LIMIT]):
-            block = self.active.get(bid) or self.store.get(bid)
-            if block is None:
-                continue
-            passes = cos.get(bid, -1.0) >= URITHI_THRESHOLDS.get(block.kind, 0.45)
-            if passes or (by_words and bid == by_words[0]):
-                accepted.append((block, cos.get(bid, 0.0)))
-            if len(accepted) >= self.cfg.page_in_k:
-                break
         for block, score in accepted:
             res.hits.append((block.id, score))
             if block.id in self.active.ids():
@@ -172,6 +153,45 @@ class Router:
         res.timings_ms["urithi"] = (time.perf_counter() - t) * 1000
         res.tier = "l3_fault" if res.paged_in else ("active" if res.hits else "miss")
         return res
+
+    async def _urithi_select(self, query: str, res: RouteResult, skip=None) -> list[tuple[Block, float]]:
+        """The blocks apu-urithi's search accepts for a query, best first, at most page_in_k.
+        `skip(block_id)` drops a candidate before it takes a place (already in the prompt)."""
+        t = time.perf_counter()
+        qv = (await self.embedder.embed([query], "query"))[0]
+        res.embed_calls = 1
+        res.timings_ms["embed_query"] = (time.perf_counter() - t) * 1000
+        t = time.perf_counter()
+        by_meaning, scanned = self.store.search(qv, k=URITHI_LIMIT, exclude=set())
+        res.l3_rows_scanned = scanned
+        rows = self.store.db.execute("SELECT id, title, content FROM blocks").fetchall()
+        if skip is not None:
+            by_meaning = [(b, s) for b, s in by_meaning if not skip(b)]
+            rows = [r for r in rows if not skip(r["id"])]
+        scores = keywords.bm25(query, [f"{r['title']}\n{r['content']}" for r in rows])
+        by_words = [rows[i]["id"] for i in sorted(range(len(rows)), key=lambda i: -scores[i]) if scores[i] > 0]
+        cos = dict(by_meaning)
+        accepted = []
+        for bid in keywords.fuse([b for b, _ in by_meaning], by_words[:URITHI_LIMIT]):
+            block = self.active.get(bid) or self.store.get(bid)
+            if block is None:
+                continue
+            passes = cos.get(bid, -1.0) >= URITHI_THRESHOLDS.get(block.kind, 0.45)
+            if passes or (by_words and bid == by_words[0]):
+                accepted.append((block, cos.get(bid, 0.0)))
+            if len(accepted) >= self.cfg.page_in_k:
+                break
+        res.timings_ms["urithi_search"] = (time.perf_counter() - t) * 1000
+        return accepted
+
+    async def recall(self, query: str, skip=None) -> tuple[list[tuple[Block, float]], RouteResult]:
+        """Hypothesis H9 (compact mode): the same search over stored user messages, read only.
+        Nothing is paged in: the caller appends what it finds to the end of the prompt."""
+        res = RouteResult(tier="miss")
+        accepted = await self._urithi_select(query, res, skip)
+        res.hits = [(b.id, s) for b, s in accepted]
+        res.tier = "recall" if accepted else "miss"
+        return accepted, res
 
     def _touch(self, hits: list[tuple[str, float]], now: float) -> None:
         for block_id, _ in hits:

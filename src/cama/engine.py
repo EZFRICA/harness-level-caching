@@ -81,6 +81,11 @@ codes, dates, places, references. When a fact was corrected, keep only the lates
 Drop small talk and the assistant's suggestions. Output the summary only, as short bullet points."""
 
 
+def _verbatim_turn(block_id: str) -> int:
+    """The turn of a stored user message (H9 ids are msg-<turn>); other blocks sort first."""
+    return int(block_id[4:]) if block_id.startswith("msg-") else -1
+
+
 def window_size(cfg: Config, turns_done: int) -> int:
     """Exchanges sent verbatim. With an epoch E the window only grows for E-1 turns, so the
     messages after the memory are append-only (a cacheable prefix), then it drops E at once."""
@@ -271,6 +276,8 @@ class Engine:
             blocks = [Block("conversation-summary", Kind.PROJET, "Conversation summary", self._summary)] \
                 if self._summary else []
             history = self.store.history(self.session)[self._compact_from:]
+            if cfg.verbatim_recall:
+                route = await self._recall_verbatim(user_text)
         else:
             route = await self.router.route(user_text)
             timings.update({f"route_{k}": v for k, v in route.timings_ms.items()})
@@ -321,6 +328,10 @@ class Engine:
             if sum(approx_tokens(m.text) for m in unfolded) > cfg.compact_at:
                 self._compact_queued = True
                 await self.scheduler.push(f"compact#{self.turn_index}", self._compact, PRIORITY_EXTRACT)
+        if cfg.mode == "compact" and cfg.verbatim_recall:
+            turn_no = self.turn_index - 1
+            await self.scheduler.push(f"verbatim#{self.turn_index}",
+                                      lambda: self._store_verbatim(turn_no, user_text), PRIORITY_EXTRACT)
         if cfg.mode in ("cama", "topk"):
             self._pending.append((user_text, out.text))
             due = len(self._pending) >= cfg.extract_every or (
@@ -410,6 +421,27 @@ class Engine:
                     "output_tokens": out.output_tokens}
         finally:
             self._compact_queued = False
+
+    async def _recall_verbatim(self, user_text: str):
+        """H9: search the stored user messages (apu-urithi's search) and put the ones found, oldest
+        first with their turn number, at the end of the prompt, so the head stays the cached
+        prefix. Messages still in the unfolded history are already in the prompt and skipped."""
+        first_unfolded = self._compact_from // 2
+        found, route = await self.router.recall(user_text, skip=lambda bid: _verbatim_turn(bid) >= first_unfolded)
+        if found:
+            found.sort(key=lambda bs: _verbatim_turn(bs[0].id))
+            self._tail = [b for b, _ in found]
+        return route
+
+    async def _store_verbatim(self, turn_no: int, user_text: str) -> dict:
+        """H9 cold path: the user's message as it was written, embedded locally, stored in L3 only.
+        No model call: this replaces extraction."""
+        vec = (await self.embedder.embed([user_text], "document"))[0]
+        now = time.time()
+        b = Block(id=f"msg-{turn_no:06d}", kind=Kind.PROJET, title=f"turn {turn_no}", content=user_text,
+                  vector=vec, created_at=now, modified_at=now, accessed_at=now)
+        self.store.upsert(b, "verbatim", active=False)
+        return {"stored": b.id}
 
     def _report(self, rep) -> dict:
         return {

@@ -60,7 +60,11 @@ verbatim recall), `topk` and `extract` (extracted memory, paged by a router). Ea
 command and switches that reproduce it. Long-session scenarios: `scripts/gen_long_facts.py`.
 
 Dashboard: http://localhost:8797 (read only, live): overview, live run, A/B comparison with
-verdicts, costs with price provenance, cluster, stress, and the ledger.
+verdicts, costs with price provenance, cluster, stress, and the ledger. Below, the A/B view on
+two 1500 turn runs: the running summary (A) against the extracted memory with apu-urithi's
+routing (B). The summary's prompt grows and folds (saw teeth), yet most of it is read from cache.
+
+![A/B comparison in the dashboard, 1500 turns](docs/img/dashboard-compare.png)
 
 Cluster (Postgres and three workers): `./scripts/cluster_fresh.sh <run id>`, then
 `docker compose exec hc harness-cache load --workers http://hc-w1:8797,http://hc-w2:8797,http://hc-w3:8797`.

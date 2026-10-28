@@ -2,11 +2,11 @@
 
 import json
 
-from cama.adapters.local import HashEmbedder
-from cama.memory.active_set import ActiveSet
-from cama.memory.extractor import Extractor, replace_line
-from cama.store.sqlite_store import SQLiteStore
-from cama.types import Block, Kind, LLMResult
+from harness_cache.adapters.local import HashEmbedder
+from harness_cache.memory.active_set import ActiveSet
+from harness_cache.memory.extractor import Extractor, replace_line
+from harness_cache.store.sqlite_store import SQLiteStore
+from harness_cache.types import Block, Kind, LLMResult
 
 TALK = "- Talk de 30 minutes le 14 decembre.\n- Duree revisee : 25 minutes, creneau 11h."
 

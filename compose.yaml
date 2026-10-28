@@ -1,20 +1,20 @@
 # Online profile on a constrained container.
 #   docker compose up -d --build
-#   docker compose exec -it cama cama chat
-#   docker compose exec cama cama run /scenarios/assistant_fr_v1.jsonl --fresh
-name: cama
+#   docker compose exec -it hc harness-cache chat
+#   docker compose exec hc harness-cache run /scenarios/assistant_fr_v1.jsonl --fresh
+name: harness-cache
 
 services:
-  cama:
+  hc:
     build:
       context: .
       dockerfile: docker/Dockerfile
       args:
-        CAMA_CODE_SHA: ${CAMA_CODE_SHA:-unknown}
-    image: cama:dev
-    container_name: cama-online
-    # Main process = live dashboard (http://cama.cama.orb.local); experiments run with `docker compose exec`.
-    command: ["cama", "dashboard", "--host", "0.0.0.0", "--port", "8797"]
+        HC_CODE_SHA: ${HC_CODE_SHA:-unknown}
+    image: harness-cache:dev
+    container_name: hc-online
+    # Main process = live dashboard (http://hc.harness-cache.orb.local); experiments run with `docker compose exec`.
+    command: ["harness-cache", "dashboard", "--host", "0.0.0.0", "--port", "8797"]
     labels:
       dev.orbstack.http-port: "8797"
     ports:
@@ -23,25 +23,25 @@ services:
       - path: .env          # GEMINI_API_KEY (never committed)
         required: false
     environment:
-      CAMA_LLM: ${CAMA_LLM:-echo}
-      CAMA_EMBEDDER: ${CAMA_EMBEDDER:-hash}
-      CAMA_MODEL: ${CAMA_MODEL:-gemini-3.5-flash-lite}
-      CAMA_MODE: ${CAMA_MODE:-cama}
-      CAMA_ONLINE: "1"
-      CAMA_PRICING: /config/pricing.toml
-      CAMA_MAX_USD: ${CAMA_MAX_USD:-2}
-      CAMA_COORDINATOR: postgresql://cama:cama-local@postgres:5432/cama   # read by the dashboard in cluster mode
-      CAMA_MEASURED_DIR: /docs/measured
-      CAMA_LEDGER: /docs/ledger.jsonl
-      CAMA_LOG_LEVEL: ${CAMA_LOG_LEVEL:-INFO}
+      HC_LLM: ${HC_LLM:-echo}
+      HC_EMBEDDER: ${HC_EMBEDDER:-hash}
+      HC_MODEL: ${HC_MODEL:-gemini-3.5-flash-lite}
+      HC_MODE: ${HC_MODE:-extract}
+      HC_ONLINE: "1"
+      HC_PRICING: /config/pricing.toml
+      HC_MAX_USD: ${HC_MAX_USD:-2}
+      HC_COORDINATOR: postgresql://hc:hc-local@postgres:5432/hc   # read by the dashboard in cluster mode
+      HC_MEASURED_DIR: /docs/measured
+      HC_LEDGER: /docs/ledger.jsonl
+      HC_LOG_LEVEL: ${HC_LOG_LEVEL:-INFO}
     # "Modest device" limits. Change them per experiment; they are recorded in each run manifest.
-    cpus: ${CAMA_CPUS:-1.0}
-    mem_limit: ${CAMA_MEM:-1g}
-    memswap_limit: ${CAMA_MEM:-1g}   # equal to mem_limit: no swap
+    cpus: ${HC_CPUS:-1.0}
+    mem_limit: ${HC_MEM:-1g}
+    memswap_limit: ${HC_MEM:-1g}   # equal to mem_limit: no swap
     pids_limit: 128
     volumes:
-      - cama-data:/data              # L3 store + journal (SQLite), persists across restarts
-      - cama-archive:/archive        # L4 replica, fed by the cold path
+      - hc-data:/data              # L3 store + journal (SQLite), persists across restarts
+      - hc-archive:/archive        # L4 replica, fed by the cold path
       - ./runs:/runs                 # metrics and logs, readable from the host
       - ./scenarios:/scenarios:ro    # scripted conversations
       - ./models:/models:ro          # local ONNX embedding model (never downloaded at runtime)
@@ -52,48 +52,48 @@ services:
   postgres:
     profiles: [cluster]
     image: postgres:17-alpine
-    container_name: cama-postgres
+    container_name: hc-postgres
     environment:
-      POSTGRES_USER: cama
-      POSTGRES_PASSWORD: cama-local      # local test credential, the port is not published
-      POSTGRES_DB: cama
+      POSTGRES_USER: hc
+      POSTGRES_PASSWORD: hc-local      # local test credential, the port is not published
+      POSTGRES_DB: hc
     volumes:
       - pg-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cama"]
+      test: ["CMD-SHELL", "pg_isready -U hc"]
       interval: 2s
       timeout: 2s
       retries: 30
 
-  cama-w1: &worker
+  hc-w1: &worker
     profiles: [cluster]
-    image: cama:dev
-    container_name: cama-w1
-    command: ["cama", "serve", "--worker", "w1"]
+    image: harness-cache:dev
+    container_name: hc-w1
+    command: ["harness-cache", "serve", "--worker", "w1"]
     depends_on:
       postgres:
         condition: service_healthy
     environment: &worker-env
-      CAMA_LLM: ${CAMA_LLM:-echo}
-      CAMA_EMBEDDER: ${CAMA_EMBEDDER:-onnx}
-      CAMA_MODEL: ${CAMA_MODEL:-gemini-3.5-flash-lite}
-      CAMA_PRICING: /config/pricing.toml
-      CAMA_MAX_USD: ${CAMA_MAX_USD:-2}
-      CAMA_COORDINATOR: postgresql://cama:cama-local@postgres:5432/cama
-      CAMA_CLUSTER_RUN: ${CAMA_CLUSTER_RUN:-cluster}
-      CAMA_TOOL_LATENCY_SCALE: ${CAMA_TOOL_LATENCY_SCALE:-1}
-      CAMA_ECHO_BASE_MS: ${CAMA_ECHO_BASE_MS:-1000}
-      CAMA_ECHO_MS_PER_OUTPUT_TOKEN: ${CAMA_ECHO_MS_PER_OUTPUT_TOKEN:-3}
-      CAMA_ECHO_CACHED_EXTRA_MS: ${CAMA_ECHO_CACHED_EXTRA_MS:-100}
-      CAMA_FAULT_LLM_ERROR_RATE: ${CAMA_FAULT_LLM_ERROR_RATE:-0}
-      CAMA_FAULT_TOOL_ERROR_RATE: ${CAMA_FAULT_TOOL_ERROR_RATE:-0}
-      CAMA_LOG_LEVEL: WARNING
+      HC_LLM: ${HC_LLM:-echo}
+      HC_EMBEDDER: ${HC_EMBEDDER:-onnx}
+      HC_MODEL: ${HC_MODEL:-gemini-3.5-flash-lite}
+      HC_PRICING: /config/pricing.toml
+      HC_MAX_USD: ${HC_MAX_USD:-2}
+      HC_COORDINATOR: postgresql://hc:hc-local@postgres:5432/hc
+      HC_CLUSTER_RUN: ${HC_CLUSTER_RUN:-cluster}
+      HC_TOOL_LATENCY_SCALE: ${HC_TOOL_LATENCY_SCALE:-1}
+      HC_ECHO_BASE_MS: ${HC_ECHO_BASE_MS:-1000}
+      HC_ECHO_MS_PER_OUTPUT_TOKEN: ${HC_ECHO_MS_PER_OUTPUT_TOKEN:-3}
+      HC_ECHO_CACHED_EXTRA_MS: ${HC_ECHO_CACHED_EXTRA_MS:-100}
+      HC_FAULT_LLM_ERROR_RATE: ${HC_FAULT_LLM_ERROR_RATE:-0}
+      HC_FAULT_TOOL_ERROR_RATE: ${HC_FAULT_TOOL_ERROR_RATE:-0}
+      HC_LOG_LEVEL: WARNING
     env_file:
       - path: .env
         required: false
-    cpus: ${CAMA_CPUS:-1.0}
-    mem_limit: ${CAMA_MEM:-1g}
-    memswap_limit: ${CAMA_MEM:-1g}
+    cpus: ${HC_CPUS:-1.0}
+    mem_limit: ${HC_MEM:-1g}
+    memswap_limit: ${HC_MEM:-1g}
     volumes:
       - w1-data:/data
       - ./runs:/runs
@@ -101,10 +101,10 @@ services:
       - ./models:/models:ro
       - ./pricing.toml:/config/pricing.toml:ro
 
-  cama-w2:
+  hc-w2:
     <<: *worker
-    container_name: cama-w2
-    command: ["cama", "serve", "--worker", "w2"]
+    container_name: hc-w2
+    command: ["harness-cache", "serve", "--worker", "w2"]
     volumes:
       - w2-data:/data
       - ./runs:/runs
@@ -112,10 +112,10 @@ services:
       - ./models:/models:ro
       - ./pricing.toml:/config/pricing.toml:ro
 
-  cama-w3:
+  hc-w3:
     <<: *worker
-    container_name: cama-w3
-    command: ["cama", "serve", "--worker", "w3"]
+    container_name: hc-w3
+    command: ["harness-cache", "serve", "--worker", "w3"]
     volumes:
       - w3-data:/data
       - ./runs:/runs
@@ -124,8 +124,8 @@ services:
       - ./pricing.toml:/config/pricing.toml:ro
 
 volumes:
-  cama-data:
-  cama-archive:
+  hc-data:
+  hc-archive:
   pg-data:
   w1-data:
   w2-data:

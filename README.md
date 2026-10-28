@@ -24,17 +24,17 @@ existing work in `docs/prior-art.md`, every action in `docs/ledger.jsonl` (rende
 
 ```bash
 cp .env.example .env                       # set the keys of the providers you use
-CAMA_CODE_SHA=$(scripts/code_id.sh) docker compose up -d --build
+HC_CODE_SHA=$(scripts/code_id.sh) docker compose up -d --build
 ```
 
 The local embedding model (`qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q`) is mounted
 from `models/`, which is not in the repository: place the Hugging Face cache there. Limits of
-the container: `CAMA_CPUS` and `CAMA_MEM` (default 1 CPU and 1 GB).
+the container: `HC_CPUS` and `HC_MEM` (default 1 CPU and 1 GB).
 
 ```bash
-docker compose exec -it cama cama chat                            # interactive
-docker compose exec cama cama run /scenarios/assistant_fr_v1.jsonl --fresh --mode cama
-docker compose exec cama cama report /runs/<run_id>
+docker compose exec -it hc harness-cache chat                            # interactive
+docker compose exec hc harness-cache run /scenarios/assistant_fr_v1.jsonl --fresh --mode extract
+docker compose exec hc harness-cache report /runs/<run_id>
 ```
 
 Modes: `naive`, `compact`, `topk`, `cama`. Each figure page in `docs/measured/` gives the exact
@@ -44,26 +44,26 @@ Dashboard: http://localhost:8797 (read only, live): overview, live run, A/B comp
 verdicts, costs with price provenance, cluster, stress, and the ledger.
 
 Cluster (Postgres and three workers): `./scripts/cluster_fresh.sh <run id>`, then
-`docker compose exec cama cama load --workers http://cama-w1:8797,http://cama-w2:8797,http://cama-w3:8797`.
+`docker compose exec hc harness-cache load --workers http://hc-w1:8797,http://hc-w2:8797,http://hc-w3:8797`.
 Stress profiles: `scripts/stress_scale.sh`, `scripts/fault_facts.py`, skill `run-a-stress`.
 
 ## Trace and figures
 
 ```bash
 uv run pytest -q                           # offline, no key, no network
-uv run cama ledger add --kind action --title "..." --why "..." --result done
-uv run cama ledger check                   # the hash chain holds
-uv run cama figures snapshot runs/<run_id> # freeze a run into docs/measured/runs
-uv run cama figures write                  # regenerate the figure pages
-uv run cama decisions                      # every decision cites frozen runs and real tests
+uv run harness-cache ledger add --kind action --title "..." --why "..." --result done
+uv run harness-cache ledger check                   # the hash chain holds
+uv run harness-cache figures snapshot runs/<run_id> # freeze a run into docs/measured/runs
+uv run harness-cache figures write                  # regenerate the figure pages
+uv run harness-cache decisions                      # every decision cites frozen runs and real tests
 ```
 
 ## Volumes
 
 | volume | holds |
 |---|---|
-| `cama-data` at `/data` | SQLite stores, one per experiment with `--fresh` |
-| `cama-archive` at `/archive` | the L4 replica fed by the cold path |
+| `hc-data` at `/data` | SQLite stores, one per experiment with `--fresh` |
+| `hc-archive` at `/archive` | the L4 replica fed by the cold path |
 | `./runs` at `/runs` | manifest, turns, tasks and log of every run |
 | `./scenarios` at `/scenarios` | scripted conversations, read only |
 | `./models` at `/models` | the local ONNX embedding model, read only |

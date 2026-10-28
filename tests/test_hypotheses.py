@@ -1,7 +1,7 @@
 """Switches under test (window epoch, extraction every N turns): defaults keep the old behaviour."""
 
-from cama.config import Config
-from cama.engine import window_size
+from harness_cache.config import Config
+from harness_cache.engine import window_size
 
 
 def test_by_default_the_window_slides_every_turn():
@@ -26,9 +26,9 @@ def test_defaults_extract_after_every_exchange():
 def _engine(tmp_path, **kw):
     from types import SimpleNamespace
 
-    from cama.metrics import RunRecorder
-    from cama.engine import Engine
-    from cama.types import Block, Kind
+    from harness_cache.metrics import RunRecorder
+    from harness_cache.engine import Engine
+    from harness_cache.types import Block, Kind
     cfg = Config(data_dir=tmp_path / "d", runs_dir=tmp_path / "r", archive_dir=tmp_path / "a", **kw)
     eng = Engine(cfg, RunRecorder(tmp_path / "r", "x"))
     eng.active.admit(Block("b", Kind.PROJET, "B", "- one"))
@@ -63,7 +63,7 @@ def test_by_default_memory_is_rendered_live_every_turn(tmp_path):
 
 
 def test_with_tail_page_ins_the_cached_head_stays_and_the_block_goes_last(tmp_path):
-    from cama.types import Block, Kind
+    from harness_cache.types import Block, Kind
     eng, quiet, paged = _engine(tmp_path, window_epoch=3, memory_refresh="epoch", page_in_tail=True)
     eng.turn_index = 3
     head = eng._memory_view(quiet)
@@ -77,7 +77,7 @@ def test_with_tail_page_ins_the_cached_head_stays_and_the_block_goes_last(tmp_pa
 
 
 def test_a_statement_is_told_apart_from_a_question_or_a_request():
-    from cama.engine import states_a_fact
+    from harness_cache.engine import states_a_fact
     assert states_a_fact("Mon vol retour est prévu le 18 décembre.")
     assert states_a_fact("Changement de programme : mon talk passe à 30 minutes.")
     assert not states_a_fact("Quand est mon vol retour ?")
@@ -88,7 +88,7 @@ def test_a_statement_is_told_apart_from_a_question_or_a_request():
 
 def test_recency_order_moves_a_block_when_it_is_read(tmp_path):
     import time as _t
-    from cama.types import Block, Kind
+    from harness_cache.types import Block, Kind
     eng, quiet, _ = _engine(tmp_path, render_order="recency")
     eng.active.admit(Block("a", Kind.FONDAMENTAL, "A", "- a"))
     eng.active.get("a").accessed_at = _t.time() - 100

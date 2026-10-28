@@ -22,7 +22,7 @@ Read `.claude/skills/house-rules/SKILL.md` before anything else.
 | leases, epochs, replication, recovery, shared caches | `cluster-contract` |
 | the dashboard, its views, verdicts and look | `dashboard` |
 
-Agents in `.claude/agents/`: `cama-reviewer` (read only review), `experiment-runner`
+Agents in `.claude/agents/`: `change-reviewer` (read only review), `experiment-runner`
 (measured figures), `chaos-tester` (stress and faults), `prior-art-researcher` (verified
 sources).
 
@@ -31,7 +31,7 @@ sources).
 - Design: `docs/architecture.md`. Why: `docs/decisions/` (with evidence front matter). What
   was done: `docs/ledger.jsonl`, rendered to `docs/journal/`. What was measured:
   `docs/measured/` (generated). Existing systems: `docs/prior-art*.md`.
-- Code: `src/cama/` (core is network free; providers live in `src/cama/adapters/`).
+- Code: `src/harness_cache/` (core is network free; providers live in `src/harness_cache/adapters/`).
 - Runs: `runs/<run_id>/` (manifest, turns, tasks, log), gitignored.
 
 ## True for every change
@@ -42,9 +42,9 @@ sources).
   measurement is added beside the old one, never over it.
 - **No test needs a key or the network.** Live runs are separate and budget capped.
 - **A guarantee ships with a test that a mutant would make fail** (`uv run mutmut run`).
-- **Every action is a ledger event** (`uv run cama ledger add ...`) before the next one
+- **Every action is a ledger event** (`uv run harness-cache ledger add ...`) before the next one
   starts; `docs/journal/` is generated from the ledger, never edited.
-- **Measured numbers are generated** from frozen runs (`uv run cama figures write`), never
+- **Measured numbers are generated** from frozen runs (`uv run harness-cache figures write`), never
   typed into a document.
 
 ## The verification series
@@ -52,7 +52,7 @@ sources).
 ```bash
 uv run pytest -q                              # offline; includes trace and writing rules
 uv run mutmut run                             # survivors are invariants nobody holds
-uv run cama ledger check && uv run cama figures check && uv run cama decisions
+uv run harness-cache ledger check && uv run harness-cache figures check && uv run harness-cache decisions
 docker compose up -d --build                  # then a scenario run, see run-an-experiment
 ```
 

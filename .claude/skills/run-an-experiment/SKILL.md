@@ -13,27 +13,27 @@ question to a published number is always the same.
 
 One sentence a non specialist understands ("how many prompt tokens does the explicit prefix
 cache save on 23 turns?"). Then the arms: the policy under test, its **ablation** (the same
-run with the mechanism switched off: `CAMA_PREFIX_CACHE=none`, `CAMA_VICTIM_WINDOW=1`, ...),
+run with the mechanism switched off: `HC_PREFIX_CACHE=none`, `HC_VICTIM_WINDOW=1`, ...),
 and a baseline mode (`naive`, `topk`) when relevant. Everything else identical: scenario,
 seed blocks, limits, model.
 
 ## 2. Run each arm on a fresh store
 
 ```bash
-CAMA_LLM=gemini CAMA_EMBEDDER=onnx docker compose up -d
-docker compose exec cama cama run /scenarios/<scenario>.jsonl --fresh --mode <mode> --run-id <name>
-docker compose exec cama cama report /runs/<name> --skip-first 1
+HC_LLM=gemini HC_EMBEDDER=onnx docker compose up -d
+docker compose exec hc harness-cache run /scenarios/<scenario>.jsonl --fresh --mode <mode> --run-id <name>
+docker compose exec hc harness-cache report /runs/<name> --skip-first 1
 ```
 
 Name runs so they sort and read: `<model>-<embedder>-<mode>-<variant>-v<n>`. Real models run
-small and under `CAMA_MAX_USD`; repeat an arm when the CIs overlap rather than concluding.
+small and under `HC_MAX_USD`; repeat an arm when the CIs overlap rather than concluding.
 
 ## 3. Freeze, declare, generate
 
 ```bash
-uv run cama figures snapshot runs/<name> ...     # docs/measured/runs/<name>.json
+uv run harness-cache figures snapshot runs/<name> ...     # docs/measured/runs/<name>.json
 # add a [[figure]] to docs/measured/figures.toml: question, runs, columns, reproduce, reading, limits
-uv run cama figures write
+uv run harness-cache figures write
 ```
 
 `reading` states only what the table shows. `limits` always says: how many runs, synthetic or
@@ -49,7 +49,7 @@ real scenario, echo or real model, in-sample thresholds, quality not measured.
 ## 5. Record it
 
 ```bash
-uv run cama ledger add --kind measurement --title "..." --why "<the question>" \
+uv run harness-cache ledger add --kind measurement --title "..." --why "<the question>" \
   --runs <names> --live "<one line with the key numbers>" --result done
 ```
 

@@ -1,6 +1,6 @@
 """The distributed contract, offline: the in-memory coordinator follows the same rules as Postgres.
 
-The same contract tests run against the real Postgres container when CAMA_LIVE_PG is set to a DSN.
+The same contract tests run against the real Postgres container when HC_LIVE_PG is set to a DSN.
 """
 
 import json
@@ -9,9 +9,9 @@ from pathlib import Path
 
 import pytest
 
-from cama.cluster.coordinator import MemoryCoordinator, PostgresCoordinator, StaleEpoch
-from cama.cluster.service import NotOwner, Worker
-from cama.config import Config
+from harness_cache.cluster.coordinator import MemoryCoordinator, PostgresCoordinator, StaleEpoch
+from harness_cache.cluster.service import NotOwner, Worker
+from harness_cache.config import Config
 
 SCENARIO = Path(__file__).parent.parent / "scenarios" / "agentic_fr_v1.jsonl"
 
@@ -26,8 +26,8 @@ class Clock:
 
 def _coords():
     yield "memory", lambda: MemoryCoordinator(clock=Clock())
-    if os.environ.get("CAMA_LIVE_PG"):
-        yield "postgres", lambda: PostgresCoordinator(os.environ["CAMA_LIVE_PG"])
+    if os.environ.get("HC_LIVE_PG"):
+        yield "postgres", lambda: PostgresCoordinator(os.environ["HC_LIVE_PG"])
 
 
 @pytest.fixture(params=[name for name, _ in _coords()])
@@ -148,7 +148,7 @@ async def test_tool_results_and_prefix_caches_are_shared_between_workers(tmp_pat
 async def test_the_http_service_accepts_a_turn_body(tmp_path):
     """Measured: the first live load got 216 errors out of 216; the body was read as a query parameter."""
     import httpx
-    from cama.cluster.service import create_app
+    from harness_cache.cluster.service import create_app
 
     w = Worker(_cfg(tmp_path, "w"), "w", MemoryCoordinator(), "t", lease_ttl_s=60)
     app = create_app(w)
@@ -161,8 +161,8 @@ async def test_the_http_service_accepts_a_turn_body(tmp_path):
 
 def test_engines_of_one_process_share_one_embedding_model(tmp_path):
     """Measured: each agent loaded its own ONNX model; three agents put a 1 GB worker out of memory."""
-    from cama.engine import Engine
-    from cama.metrics import RunRecorder
+    from harness_cache.engine import Engine
+    from harness_cache.metrics import RunRecorder
 
     a = Engine(_cfg(tmp_path, "a"), RunRecorder(tmp_path / "r", "a"), session="a")
     b = Engine(_cfg(tmp_path, "b"), RunRecorder(tmp_path / "r", "b"), session="b")
@@ -172,8 +172,8 @@ def test_engines_of_one_process_share_one_embedding_model(tmp_path):
 async def test_replication_keeps_up_under_back_to_back_turns(tmp_path):
     """Measured: with turns arriving back to back the idle gated sync never ran; a crash lost 26 rows."""
     import asyncio
-    from cama.engine import Engine
-    from cama.metrics import RunRecorder
+    from harness_cache.engine import Engine
+    from harness_cache.metrics import RunRecorder
 
     cfg = Config(data_dir=tmp_path / "d", runs_dir=tmp_path / "r", archive_dir=tmp_path / "a",
                  tool_latency_scale=0, sync_interval_s=0.05, echo_base_ms=20)
@@ -191,8 +191,8 @@ async def test_replication_keeps_up_under_back_to_back_turns(tmp_path):
 
 
 async def test_extraction_coalesces_when_the_cold_path_falls_behind(tmp_path):
-    from cama.engine import Engine
-    from cama.metrics import RunRecorder
+    from harness_cache.engine import Engine
+    from harness_cache.metrics import RunRecorder
 
     cfg = Config(data_dir=tmp_path / "d", runs_dir=tmp_path / "r", archive_dir=tmp_path / "a",
                  tool_latency_scale=0, echo_base_ms=30)
@@ -212,9 +212,9 @@ async def test_extraction_coalesces_when_the_cold_path_falls_behind(tmp_path):
 
 async def test_a_local_store_unknown_to_the_shared_tier_is_rebuilt_from_it(tmp_path):
     """Measured: a worker's volume kept a previous run's store; it trusted it over an empty shared tier."""
-    from cama.cluster.recovery import recover
-    from cama.engine import Engine
-    from cama.metrics import RunRecorder
+    from harness_cache.cluster.recovery import recover
+    from harness_cache.engine import Engine
+    from harness_cache.metrics import RunRecorder
 
     cfg = Config(data_dir=tmp_path / "d", runs_dir=tmp_path / "r", archive_dir=tmp_path / "a")
     eng = Engine(cfg, RunRecorder(cfg.runs_dir, "x"), session="ag")
@@ -230,7 +230,7 @@ async def test_a_saturated_worker_answers_busy_at_once_instead_of_queueing(tmp_p
     """Measured: 16 agents on one worker, nothing shed, 0 of 192 requests answered."""
     import asyncio
     import httpx
-    from cama.cluster.service import create_app
+    from harness_cache.cluster.service import create_app
 
     w = Worker(_cfg(tmp_path, "w"), "w", MemoryCoordinator(), "t", lease_ttl_s=60, max_inflight=1)
     gate = asyncio.Event()

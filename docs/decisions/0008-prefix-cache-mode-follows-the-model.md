@@ -15,11 +15,11 @@ agentic arms measured the explicit cache cutting the hot path cost by about 60% 
 ablation, while turns took about 2.4 to 2.7 s against 1.8 s without it (`docs/measured/agentic.md`).
 
 ## Decision
-- `CAMA_PREFIX_CACHE=auto` (default) reads the model's capability in `pricing.toml`: explicit
+- `HC_PREFIX_CACHE=auto` (default) reads the model's capability in `pricing.toml`: explicit
   where offered, implicit otherwise (stable order kept, no cache created, provider counts
   recorded). `explicit` on a model without it is refused, `none` is the ablation.
-- A paid model without a price is refused unless `CAMA_ALLOW_UNPRICED=1`: the budget guard
-  (`CAMA_MAX_USD`, checked before each call, storage charged up front for the full TTL) could
+- A paid model without a price is refused unless `HC_ALLOW_UNPRICED=1`: the budget guard
+  (`HC_MAX_USD`, checked before each call, storage charged up front for the full TTL) could
   not hold otherwise.
 - The explicit cache is reported as a trade: cost down, latency up on this provider. Which side
   matters is a deployment choice, not a default the research can settle.

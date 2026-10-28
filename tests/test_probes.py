@@ -1,7 +1,7 @@
 """Recall probes: deterministic scoring of planted facts in an answer."""
 
-from cama.probes import fold, score, summary
-from cama.report import recall_of
+from harness_cache.probes import fold, score, summary
+from harness_cache.report import recall_of
 
 
 def test_a_fact_is_found_whatever_the_case_accents_and_spacing():

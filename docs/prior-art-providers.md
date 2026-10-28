@@ -29,7 +29,7 @@ Pricing page `ai.google.dev/gemini-api/docs/pricing`, "Last updated 2026-10-22 U
 | Flex | 0.15 | 1.25 | 0.02 | 1.00 per 1M tokens per hour |
 
 Free tier: input and output free, context caching "Not available". Cache **creation** has no
-listed price: billing it at the input price stays an `assumption`, as `cama-cost` says.
+listed price: billing it at the input price stays an `assumption`, as the cost rules in `harness_cache.cost` says.
 
 ## Anthropic prompt caching (docs.claude.com)
 

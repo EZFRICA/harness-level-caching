@@ -6,16 +6,16 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from cama.config import Config
+from harness_cache.config import Config
 
 ROOT = Path(__file__).resolve().parent.parent
 
 
 def _client(tmp_path, monkeypatch):
-    monkeypatch.setenv("CAMA_MEASURED_DIR", str(ROOT / "docs" / "measured"))
-    monkeypatch.setenv("CAMA_LEDGER", str(ROOT / "docs" / "ledger.jsonl"))
-    monkeypatch.delenv("CAMA_COORDINATOR", raising=False)
-    from cama.dash.app import create_app
+    monkeypatch.setenv("HC_MEASURED_DIR", str(ROOT / "docs" / "measured"))
+    monkeypatch.setenv("HC_LEDGER", str(ROOT / "docs" / "ledger.jsonl"))
+    monkeypatch.delenv("HC_COORDINATOR", raising=False)
+    from harness_cache.dash.app import create_app
     return TestClient(create_app(Config(runs_dir=tmp_path / "runs", data_dir=tmp_path / "d")))
 
 
@@ -42,7 +42,7 @@ def test_frozen_runs_are_listed_and_compared_with_honest_verdicts(tmp_path, monk
 def test_cluster_view_says_unavailable_rather_than_failing(tmp_path, monkeypatch):
     c = _client(tmp_path, monkeypatch)
     assert c.get("/api/cluster").json() == {"available": False,
-                                            "reason": "single worker mode (no CAMA_COORDINATOR)"}
+                                            "reason": "single worker mode (no HC_COORDINATOR)"}
 
 
 def test_the_ledger_is_served_newest_first(tmp_path, monkeypatch):
@@ -59,7 +59,7 @@ def _m(median, lo, hi, total=None, cold=0.0, share=0.0, sha="s"):
 
 
 def test_a_verdict_never_claims_a_latency_difference_inside_overlapping_intervals():
-    from cama.dash.data import verdicts
+    from harness_cache.dash.data import verdicts
     v = verdicts(_m(1000, 900, 1100), _m(1050, 950, 1150))
     assert any(x["topic"] == "latency" and x["strength"] == "none" for x in v)
     v = verdicts(_m(1000, 950, 1050), _m(2000, 1900, 2100))
@@ -67,7 +67,7 @@ def test_a_verdict_never_claims_a_latency_difference_inside_overlapping_interval
 
 
 def test_verdicts_flag_unpriced_runs_different_scenarios_and_unmeasured_quality():
-    from cama.dash.data import verdicts
+    from harness_cache.dash.data import verdicts
     v = verdicts(_m(1, 0, 2, total=0.02, cold=0.015, sha="x"), _m(1, 0, 2, sha="y"))
     topics = {(x["topic"], x["strength"]) for x in v}
     assert ("warning", "warning") in topics and ("cost", "absent") in topics and ("quality", "absent") in topics

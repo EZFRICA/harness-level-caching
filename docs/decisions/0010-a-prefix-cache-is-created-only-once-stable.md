@@ -14,13 +14,13 @@ turn (200 creations), each stale by the next turn; per query prefixes (topk) gav
 creations for 2 hits. At the official prices a creation pays back only if it is read again.
 
 ## Decision
-`CAMA_CACHE_ADMISSION=stable` (default): a prefix is cached when the turns that already sent it,
-plus one when cama's rendered set is unchanged since the last turn, reach two. `always` keeps
+`HC_CACHE_ADMISSION=stable` (default): a prefix is cached when the turns that already sent it,
+plus one when extract's rendered set is unchanged since the last turn, reach two. `always` keeps
 the previous behaviour and is the ablation.
 
 ## Consequences
 - topk: 13 creations instead of 198, projected cost 0.122 instead of 0.154 USD on the profile.
-- cama with memory rewritten every turn creates nothing and pays full input, still cheaper in
+- extract with memory rewritten every turn creates nothing and pays full input, still cheaper in
   total than creating every turn (0.182 against 0.194 USD, projected). With a model that writes
   memory rarely, the cache is created from the second turn of each stable stretch.
 - The echo extractor writes every turn, which is not what a real model does: the real effect

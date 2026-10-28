@@ -1,8 +1,8 @@
 """Hypothesis H9: compact plus apu-urithi's search over the user's own messages, recalled verbatim at the tail."""
 
-from cama.config import Config
-from cama.engine import Engine
-from cama.metrics import RunRecorder
+from harness_cache.config import Config
+from harness_cache.engine import Engine
+from harness_cache.metrics import RunRecorder
 
 
 def _engine(tmp_path, **kw):

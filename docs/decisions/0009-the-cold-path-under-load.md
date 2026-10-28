@@ -14,9 +14,9 @@ happened: the first `kill -9` of a worker lost 26 journal rows per agent, and th
 latency of that run came from a cold path that did no work (ledger, fault events).
 
 ## Decision
-- Replication ships the journal every `CAMA_SYNC_INTERVAL_S` (1 s), whatever the hot path
+- Replication ships the journal every `HC_SYNC_INTERVAL_S` (1 s), whatever the hot path
   does; `drain` and a clean shutdown flush it. The RPO is bounded by that interval.
-- One queued extraction drains every pending exchange, up to `CAMA_EXTRACT_BATCH_MAX` (8), in
+- One queued extraction drains every pending exchange, up to `HC_EXTRACT_BATCH_MAX` (8), in
   one model call.
 
 ## Consequences

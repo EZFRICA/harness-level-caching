@@ -1,7 +1,7 @@
 [
   {
     "skills": ["run-an-experiment"],
-    "query": "Is cama faster than naive? The last runs say 1074 ms against 1146 ms.",
+    "query": "Is extract faster than naive? The last runs say 1074 ms against 1146 ms.",
     "files": ["docs/measured/modes.md"],
     "expected_behavior": [
       "Reads the confidence intervals and says the difference is not measured if they overlap",
@@ -12,9 +12,9 @@
   {
     "skills": ["run-an-experiment"],
     "query": "Show that cache-aware eviction helps.",
-    "files": ["src/cama/memory/active_set.py", "docs/decisions/0003-cache-aware-eviction.md"],
+    "files": ["src/harness_cache/memory/active_set.py", "docs/decisions/0003-cache-aware-eviction.md"],
     "expected_behavior": [
-      "Designs two arms differing only by CAMA_VICTIM_WINDOW (3 versus 1) on fresh stores",
+      "Designs two arms differing only by HC_VICTIM_WINDOW (3 versus 1) on fresh stores",
       "Chooses a scenario that forces evictions, since the current one barely evicts",
       "Freezes the runs, declares a figure in figures.toml and records a measurement in the ledger"
     ]

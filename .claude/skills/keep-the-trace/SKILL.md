@@ -10,16 +10,16 @@ One source per kind of fact, everything else is generated from it.
 
 | fact | source | generated view | checked by |
 |---|---|---|---|
-| what was done | `docs/ledger.jsonl` (append only, each event hashes the previous line) | `docs/journal/YYYY-MM-DD*.md` | `uv run cama ledger check`, `tests/test_trace.py` |
-| why | `docs/decisions/NNNN-*.md` with `evidence:` and `held_by:` | none | `uv run cama decisions` |
-| what was measured | `docs/measured/runs/<run>.json` and `figures.toml` | `docs/measured/*.md` | `uv run cama figures check` |
+| what was done | `docs/ledger.jsonl` (append only, each event hashes the previous line) | `docs/journal/YYYY-MM-DD*.md` | `uv run harness-cache ledger check`, `tests/test_trace.py` |
+| why | `docs/decisions/NNNN-*.md` with `evidence:` and `held_by:` | none | `uv run harness-cache decisions` |
+| what was measured | `docs/measured/runs/<run>.json` and `figures.toml` | `docs/measured/*.md` | `uv run harness-cache figures check` |
 
 ## The ledger
 
 After each action, before the next:
 
 ```bash
-uv run cama ledger add --kind <action|run|decision|measurement|fault|review> \
+uv run harness-cache ledger add --kind <action|run|decision|measurement|fault|review> \
   --title "<one line>" --why "<the request or defect>" --files a.py b.py \
   --verified "<tests, mutants>" --live "<what ran, numbers>" --runs <ids> --result <done|partial|failed>
 ```

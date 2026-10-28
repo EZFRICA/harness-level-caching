@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from cama.memory.prefix_cache import PrefixCache, prefix_hash
+from harness_cache.memory.prefix_cache import PrefixCache, prefix_hash
 
 
 class FakeProvider:
@@ -114,7 +114,7 @@ async def test_the_creation_record_carries_what_the_dashboard_and_cost_model_rea
 
 async def test_the_same_text_with_other_tools_is_another_prefix():
     """Gemini caches system and tools together; a tool change must not reuse the old cache."""
-    from cama.types import ToolSpec
+    from harness_cache.types import ToolSpec
     a = [ToolSpec("weather", "Weather.", {"type": "object"})]
     b = [ToolSpec("weather", "Weather forecast.", {"type": "object"})]
     assert prefix_hash("same", a) != prefix_hash("same", b) != prefix_hash("same")

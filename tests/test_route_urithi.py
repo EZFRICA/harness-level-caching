@@ -1,9 +1,9 @@
 """The urithi routing policy: whole-store search, per-kind thresholds, words beside meaning."""
 
-from cama.config import Config
-from cama.engine import Engine
-from cama.memory.keywords import bm25, fuse
-from cama.metrics import RunRecorder
+from harness_cache.config import Config
+from harness_cache.engine import Engine
+from harness_cache.memory.keywords import bm25, fuse
+from harness_cache.metrics import RunRecorder
 
 
 def _engine(tmp_path, policy):

@@ -6,17 +6,17 @@ from pathlib import Path
 
 import pytest
 
-from cama.adapters.local import EchoLLM
-from cama.agent.loop import AgentLoop
-from cama.cluster.coordinator import Lease, MemoryCoordinator, StaleEpoch
-from cama.cluster.recovery import recover
-from cama.config import Config
-from cama.cost import BudgetExceeded, SharedBudget
-from cama.engine import Engine
-from cama.metrics import RunRecorder
-from cama.teu.cache import ToolCache
-from cama.teu.tools import Bookings, FaultConfig, ToolRunner, default_tools
-from cama.types import Message
+from harness_cache.adapters.local import EchoLLM
+from harness_cache.agent.loop import AgentLoop
+from harness_cache.cluster.coordinator import Lease, MemoryCoordinator, StaleEpoch
+from harness_cache.cluster.recovery import recover
+from harness_cache.config import Config
+from harness_cache.cost import BudgetExceeded, SharedBudget
+from harness_cache.engine import Engine
+from harness_cache.metrics import RunRecorder
+from harness_cache.teu.cache import ToolCache
+from harness_cache.teu.tools import Bookings, FaultConfig, ToolRunner, default_tools
+from harness_cache.types import Message
 
 SCENARIO = Path(__file__).parent.parent / "scenarios" / "agentic_fr_v1.jsonl"
 

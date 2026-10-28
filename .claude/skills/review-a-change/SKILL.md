@@ -1,6 +1,6 @@
 ---
 name: review-a-change
-description: How a change to CAMA is reviewed before it is called done (which invariants it touches, the test and the mutant that hold each, the mutation run, the live run, the trace). Use after any change under src/cama, before reporting a step as finished, and when the owner asks whether something is solid.
+description: How a change to CAMA is reviewed before it is called done (which invariants it touches, the test and the mutant that hold each, the mutation run, the live run, the trace). Use after any change under src/harness_cache, before reporting a step as finished, and when the owner asks whether something is solid.
 when_to_use: Finishing a feature or a fix; reviewing someone else's change; deciding whether a guarantee is really held.
 ---
 
@@ -25,7 +25,7 @@ store, the ledger chain, generated pages equal to their regeneration.
 ## 3. Mutation
 
 ```bash
-uv run mutmut run            # mutates src/cama/memory and src/cama/store, runs the suite per mutant
+uv run mutmut run            # mutates src/harness_cache/memory and src/harness_cache/store, runs the suite per mutant
 uv run mutmut results        # survivors are invariants nobody holds
 ```
 
@@ -40,7 +40,7 @@ numbers. Not run live is a finding, reported as such.
 ## 5. Trace
 
 A ledger event for the change; a decision record when an alternative was set aside; figures
-regenerated if a frozen run or `figures.toml` changed (`uv run cama figures check`).
+regenerated if a frozen run or `figures.toml` changed (`uv run harness-cache figures check`).
 
 ## Report
 

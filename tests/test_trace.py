@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from cama.trace import decisions, figures
-from cama.trace.ledger import Ledger, LedgerError, render, write_pages
+from harness_cache.trace import decisions, figures
+from harness_cache.trace.ledger import Ledger, LedgerError, render, write_pages
 
 ROOT = Path(__file__).resolve().parent.parent
 DASH = re.compile("[" + chr(0x2013) + chr(0x2014) + "]")

@@ -3,8 +3,8 @@
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from cama.memory.active_set import ActiveSet, render_key
-from cama.types import Block, Kind
+from harness_cache.memory.active_set import ActiveSet, render_key
+from harness_cache.types import Block, Kind
 
 ops = st.lists(
     st.tuples(
@@ -46,8 +46,8 @@ def _replay(capacity, max_tokens, window, seq, check):
 @given(seq=ops, capacity=st.integers(2, 8), max_tokens=st.integers(30, 400), window=st.integers(1, 4))
 def test_unpinned_blocks_never_push_the_set_past_its_bounds(seq, capacity, max_tokens, window):
     """Pinned blocks may exceed the bounds by operator decision; nothing else may."""
-    from cama.memory.active_set import render_block
-    from cama.tokens import approx_tokens
+    from harness_cache.memory.active_set import render_block
+    from harness_cache.tokens import approx_tokens
 
     def tok(b):  # independent of ActiveSet.tokens, so a broken count cannot pass its own check
         return approx_tokens(render_block(b))

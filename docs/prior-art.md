@@ -11,7 +11,7 @@ not be read in a primary source is labelled **unverified** and is never used as 
 | `prior-art-serving.md` | inference-server KV caching: vLLM, SGLang, Prompt Cache, LMCache, CacheBlend, KVFlow, Continuum, CacheScout, Leyline |
 | `prior-art-tools.md` | tool, workflow and plan caching (hierarchical agentic caching, Cortex, workload-aware, APC) and GPTCache |
 | `prior-art-gateways.md` | gateways that route with the cache in mind (OpenRouter sticky routing, LiteLLM affinity and auto router, Portkey) |
-| `prior-art-compaction.md` | compaction and memory for long sessions (ARC, CWL, LightMem, TokenPilot, Anthropic and ADK compaction) against cama's two measured defects |
+| `prior-art-compaction.md` | compaction and memory for long sessions (ARC, CWL, LightMem, TokenPilot, Anthropic and ADK compaction) against extract's two measured defects |
 | `prior-art-sources.md` | every source with its URL, version and access date |
 
 ## The map
@@ -55,7 +55,7 @@ not be read in a primary source is labelled **unverified** and is never used as 
 - That memory quality does not drop: a retrieval or QA metric next to the cost figure, since
   every memory paper reports one (DMR, LoCoMo, LongMemEval).
 - The cold-path cost: explicit cache creation and storage at the official storage price, and
-  extraction calls, as `cama-cost` requires. A hot-path gain paid back cold is not a gain.
+  extraction calls, as the cost rules in `harness_cache.cost` requires. A hot-path gain paid back cold is not a gain.
 - The ablations `--no-prefix-cache`, `--no-tool-cache`, `--no-embed-cache`, and an LRU tool
   cache baseline, because the MDPI paper shows a plain LRU-512 reaching the same efficiency
   as its full system (76.9% versus 76.5%).

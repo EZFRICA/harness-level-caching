@@ -6,11 +6,11 @@ from pathlib import Path
 import httpx
 import pytest
 
-from cama.adapters import make_llm
-from cama.adapters.openai_compat import OpenAICompatLLM, ProviderError, messages_payload, parse_response
-from cama.config import Config
-from cama.cost import load_pricing, price_for
-from cama.types import Message, ToolCall, ToolSpec
+from harness_cache.adapters import make_llm
+from harness_cache.adapters.openai_compat import OpenAICompatLLM, ProviderError, messages_payload, parse_response
+from harness_cache.config import Config
+from harness_cache.cost import load_pricing, price_for
+from harness_cache.types import Message, ToolCall, ToolSpec
 
 ROOT = Path(__file__).resolve().parent.parent
 SPEC = ToolSpec("weather", "Weather in a city", {"type": "object", "properties": {"city": {"type": "string"}}})
@@ -96,9 +96,9 @@ async def test_an_explicit_cache_name_is_refused_since_the_provider_has_none():
 
 
 def test_a_missing_key_variable_is_refused_by_name(monkeypatch):
-    monkeypatch.delenv("CAMA_TEST_ABSENT_KEY", raising=False)
-    cfg = Config(llm="openai_compat", model="m", oai_base_url="https://fake/v1", oai_key_env="CAMA_TEST_ABSENT_KEY")
-    with pytest.raises(RuntimeError, match="CAMA_TEST_ABSENT_KEY is not set"):
+    monkeypatch.delenv("HC_TEST_ABSENT_KEY", raising=False)
+    cfg = Config(llm="openai_compat", model="m", oai_base_url="https://fake/v1", oai_key_env="HC_TEST_ABSENT_KEY")
+    with pytest.raises(RuntimeError, match="HC_TEST_ABSENT_KEY is not set"):
         make_llm(cfg)
 
 
@@ -153,7 +153,7 @@ async def test_a_short_lived_token_is_read_from_its_file_before_every_request(tm
 
 
 def test_gemini_on_vertex_builds_a_new_client_when_the_token_changes(tmp_path):
-    from cama.adapters.gemini import GeminiLLM
+    from harness_cache.adapters.gemini import GeminiLLM
     tok = tmp_path / "token"
     tok.write_text("t1")
     llm = GeminiLLM("gemini-3.5-flash-lite", "", vertex_project="p", token_file=str(tok))
@@ -164,6 +164,6 @@ def test_gemini_on_vertex_builds_a_new_client_when_the_token_changes(tmp_path):
 
 
 def test_an_empty_model_turn_is_replayed_with_a_placeholder_part():
-    from cama.adapters.gemini import _contents
+    from harness_cache.adapters.gemini import _contents
     out = _contents([Message("user", text="q"), Message("assistant", text=""), Message("user", text="again")])
     assert out[1].role == "model" and out[1].parts and out[1].parts[0].text == "(no answer)"

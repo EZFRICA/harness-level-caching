@@ -11,23 +11,23 @@ Proposed: 2026-10-24, by Claude, from the hypothesis series of that day. Awaits 
 ## Context
 On a provider whose cache serves any repeated prefix (Nebius, and by its docs Gemini 4
 Argon), what pays is a prompt that only grows at its end. Over 200 turns, naive was 97.7%
-cached and cost half of cama, which was 53% cached: the memory sits before the window, so
+cached and cost half of extract, which was 53% cached: the memory sits before the window, so
 each memory change (57 of 199 turns) and each page-in re-billed everything after it
 (`docs/measured/long-session.md`). Separately, append-only extraction kept a corrected fact
-next to its stale value, and cama recalled the stale one (`docs/measured/recall.md`).
+next to its stale value, and extract recalled the stale one (`docs/measured/recall.md`).
 
-## Decision (proposed as the cama defaults on implicit-cache providers)
-- `CAMA_MEMORY_REFRESH=epoch`, `CAMA_WINDOW_EPOCH=E`: the memory is rendered from a copy
+## Decision (proposed as the extract defaults on implicit-cache providers)
+- `HC_MEMORY_REFRESH=epoch`, `HC_WINDOW_EPOCH=E`: the memory is rendered from a copy
   refreshed only when the window drops, every E turns; between drops the window grows, so the
   prompt is append-only. Facts learnt meanwhile are read in the window.
-- `CAMA_PAGE_IN_TAIL=on`: a block a query pages in is sent in front of the question, at the end
+- `HC_PAGE_IN_TAIL=on`: a block a query pages in is sent in front of the question, at the end
   of the prompt, and kept in the window as sent; it joins the memory at the next drop.
-- `CAMA_EXTRACT_REPLACE=on`: a corrected fact replaces its line.
-- `CAMA_EXTRACT_EVERY=2`: until batched extraction is shown not to drop corrections (one
+- `HC_EXTRACT_REPLACE=on`: a corrected fact replaces its line.
+- `HC_EXTRACT_EVERY=2`: until batched extraction is shown not to drop corrections (one
   correction was lost in a batch of 8 exchanges).
 
 ## Consequences
-- 200 turns: cama 0.0236 USD against 0.0435 before and 0.0219 for naive, with a hot path
+- 200 turns: extract 0.0236 USD against 0.0435 before and 0.0219 for naive, with a hot path
   cheaper than naive's; recall 13 of 13 in every run with these switches.
 - The prompt is bounded by the memory plus E + window exchanges, not by the session length.
 - Decision 0002 (render order apart from recency) still holds inside the head; this adds when

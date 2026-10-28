@@ -2,9 +2,9 @@
 
 import asyncio
 
-from cama.config import Config
-from cama.engine import Engine
-from cama.metrics import RunRecorder
+from harness_cache.config import Config
+from harness_cache.engine import Engine
+from harness_cache.metrics import RunRecorder
 
 
 def _engine(tmp_path, **kw):
@@ -40,7 +40,7 @@ async def test_compact_does_not_extract_memory(tmp_path):
 
 
 def test_compaction_calls_are_priced_on_the_cold_path():
-    from cama.cost import run_cost
+    from harness_cache.cost import run_cost
     p = {"read_on": "d", "source": "s", "status": "official", "input": 1.0, "output": 0.0, "cache_read": 0.1,
          "cache_storage_hour": 0.0, "cache_write": 0.0, "cache_write_status": "none"}
     tasks = [{"task": "compact#9", "ok": True, "prompt_tokens": 1_000_000, "cached_tokens": 0, "output_tokens": 0, "ts": 1.0}]

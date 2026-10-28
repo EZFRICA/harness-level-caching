@@ -18,7 +18,7 @@ make.
 | A key, token or `.env` value is never printed, logged or stored | the ledger refuses secret-shaped text; check config by variable name only |
 | Python on the host runs through `uv` (`uv run ...`, `uv add ...`) | the lockfile |
 | CAMA owns port 8797 and its compose services; nothing else is started, stopped or probed | compose file |
-| Paid model calls are capped by `CAMA_MAX_USD` (2 USD per run); scale and stress use the echo model | the budget guard |
+| Paid model calls are capped by `HC_MAX_USD` (2 USD per run); scale and stress use the echo model | the budget guard |
 | `../` projects are read for ideas, never changed, never copied wholesale | review |
 
 ## A change is done when

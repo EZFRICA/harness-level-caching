@@ -5,12 +5,12 @@ from pathlib import Path
 
 import pytest
 
-from cama.config import Config
-from cama.cost import Budget, BudgetExceeded, MeteredLLM, load_pricing, run_cost
-from cama.engine import Engine
-from cama.metrics import RunRecorder
-from cama.scheduler import Scheduler
-from cama.types import LLMResult, Message
+from harness_cache.config import Config
+from harness_cache.cost import Budget, BudgetExceeded, MeteredLLM, load_pricing, run_cost
+from harness_cache.engine import Engine
+from harness_cache.metrics import RunRecorder
+from harness_cache.scheduler import Scheduler
+from harness_cache.types import LLMResult, Message
 
 ROOT = Path(__file__).resolve().parent.parent
 PRICE = {"read_on": "d", "source": "s", "status": "official", "input": 0.30, "output": 2.50,

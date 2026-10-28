@@ -9,15 +9,15 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from cama.adapters.local import EchoLLM, HashEmbedder
-from cama.agent.loop import AgentLoop
-from cama.config import Config
-from cama.engine import Engine
-from cama.memory.embed_cache import CachedEmbedder
-from cama.metrics import RunRecorder
-from cama.teu.cache import ToolCache
-from cama.teu.tools import Bookings, FaultConfig, ToolRunner, default_tools
-from cama.types import Message
+from harness_cache.adapters.local import EchoLLM, HashEmbedder
+from harness_cache.agent.loop import AgentLoop
+from harness_cache.config import Config
+from harness_cache.engine import Engine
+from harness_cache.memory.embed_cache import CachedEmbedder
+from harness_cache.metrics import RunRecorder
+from harness_cache.teu.cache import ToolCache
+from harness_cache.teu.tools import Bookings, FaultConfig, ToolRunner, default_tools
+from harness_cache.types import Message
 
 SCENARIO = Path(__file__).parent.parent / "scenarios" / "agentic_fr_v1.jsonl"
 
@@ -120,7 +120,7 @@ async def test_failing_tools_are_retried_then_reported_to_the_model_and_the_turn
 
 @pytest.mark.parametrize("tool_cache", [True, False])
 async def test_agentic_scenario_end_to_end(tmp_path, tool_cache):
-    cfg = Config(mode="cama", data_dir=tmp_path / "d", runs_dir=tmp_path / "r", archive_dir=tmp_path / "a",
+    cfg = Config(mode="extract", data_dir=tmp_path / "d", runs_dir=tmp_path / "r", archive_dir=tmp_path / "a",
                  tool_cache=tool_cache, tool_latency_scale=0, cache_admission="always")
     rec = RunRecorder(cfg.runs_dir, "agentic")
     rec.manifest(cfg.as_dict())
@@ -146,13 +146,13 @@ async def test_agentic_scenario_end_to_end(tmp_path, tool_cache):
 
 async def test_a_prefix_cache_is_created_only_once_the_prefix_was_sent_unchanged(tmp_path):
     """Measured: creating on every memory change made 200 caches in 200 turns; topk made 198 for 2 hits."""
-    from cama.memory.extractor import ExtractionReport
+    from harness_cache.memory.extractor import ExtractionReport
 
     async def stable_memory(batch):
         return ExtractionReport()
 
     async def run(name, freeze):
-        cfg = Config(mode="cama", data_dir=tmp_path / name, runs_dir=tmp_path / "r", archive_dir=tmp_path / "a",
+        cfg = Config(mode="extract", data_dir=tmp_path / name, runs_dir=tmp_path / "r", archive_dir=tmp_path / "a",
                      tool_latency_scale=0)
         eng = Engine(cfg, RunRecorder(cfg.runs_dir, name), session=name)
         if freeze:
@@ -175,7 +175,7 @@ async def test_a_prefix_cache_is_created_only_once_the_prefix_was_sent_unchanged
 
 
 def test_generated_scenarios_are_reproducible_and_shaped_as_announced():
-    from cama.stress.gen import SUBJECTS, generate
+    from harness_cache.stress.gen import SUBJECTS, generate
     a, b = generate("zipf", 120, seed=5), generate("zipf", 120, seed=5)
     assert a == b and generate("zipf", 120, seed=6) != a
     churn = generate("churn", len(SUBJECTS) * 2)

@@ -40,7 +40,7 @@ implicit_min_tokens = 4096
 
 [models."echo"]
 read_on = "2026-10-23"
-source = "src/cama/adapters/local.py"
+source = "src/harness_cache/adapters/local.py"
 status = "local"
 input = 0.0
 output = 0.0

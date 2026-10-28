@@ -1,12 +1,12 @@
 # Prior art: compaction and memory for long sessions
 
 Read on 2026-10-25 in the arXiv PDFs and official docs listed at the end. Written after the
-decisive test (`docs/measured/decisive.md`), where a history folded into a summary beat cama
-with decision 0013 over 500 turns. It maps what exists against cama's two measured defects:
+decisive test (`docs/measured/decisive.md`), where a history folded into a summary beat extract
+with decision 0013 over 500 turns. It maps what exists against extract's two measured defects:
 (1) memory extraction on every turn costs more than an occasional summary; (2) facts the
-summary kept were missed by cama. Correction after checking both runs' stores: those facts
+summary kept were missed by extract. Correction after checking both runs' stores: those facts
 were extracted and paged out to L3, and the page fault did not bring them back. Defect (2) is
-a recall failure of a mechanism cama inherits from APU and Urithi, which already keep every
+a recall failure of a mechanism extract inherits from APU and Urithi, which already keep every
 paged-out block in L3 and page it back on relevance (apu-urithi apu/mmu/dll.py), and cite
 retrieved units by id with a code check (learner/tutor/answer.py). The lead: compaction that
 follows each provider's cache rules.
@@ -25,7 +25,7 @@ follows each provider's cache rules.
   GPT-5.4). Argues summaries are lossy, blocking, and can hallucinate.
 - **Context Compaction Theory** (arXiv 2608.01326v1). Compaction as one-way communication:
   generating a summary can need strictly less budget than selecting a subset (a proof), which
-  is consistent with cama (selection) losing to compact (generation). Its case study found
+  is consistent with extract (selection) losing to compact (generation). Its case study found
   Anthropic's compaction endpoint near random guessing on set membership over 15,000 items
   (Section 1, Appendix A): summaries lose exact items too.
 
@@ -65,10 +65,10 @@ follows each provider's cache rules.
 - It needs a serving engine it controls; a provider API exposes no such operation. Same
   family as Leyline (`docs/prior-art-serving.md`), which it does not cite; it cites TokenPilot.
 
-## What this changes for cama
+## What this changes for extract
 
 - Compaction that respects the prefix cache is TokenPilot's contribution, published June 2026;
-  cama's decision 0013 is a later, narrower instance and cannot claim it.
+  extract's decision 0013 is a later, narrower instance and cannot claim it.
 - Keeping everything and recalling it is APU and Urithi's design already; ARC's addition is an
   explicit recall by id that the agent requests, beside similarity page-in. The defect to fix
   is the page fault's miss (thresholds uncalibrated, `docs/limits.md`). For cost: offline

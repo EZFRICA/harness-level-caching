@@ -2,7 +2,7 @@
   {
     "skills": ["review-a-change"],
     "query": "I changed ActiveSet.touch to also update modified_at so recently read blocks stay fresh. Review it.",
-    "files": ["src/cama/memory/active_set.py"],
+    "files": ["src/harness_cache/memory/active_set.py"],
     "expected_behavior": [
       "Flags that render order now follows reads, breaking the prefix cache invariant (decision 0002)",
       "Points to test_render_order_ignores_access_recency failing or, if it passes, to the missing test",
@@ -12,7 +12,7 @@
   {
     "skills": ["review-a-change"],
     "query": "The new tool cache is done, all tests pass. Can I report it finished?",
-    "files": ["src/cama/teu/cache.py"],
+    "files": ["src/harness_cache/teu/cache.py"],
     "expected_behavior": [
       "Runs mutmut on the tool cache and reports survivors",
       "Checks that side-effect tools are never served from cache by a test",

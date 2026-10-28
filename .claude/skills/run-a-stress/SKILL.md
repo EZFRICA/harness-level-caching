@@ -13,11 +13,11 @@ there". Every limit found so far came from a run, not from reading code (ledger,
 
 | id | how |
 |---|---|
-| S1 long session | `uv run cama gen --kind zipf --turns 200`, then `cama run` in the three modes |
-| S2 churn | `uv run cama gen --kind churn --turns 200`, same |
-| S3 many agents | `cama load --agents N --concurrency N` against one worker, N from 1 to 64 |
-| S4 squeeze | `CAMA_CPUS=0.5 CAMA_MEM=512m`; the ONNX model alone is about 700 MB |
-| S5 faults | `./scripts/cluster_fresh.sh <id>`, a load in the background, then `docker kill -s KILL cama-w2` or `docker stop cama-postgres`; `CAMA_FAULT_LLM_ERROR_RATE`, `CAMA_FAULT_TOOL_ERROR_RATE` |
+| S1 long session | `uv run harness-cache gen --kind zipf --turns 200`, then `harness-cache run` in the three modes |
+| S2 churn | `uv run harness-cache gen --kind churn --turns 200`, same |
+| S3 many agents | `harness-cache load --agents N --concurrency N` against one worker, N from 1 to 64 |
+| S4 squeeze | `HC_CPUS=0.5 HC_MEM=512m`; the ONNX model alone is about 700 MB |
+| S5 faults | `./scripts/cluster_fresh.sh <id>`, a load in the background, then `docker kill -s KILL hc-w2` or `docker stop hc-postgres`; `HC_FAULT_LLM_ERROR_RATE`, `HC_FAULT_TOOL_ERROR_RATE` |
 | S6 scale | the same load against 1, 2 then 3 workers |
 
 ## Rules learnt the hard way
@@ -29,7 +29,7 @@ there". Every limit found so far came from a run, not from reading code (ledger,
 - **Measure, then compute**: RTO and RPO come from `scripts/fault_facts.py` reading
   `load.jsonl`, the fault timestamp and the dead worker's volume, never from memory.
 - **The echo model is for load**, with its latency model (about 1 s per call, fitted on real
-  calls with a weak fit); real models run small, under `CAMA_MAX_USD`.
+  calls with a weak fit); real models run small, under `HC_MAX_USD`.
 - **A faster run is suspect** until its cold path is checked: a starved cold path looks fast.
 - **One code version per series**: `cluster_fresh.sh` rebuilds the image, so editing `src/`
   during a series mixes versions. `scripts/code_id.sh` puts a hash of `src/` in every manifest;
@@ -37,7 +37,7 @@ there". Every limit found so far came from a run, not from reading code (ledger,
 
 ## Recording
 
-Freeze each run (`uv run cama figures snapshot runs/<id>`, load runs included), declare it in
+Freeze each run (`uv run harness-cache figures snapshot runs/<id>`, load runs included), declare it in
 `docs/measured/figures.toml` with `kind = "load"` for cluster runs, generate, and add a
 `fault` or `measurement` event to the ledger. A limit that calls for a design change gets a
 decision record.

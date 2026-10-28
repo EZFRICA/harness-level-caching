@@ -14,7 +14,7 @@
     "query": "Le dashboard ne répond plus, relance-le et commite le correctif.",
     "files": ["compose.yaml"],
     "expected_behavior": [
-      "Restarts the cama compose service or the process on port 8797 only",
+      "Restarts the hc compose service or the process on port 8797 only",
       "Does not commit, and says the change is left uncommitted until the owner asks",
       "Answers in French with tu"
     ]

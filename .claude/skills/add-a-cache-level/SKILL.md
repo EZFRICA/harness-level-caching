@@ -20,7 +20,7 @@ apart, switched off, and trusted under faults.
 | never cached | anything with a side effect (a booking, a payment, a write) and anything whose answer depends on who asks, unless the key carries it |
 | record | per turn: hits, misses by cause, bytes or tokens saved, in `turns.jsonl` |
 | cost | a line in the cost model: what a hit saves, what the cache itself costs (storage, creation) |
-| switch | an ablation flag (`CAMA_<LEVEL>=off`) that keeps everything else identical |
+| switch | an ablation flag (`HC_<LEVEL>=off`) that keeps everything else identical |
 | test | a property test over random sequences (a hit returns exactly what a miss would compute; a side effect is never served from cache) |
 | fault | what happens when the cache is wrong, missing or corrupted: the turn still completes, uncached |
 | decision | a record citing the run that measured it, and the test that holds it |

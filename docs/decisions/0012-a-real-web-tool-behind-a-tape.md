@@ -17,13 +17,13 @@ answers differently from one call to the next, so two arms would not see the sam
 
 ## Decision
 - A `web_search` tool (Tavily, basic depth, 5 results trimmed to 500 characters each) joins
-  H3 behind `CAMA_WEB_SEARCH=on`. Off by default: a new tool changes the tool declarations,
+  H3 behind `HC_WEB_SEARCH=on`. Off by default: a new tool changes the tool declarations,
   hence the cached prefix of every existing scenario.
 - Class `ttl`, 3600 s. Key: the query lower-cased with spaces collapsed. Nothing else is
   normalised: two phrasings of one question are two keys (exact match, unlike Cortex).
-- A tape (`CAMA_WEB_TAPE`, JSONL) records the first live answer to a query with its measured
+- A tape (`HC_WEB_TAPE`, JSONL) records the first live answer to a query with its measured
   latency; every later sighting, in any run reading the tape, replays it with that latency.
-  `CAMA_WEB_MODE=replay` never calls live. Live calls are capped (`CAMA_WEB_MAX_CALLS`).
+  `HC_WEB_MODE=replay` never calls live. Live calls are capped (`HC_WEB_MAX_CALLS`).
 - A real tool is not slept by the runner (`simulated=False`); it takes its own time.
 
 ## Consequences

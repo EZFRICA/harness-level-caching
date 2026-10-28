@@ -1,6 +1,6 @@
 ---
 name: dashboard
-description: The contract of CAMA's dashboard (read only FastAPI app on port 8797, no external asset, every figure computed by cama.report and cama.cost, plain language for non specialists, verdicts only where evidence supports them, absent values shown as absent) and its look. Use when changing src/cama/dash, adding a view, a chart, a KPI or a verdict, or explaining a metric on screen.
+description: The contract of CAMA's dashboard (read only FastAPI app on port 8797, no external asset, every figure computed by harness_cache.report and harness_cache.cost, plain language for non specialists, verdicts only where evidence supports them, absent values shown as absent) and its look. Use when changing src/harness_cache/dash, adding a view, a chart, a KPI or a verdict, or explaining a metric on screen.
 when_to_use: Editing app.py, data.py, app.js or style.css; adding a comparison or a cost view; styling.
 ---
 
@@ -10,7 +10,7 @@ when_to_use: Editing app.py, data.py, app.js or style.css; adding a comparison o
 
 - **Read only.** It reads run directories, frozen runs (`/docs/measured`), the ledger, live
   stores (query only) and the coordinator's view; it never writes and never calls a model.
-- **One computation.** Figures come from `cama.report.metrics` and `cama.cost.run_cost`, the
+- **One computation.** Figures come from `harness_cache.report.metrics` and `harness_cache.cost.run_cost`, the
   code behind the reports and the generated pages. The browser formats; it computes no money.
 - **Offline.** No CDN, no external font or script (`tests/test_dash.py` checks it).
 - **Absent is not zero.** An unpriced run, a frozen run without stores, an unreachable

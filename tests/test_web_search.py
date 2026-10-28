@@ -7,12 +7,12 @@ import time
 import httpx
 import pytest
 
-from cama.config import Config
-from cama.engine import Engine
-from cama.metrics import RunRecorder
-from cama.teu.cache import ToolCache
-from cama.teu.tools import FaultConfig, ToolError, ToolRunner
-from cama.teu.web import WebSearch, WebTape, normalise, web_search_tool
+from harness_cache.config import Config
+from harness_cache.engine import Engine
+from harness_cache.metrics import RunRecorder
+from harness_cache.teu.cache import ToolCache
+from harness_cache.teu.tools import FaultConfig, ToolError, ToolRunner
+from harness_cache.teu.web import WebSearch, WebTape, normalise, web_search_tool
 
 
 async def _nosleep(_s):

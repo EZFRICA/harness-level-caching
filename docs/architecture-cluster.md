@@ -21,4 +21,4 @@
 - **Limits measured.** `docs/measured/stress-cluster.md`: RTO about 10 s (lease 6 s plus client
   retries), throughput and tail latency under faults.
 
-Run it: `./scripts/cluster_fresh.sh <run id>`, then `cama load` from the `cama` container.
+Run it: `./scripts/cluster_fresh.sh <run id>`, then `harness-cache load` from the `hc` container.

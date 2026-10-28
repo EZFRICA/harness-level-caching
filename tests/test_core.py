@@ -4,14 +4,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from cama.adapters.local import HashEmbedder
-from cama.config import Config
-from cama.engine import Engine
-from cama.memory.active_set import ActiveSet
-from cama.memory.assembler import Assembler
-from cama.metrics import RunRecorder
-from cama.store.sqlite_store import EmbeddingSpaceMismatch, SQLiteStore
-from cama.types import Block, Kind
+from harness_cache.adapters.local import HashEmbedder
+from harness_cache.config import Config
+from harness_cache.engine import Engine
+from harness_cache.memory.active_set import ActiveSet
+from harness_cache.memory.assembler import Assembler
+from harness_cache.metrics import RunRecorder
+from harness_cache.store.sqlite_store import EmbeddingSpaceMismatch, SQLiteStore
+from harness_cache.types import Block, Kind
 
 SCENARIO = Path(__file__).parent.parent / "scenarios" / "assistant_fr_v1.jsonl"
 
@@ -68,8 +68,8 @@ def test_pinned_blocks_are_never_evicted_and_newcomer_rejected():
 
 def _rendered_tokens(s):
     """Independent oracle: the tokens of what would actually be rendered."""
-    from cama.memory.assembler import render_system
-    from cama.tokens import approx_tokens
+    from harness_cache.memory.assembler import render_system
+    from harness_cache.tokens import approx_tokens
     return approx_tokens(render_system(s.render_order())) - approx_tokens(render_system([]))
 
 
@@ -137,7 +137,7 @@ async def test_hash_embedder_unit_norm():
     assert np.allclose(np.linalg.norm(m, axis=1), 1.0)
 
 
-@pytest.mark.parametrize("mode", ["cama", "topk", "naive"])
+@pytest.mark.parametrize("mode", ["extract", "topk", "naive"])
 async def test_end_to_end_scenario_echo(tmp_path, mode):
     cfg = Config(mode=mode, data_dir=tmp_path / "data", runs_dir=tmp_path / "runs",
                  archive_dir=tmp_path / "archive", cache_admission="always")
@@ -163,9 +163,9 @@ async def test_end_to_end_scenario_echo(tmp_path, mode):
         assert turns[-1]["context"]["total_tokens_est"] > turns[0]["context"]["total_tokens_est"]
     else:
         assert "lexical" in tiers and "l3_fault" in tiers
-        if mode == "cama":  # stable prefix => later turns are served from the prefix cache
+        if mode == "extract":  # stable prefix => later turns are served from the prefix cache
             assert sum(t["prefix_cache"]["hit"] for t in turns) > 0
             assert sum(t["llm"]["cached_tokens"] for t in turns) > 0
         assert counts["journal_unsynced"] == 0  # cold path synced everything to L4
-        replica = (cfg.archive_dir / "cama.jsonl").read_text().splitlines()
+        replica = (cfg.archive_dir / f"{cfg.store_name}.jsonl").read_text().splitlines()
         assert len(replica) == counts["journal"]

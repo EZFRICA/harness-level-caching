@@ -25,6 +25,19 @@ existing work in `docs/prior-art.md`, every action in `docs/ledger.jsonl` (rende
   Gemini API and Vertex AI; provider caching cannot be assumed, it has to be measured.
 - `docs/measured/web.md`: an exact-key tool cache rarely hits on model-written web queries.
 
+## Install as a package
+
+With access to this repository, pip installs the code from GitHub (`[local]` adds the ONNX
+embedder; append `@<tag or commit>` to pin a version):
+
+```bash
+pip install "harness-cache[local] @ git+ssh://git@github.com/EZFRICA/harness-level-caching.git"
+harness-cache --help
+```
+
+The price table is not part of the package: point `HC_PRICING` to a copy of `pricing.toml`,
+or paid runs are refused.
+
 ## Run it
 
 ```bash

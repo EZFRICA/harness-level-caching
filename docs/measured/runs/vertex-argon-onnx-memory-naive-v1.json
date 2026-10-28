@@ -1,0 +1,670 @@
+{
+ "metrics": {
+  "cold": {
+   "blocks_appended": 0,
+   "blocks_created": 0,
+   "extract_ms": null,
+   "extract_output_tokens": 0,
+   "extract_prompt_tokens": 0,
+   "failures": 0,
+   "tasks": {
+    "replicate": 1
+   }
+  },
+  "cost": {
+   "assumptions": [],
+   "cold": {
+    "cache_storage": 0.0,
+    "cache_write": 0.0,
+    "extraction": 0
+   },
+   "cold_usd": 0.0,
+   "hot": {
+    "cache_read": 0.0,
+    "input": 0.104136,
+    "output": 0.01451
+   },
+   "hot_usd": 0.118646,
+   "model": "gemini-4-argon",
+   "priced": true,
+   "read_on": "2026-10-24",
+   "source": "https://ai.google.dev/gemini-api/docs/pricing",
+   "status": "official",
+   "total_usd": 0.118646
+  },
+  "harness": {
+   "h2_hits": 0,
+   "h2_misses": 0,
+   "h3_bypass": 0,
+   "h3_errors": 0,
+   "h3_hits": 0,
+   "h3_misses": 9,
+   "h3_saved_ms": 0.0,
+   "model_calls": 40,
+   "tool_calls": 9,
+   "tools_ms": {
+    "ci_hi": 0.0,
+    "ci_lo": 0.0,
+    "mean": 60.10140019357242,
+    "median": 0.0,
+    "n": 31,
+    "p95": 303.555487000267
+   }
+  },
+  "hot_ms": {
+   "ci_hi": 6033.511556001031,
+   "ci_lo": 2929.6928760013543,
+   "mean": 8977.135696612213,
+   "median": 3584.394206998695,
+   "n": 31,
+   "p95": 30913.23445550006
+  },
+  "llm_ms": {
+   "ci_hi": 5729.217630003404,
+   "ci_lo": 2928.010247000202,
+   "mean": 8914.713593548391,
+   "median": 3581.9507589985733,
+   "n": 31,
+   "p95": 30493.215989004966
+  },
+  "memory_ms": {
+   "ci_hi": 2.9574959989986382,
+   "ci_lo": 1.7678479998721741,
+   "mean": 62.42210306382115,
+   "median": 2.3622789958608337,
+   "n": 31,
+   "p95": 305.13209350101533
+  },
+  "n_turns": 32,
+  "peak_rss_mb": 711.9921875,
+  "pin": {
+   "cache_mode": "none",
+   "capacity": 12,
+   "code_sha": "03813da-dirty-35c245f6",
+   "cpus": 3.0,
+   "date": "2026-10-24",
+   "embedder": "onnx",
+   "llm": "gemini",
+   "max_memory_tokens": 1500,
+   "memory_bytes": 3221225472,
+   "mode": "naive",
+   "model": "gemini-4-argon",
+   "prefix_cache": "implicit",
+   "pricing_hash": "abc2398799c2",
+   "run_id": "vertex-argon-onnx-memory-naive-v1",
+   "scenario": "/scenarios/memory_fr_v1.jsonl",
+   "scenario_sha": "74ad74eb7d8f",
+   "victim_window": 3
+  },
+  "recall": {
+   "answered": 10,
+   "by_turn": [
+    {
+     "found": [
+      true
+     ],
+     "turn": 23
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 24
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 25
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 26
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 27
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 28
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 29
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 30
+    },
+    {
+     "found": [
+      true,
+      true
+     ],
+     "turn": 31
+    },
+    {
+     "found": [
+      true,
+      true,
+      true
+     ],
+     "turn": 32
+    }
+   ],
+   "facts": 13,
+   "found": 13,
+   "probes": 10
+  },
+  "skip_first": 1,
+  "tokens": {
+   "cached_share": 0.0,
+   "cached_sum": 0,
+   "output_sum": 1451,
+   "prompt_sum": 52068,
+   "request_est_first": 84,
+   "request_est_last": 1394,
+   "stable_prefix_est": {
+    "ci_hi": 1021.0,
+    "ci_lo": 490.0,
+    "mean": 710.3548387096774,
+    "median": 639.0,
+    "n": 31,
+    "p95": 1260.5
+   }
+  }
+ },
+ "series": [
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 4117.3,
+   "llm_ms": 4116.7,
+   "output": 37,
+   "prompt": 393,
+   "request_est": 84,
+   "spent_usd": 0.001156,
+   "stable_est": 0,
+   "tier": null,
+   "turn": 1
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 0,
+   "hot_ms": 10154.1,
+   "llm_ms": 9848.1,
+   "output": 66,
+   "prompt": 969,
+   "request_est": 118,
+   "spent_usd": 0.0037539999999999995,
+   "stable_est": 84,
+   "tier": null,
+   "turn": 2
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 2862.7,
+   "llm_ms": 2861.4,
+   "output": 28,
+   "prompt": 514,
+   "request_est": 160,
+   "spent_usd": 0.005062,
+   "stable_est": 118,
+   "tier": null,
+   "turn": 3
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 0,
+   "hot_ms": 10468.8,
+   "llm_ms": 10458.5,
+   "output": 43,
+   "prompt": 1200,
+   "request_est": 194,
+   "spent_usd": 0.007891999999999998,
+   "stable_est": 160,
+   "tier": null,
+   "turn": 4
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 2856.0,
+   "llm_ms": 2854.7,
+   "output": 20,
+   "prompt": 616,
+   "request_est": 219,
+   "spent_usd": 0.009323999999999999,
+   "stable_est": 194,
+   "tier": null,
+   "turn": 5
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 3867.1,
+   "llm_ms": 3865.5,
+   "output": 40,
+   "prompt": 663,
+   "request_est": 250,
+   "spent_usd": 0.011049999999999997,
+   "stable_est": 219,
+   "tier": null,
+   "turn": 6
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 2026.7,
+   "llm_ms": 2025.6,
+   "output": 27,
+   "prompt": 735,
+   "request_est": 288,
+   "spent_usd": 0.012789999999999996,
+   "stable_est": 250,
+   "tier": null,
+   "turn": 7
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 0,
+   "hot_ms": 8519.7,
+   "llm_ms": 8313.4,
+   "output": 130,
+   "prompt": 1692,
+   "request_est": 323,
+   "spent_usd": 0.017473999999999993,
+   "stable_est": 288,
+   "tier": null,
+   "turn": 8
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 2847.3,
+   "llm_ms": 2845.0,
+   "output": 26,
+   "prompt": 916,
+   "request_est": 424,
+   "spent_usd": 0.019565999999999993,
+   "stable_est": 323,
+   "tier": null,
+   "turn": 9
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 0,
+   "hot_ms": 6033.5,
+   "llm_ms": 5729.2,
+   "output": 58,
+   "prompt": 1986,
+   "request_est": 452,
+   "spent_usd": 0.024117999999999994,
+   "stable_est": 424,
+   "tier": null,
+   "turn": 10
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 2245.1,
+   "llm_ms": 2244.2,
+   "output": 23,
+   "prompt": 1019,
+   "request_est": 490,
+   "spent_usd": 0.026385999999999993,
+   "stable_est": 452,
+   "tier": null,
+   "turn": 11
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 19389.7,
+   "llm_ms": 19388.0,
+   "output": 22,
+   "prompt": 1072,
+   "request_est": 521,
+   "spent_usd": 0.02874999999999999,
+   "stable_est": 490,
+   "tier": null,
+   "turn": 12
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 68750.4,
+   "llm_ms": 68746.7,
+   "output": 28,
+   "prompt": 1121,
+   "request_est": 552,
+   "spent_usd": 0.03127199999999999,
+   "stable_est": 521,
+   "tier": null,
+   "turn": 13
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 4,
+   "h3_hits": 0,
+   "hot_ms": 21867.4,
+   "llm_ms": 21029.1,
+   "output": 90,
+   "prompt": 4982,
+   "request_est": 598,
+   "spent_usd": 0.042135999999999986,
+   "stable_est": 552,
+   "tier": null,
+   "turn": 14
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 2339.9,
+   "llm_ms": 2338.0,
+   "output": 18,
+   "prompt": 1203,
+   "request_est": 608,
+   "spent_usd": 0.044721999999999984,
+   "stable_est": 598,
+   "tier": null,
+   "turn": 15
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 4122.5,
+   "llm_ms": 4114.6,
+   "output": 111,
+   "prompt": 1247,
+   "request_est": 639,
+   "spent_usd": 0.04832599999999999,
+   "stable_est": 608,
+   "tier": null,
+   "turn": 16
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 2929.7,
+   "llm_ms": 2928.0,
+   "output": 36,
+   "prompt": 1388,
+   "request_est": 763,
+   "spent_usd": 0.05146199999999999,
+   "stable_est": 639,
+   "tier": null,
+   "turn": 17
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 2273.9,
+   "llm_ms": 2271.7,
+   "output": 22,
+   "prompt": 1440,
+   "request_est": 801,
+   "spent_usd": 0.054561999999999986,
+   "stable_est": 763,
+   "tier": null,
+   "turn": 18
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 2942.3,
+   "llm_ms": 2941.2,
+   "output": 32,
+   "prompt": 1494,
+   "request_est": 833,
+   "spent_usd": 0.057869999999999984,
+   "stable_est": 801,
+   "tier": null,
+   "turn": 19
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 39959.1,
+   "llm_ms": 39957.3,
+   "output": 184,
+   "prompt": 1552,
+   "request_est": 864,
+   "spent_usd": 0.062814,
+   "stable_est": 833,
+   "tier": null,
+   "turn": 20
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 0,
+   "hot_ms": 7963.5,
+   "llm_ms": 7755.6,
+   "output": 59,
+   "prompt": 3582,
+   "request_est": 1021,
+   "spent_usd": 0.07056799999999999,
+   "stable_est": 864,
+   "tier": null,
+   "turn": 21
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 2984.2,
+   "llm_ms": 2981.2,
+   "output": 21,
+   "prompt": 1804,
+   "request_est": 1059,
+   "spent_usd": 0.074386,
+   "stable_est": 1021,
+   "tier": null,
+   "turn": 22
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 3580.8,
+   "llm_ms": 3578.3,
+   "output": 36,
+   "prompt": 1844,
+   "request_est": 1082,
+   "spent_usd": 0.078434,
+   "stable_est": 1059,
+   "tier": null,
+   "turn": 23
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 3339.0,
+   "llm_ms": 3337.0,
+   "output": 21,
+   "prompt": 1902,
+   "request_est": 1117,
+   "spent_usd": 0.08244800000000001,
+   "stable_est": 1082,
+   "tier": null,
+   "turn": 24
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 5679.9,
+   "llm_ms": 5677.9,
+   "output": 13,
+   "prompt": 1950,
+   "request_est": 1148,
+   "spent_usd": 0.086478,
+   "stable_est": 1117,
+   "tier": null,
+   "turn": 25
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 2772.3,
+   "llm_ms": 2770.7,
+   "output": 20,
+   "prompt": 1985,
+   "request_est": 1172,
+   "spent_usd": 0.090648,
+   "stable_est": 1148,
+   "tier": null,
+   "turn": 26
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 3584.4,
+   "llm_ms": 3582.0,
+   "output": 15,
+   "prompt": 2025,
+   "request_est": 1199,
+   "spent_usd": 0.09484800000000002,
+   "stable_est": 1172,
+   "tier": null,
+   "turn": 27
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 10414.3,
+   "llm_ms": 10411.1,
+   "output": 17,
+   "prompt": 2060,
+   "request_est": 1223,
+   "spent_usd": 0.099138,
+   "stable_est": 1199,
+   "tier": null,
+   "turn": 28
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 3351.1,
+   "llm_ms": 3343.9,
+   "output": 23,
+   "prompt": 2098,
+   "request_est": 1248,
+   "spent_usd": 0.103564,
+   "stable_est": 1223,
+   "tier": null,
+   "turn": 29
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 2625.1,
+   "llm_ms": 2622.5,
+   "output": 11,
+   "prompt": 2133,
+   "request_est": 1273,
+   "spent_usd": 0.10794000000000001,
+   "stable_est": 1248,
+   "tier": null,
+   "turn": 30
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 3849.9,
+   "llm_ms": 3847.1,
+   "output": 120,
+   "prompt": 2166,
+   "request_est": 1298,
+   "spent_usd": 0.113472,
+   "stable_est": 1273,
+   "tier": null,
+   "turn": 31
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 11690.7,
+   "llm_ms": 11688.3,
+   "output": 54,
+   "prompt": 2317,
+   "request_est": 1394,
+   "spent_usd": 0.118646,
+   "stable_est": 1298,
+   "tier": null,
+   "turn": 32
+  }
+ ]
+}

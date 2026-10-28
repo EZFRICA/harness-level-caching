@@ -453,3 +453,23 @@ limits = [
   "Two runs per arm, one generated English scenario, one model at Nebius; compact and the first cama arm were recorded on 2026-10-25, the urithi arms on 2026-10-27.",
   "Statement detection is a French and English heuristic tuned by hand; recall is a substring check of 24 facts.",
 ]
+
+[[figure]]
+id = "decisive-1500"
+file = "decisive-1500.md"
+title = "Every memory arm over 1500 turns on DeepSeek-V4-Flash, with verbatim recall (H9)"
+question = "Over 1500 turns, with 24 facts stated, 6 corrected and each asked 100 to 1278 turns later, which way of remembering keeps every fact at the lowest cost: the full history, a running summary, the summary with the user's messages recalled verbatim at the tail, or an extracted memory with each router and extraction schedule?"
+runs = ["nebius-dsv4flash-lf1500-naive-v1", "nebius-dsv4flash-lf1500-naive-v2", "nebius-dsv4flash-lf1500-compact-v1", "nebius-dsv4flash-lf1500-compact-v2", "nebius-dsv4flash-lf1500-verbatim-v1", "nebius-dsv4flash-lf1500-verbatim-v2", "nebius-dsv4flash-lf1500-cama-v1", "nebius-dsv4flash-lf1500-cama-v2", "nebius-dsv4flash-lf1500-cama-urithi-v1", "nebius-dsv4flash-lf1500-cama-urithi-v2", "nebius-dsv4flash-lf1500-cama-urithi-stmt-v1"]
+columns = ["run", "mode", "turns", "recall", "prompt", "request_last", "cached_share", "cost", "cost_cold"]
+reproduce = "as decisive-long-facts on /scenarios/long_facts_en_1500_v1.jsonl (scripts/gen_long_facts.py 1500 20261025), container at 3 CPUs and 4 GB, 4 runs at a time; verbatim: --mode compact -e CAMA_VERBATIM_RECALL=on; cama: 0013 switches with CAMA_WINDOW_EPOCH=20 [-e CAMA_ROUTE_POLICY=urithi [-e CAMA_EXTRACT_EVERY=10 -e CAMA_EXTRACT_POLICY=statements]]"
+reading = [
+  "compact recalled 24 of 24 in both runs and was the cheapest arm at 0.131 and 0.136 USD, with 11 and 12 folds and about 96 percent of input read from cache.",
+  "Verbatim recall (H9) also recalled 24 of 24 but cost 0.177 and 0.174 USD: the urithi search accepted a match on more than 1400 of 1500 turns, the recalled lines stayed in the history, and the summary folded 24 and 25 times.",
+  "cama with apu-urithi's routing recalled 24 of 24 in all three runs at 0.173 to 0.199 USD; with the cascade router it recalled 21 and 20 at 0.208 and 0.219 USD. At 1500 turns the gap to compact grew to about 30 to 50 percent, against 6 to 22 percent at 500 turns.",
+  "naive recalled every fact at 0.97 and 1.16 USD; its last request carried 121k and 142k tokens by the provider's count (the table shows the harness estimate).",
+]
+limits = [
+  "One model at Nebius; two runs per arm except cama with statement-triggered extraction (one run): the campaign was stopped by the owner before its second run and before the Nemotron, GLM-5.3 and Gemini arms.",
+  "One generated English scenario; recall is a substring check of 24 facts, answer quality is not judged.",
+  "Turn times are not comparable: four runs shared 3 CPUs, and cama waits for its cold path between turns.",
+]

@@ -1,0 +1,35 @@
+{
+ "kind": "load",
+ "metrics": {
+  "config": {
+   "agents": 9,
+   "concurrency": 9,
+   "scenario": "/scenarios/agentic_fr_v1.jsonl",
+   "started_at": "20261023T180534Z",
+   "turns": 24,
+   "workers": "http://cama-w1:8797,http://cama-w2:8797,http://cama-w3:8797"
+  },
+  "facts": {
+   "fault": "Postgres stopped 30 s after 20 s",
+   "rpo_rows": 0
+  },
+  "run_id": "cluster-s5-pg-down-v1",
+  "summary": {
+   "by_worker": {
+    "http://cama-w1:8797": 72,
+    "http://cama-w2:8797": 96,
+    "http://cama-w3:8797": 48
+   },
+   "errors": 0,
+   "failovers": 0,
+   "ok": 216,
+   "p50_ms": 2413.8485379990016,
+   "p95_ms": 2962.8990052506197,
+   "p99_ms": 5574.172748099954,
+   "requests": 216,
+   "takeovers": 0,
+   "throughput_rps": 3.4032896639469192,
+   "wall_s": 63.46800341099879
+  }
+ }
+}

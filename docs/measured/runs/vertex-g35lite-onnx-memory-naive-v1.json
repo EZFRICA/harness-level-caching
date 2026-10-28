@@ -1,0 +1,670 @@
+{
+ "metrics": {
+  "cold": {
+   "blocks_appended": 0,
+   "blocks_created": 0,
+   "extract_ms": null,
+   "extract_output_tokens": 0,
+   "extract_prompt_tokens": 0,
+   "failures": 0,
+   "tasks": {
+    "replicate": 1
+   }
+  },
+  "cost": {
+   "assumptions": [],
+   "cold": {
+    "cache_storage": 0.0,
+    "cache_write": 0.0,
+    "extraction": 0
+   },
+   "cold_usd": 0.0,
+   "hot": {
+    "cache_read": 0.0,
+    "input": 0.014925299999999999,
+    "output": 0.0037725000000000007
+   },
+   "hot_usd": 0.0186978,
+   "model": "gemini-3.5-flash-lite",
+   "priced": true,
+   "read_on": "2026-10-23",
+   "source": "https://ai.google.dev/gemini-api/docs/pricing",
+   "status": "official",
+   "total_usd": 0.0186978
+  },
+  "harness": {
+   "h2_hits": 0,
+   "h2_misses": 0,
+   "h3_bypass": 0,
+   "h3_errors": 0,
+   "h3_hits": 2,
+   "h3_misses": 14,
+   "h3_saved_ms": 450.0,
+   "model_calls": 48,
+   "tool_calls": 16,
+   "tools_ms": {
+    "ci_hi": 6.666852998023387,
+    "ci_lo": 0.0,
+    "mean": 65.6463838062219,
+    "median": 0.0,
+    "n": 31,
+    "p95": 305.52496900054393
+   }
+  },
+  "hot_ms": {
+   "ci_hi": 1346.2037760036765,
+   "ci_lo": 654.1271880050772,
+   "mean": 1161.173798258636,
+   "median": 821.0007540037623,
+   "n": 31,
+   "p95": 2260.5471140013833
+  },
+  "llm_ms": {
+   "ci_hi": 1237.7192959975218,
+   "ci_lo": 652.537599002244,
+   "mean": 1094.0264329345214,
+   "median": 819.5194590007304,
+   "n": 31,
+   "p95": 2196.5307615027996
+  },
+  "memory_ms": {
+   "ci_hi": 7.8017729974817485,
+   "ci_lo": 1.573338005982805,
+   "mean": 67.1473653241147,
+   "median": 1.8057549896184355,
+   "n": 31,
+   "p95": 306.6956590046175
+  },
+  "n_turns": 32,
+  "peak_rss_mb": 712.36328125,
+  "pin": {
+   "cache_mode": "none",
+   "capacity": 12,
+   "code_sha": "0c061ea-dirty-2afc3e85",
+   "cpus": 3.0,
+   "date": "2026-10-24",
+   "embedder": "onnx",
+   "llm": "gemini",
+   "max_memory_tokens": 1500,
+   "memory_bytes": 3221225472,
+   "mode": "naive",
+   "model": "gemini-3.5-flash-lite",
+   "prefix_cache": "implicit",
+   "pricing_hash": "abc2398799c2",
+   "run_id": "vertex-g35lite-onnx-memory-naive-v1",
+   "scenario": "/scenarios/memory_fr_v1.jsonl",
+   "scenario_sha": "74ad74eb7d8f",
+   "victim_window": 3
+  },
+  "recall": {
+   "answered": 10,
+   "by_turn": [
+    {
+     "found": [
+      true
+     ],
+     "turn": 23
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 24
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 25
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 26
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 27
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 28
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 29
+    },
+    {
+     "found": [
+      true
+     ],
+     "turn": 30
+    },
+    {
+     "found": [
+      true,
+      true
+     ],
+     "turn": 31
+    },
+    {
+     "found": [
+      true,
+      true,
+      true
+     ],
+     "turn": 32
+    }
+   ],
+   "facts": 13,
+   "found": 13,
+   "probes": 10
+  },
+  "skip_first": 1,
+  "tokens": {
+   "cached_share": 0.0,
+   "cached_sum": 0,
+   "output_sum": 1509,
+   "prompt_sum": 49751,
+   "request_est_first": 84,
+   "request_est_last": 1355,
+   "stable_prefix_est": {
+    "ci_hi": 1022.0,
+    "ci_lo": 559.0,
+    "mean": 744.8709677419355,
+    "median": 762.0,
+    "n": 31,
+    "p95": 1279.0
+   }
+  }
+ },
+ "series": [
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 927.7,
+   "llm_ms": 927.2,
+   "output": 45,
+   "prompt": 217,
+   "request_est": 84,
+   "spent_usd": 0.00017759999999999998,
+   "stable_est": 0,
+   "tier": null,
+   "turn": 1
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 0,
+   "hot_ms": 1767.1,
+   "llm_ms": 1463.0,
+   "output": 62,
+   "prompt": 603,
+   "request_est": 126,
+   "spent_usd": 0.0005134999999999999,
+   "stable_est": 84,
+   "tier": null,
+   "turn": 2
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 819.8,
+   "llm_ms": 818.6,
+   "output": 39,
+   "prompt": 332,
+   "request_est": 164,
+   "spent_usd": 0.0007105999999999996,
+   "stable_est": 126,
+   "tier": null,
+   "turn": 3
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 0,
+   "hot_ms": 1898.6,
+   "llm_ms": 1890.8,
+   "output": 34,
+   "prompt": 812,
+   "request_est": 204,
+   "spent_usd": 0.0010391999999999997,
+   "stable_est": 164,
+   "tier": null,
+   "turn": 4
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 611.4,
+   "llm_ms": 610.4,
+   "output": 38,
+   "prompt": 426,
+   "request_est": 232,
+   "spent_usd": 0.0012619999999999997,
+   "stable_est": 204,
+   "tier": null,
+   "turn": 5
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 3,
+   "h3_hits": 0,
+   "hot_ms": 2008.1,
+   "llm_ms": 1842.2,
+   "output": 87,
+   "prompt": 1552,
+   "request_est": 277,
+   "spent_usd": 0.0019451,
+   "stable_est": 232,
+   "tier": null,
+   "turn": 6
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 489.4,
+   "llm_ms": 488.3,
+   "output": 40,
+   "prompt": 542,
+   "request_est": 315,
+   "spent_usd": 0.0022077,
+   "stable_est": 277,
+   "tier": null,
+   "turn": 7
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 0,
+   "hot_ms": 1947.8,
+   "llm_ms": 1741.4,
+   "output": 126,
+   "prompt": 1273,
+   "request_est": 358,
+   "spent_usd": 0.0029046000000000002,
+   "stable_est": 315,
+   "tier": null,
+   "turn": 8
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 485.9,
+   "llm_ms": 485.1,
+   "output": 35,
+   "prompt": 722,
+   "request_est": 455,
+   "spent_usd": 0.0032087,
+   "stable_est": 358,
+   "tier": null,
+   "turn": 9
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 1,
+   "hot_ms": 1507.7,
+   "llm_ms": 1505.4,
+   "output": 91,
+   "prompt": 1595,
+   "request_est": 492,
+   "spent_usd": 0.0039147,
+   "stable_est": 455,
+   "tier": null,
+   "turn": 10
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 617.3,
+   "llm_ms": 615.7,
+   "output": 26,
+   "prompt": 848,
+   "request_est": 559,
+   "spent_usd": 0.0042341,
+   "stable_est": 492,
+   "tier": null,
+   "turn": 11
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 0,
+   "hot_ms": 1577.3,
+   "llm_ms": 1566.4,
+   "output": 38,
+   "prompt": 1813,
+   "request_est": 592,
+   "spent_usd": 0.004873000000000001,
+   "stable_est": 559,
+   "tier": null,
+   "turn": 12
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 821.0,
+   "llm_ms": 819.5,
+   "output": 27,
+   "prompt": 928,
+   "request_est": 627,
+   "spent_usd": 0.0052189,
+   "stable_est": 592,
+   "tier": null,
+   "turn": 13
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 4,
+   "h3_hits": 0,
+   "hot_ms": 3626.7,
+   "llm_ms": 3012.4,
+   "output": 91,
+   "prompt": 4038,
+   "request_est": 671,
+   "spent_usd": 0.0066578,
+   "stable_est": 627,
+   "tier": null,
+   "turn": 14
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 603.5,
+   "llm_ms": 602.3,
+   "output": 31,
+   "prompt": 1023,
+   "request_est": 722,
+   "spent_usd": 0.0070422,
+   "stable_est": 671,
+   "tier": null,
+   "turn": 15
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 0,
+   "hot_ms": 1331.1,
+   "llm_ms": 1123.5,
+   "output": 58,
+   "prompt": 2189,
+   "request_est": 762,
+   "spent_usd": 0.007843900000000001,
+   "stable_est": 722,
+   "tier": null,
+   "turn": 16
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 625.8,
+   "llm_ms": 624.3,
+   "output": 29,
+   "prompt": 1131,
+   "request_est": 819,
+   "spent_usd": 0.008255700000000001,
+   "stable_est": 762,
+   "tier": null,
+   "turn": 17
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 0,
+   "hot_ms": 1714.7,
+   "llm_ms": 1405.4,
+   "output": 67,
+   "prompt": 2391,
+   "request_est": 853,
+   "spent_usd": 0.009140500000000001,
+   "stable_est": 819,
+   "tier": null,
+   "turn": 18
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 0,
+   "hot_ms": 1248.4,
+   "llm_ms": 1237.7,
+   "output": 53,
+   "prompt": 2507,
+   "request_est": 896,
+   "spent_usd": 0.0100251,
+   "stable_est": 853,
+   "tier": null,
+   "turn": 19
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 981.1,
+   "llm_ms": 980.0,
+   "output": 110,
+   "prompt": 1273,
+   "request_est": 926,
+   "spent_usd": 0.010682,
+   "stable_est": 896,
+   "tier": null,
+   "turn": 20
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 2,
+   "h3_hits": 0,
+   "hot_ms": 1396.6,
+   "llm_ms": 1193.2,
+   "output": 47,
+   "prompt": 2830,
+   "request_est": 1022,
+   "spent_usd": 0.011648500000000001,
+   "stable_est": 926,
+   "tier": null,
+   "turn": 21
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 3,
+   "h3_hits": 1,
+   "hot_ms": 2513.0,
+   "llm_ms": 2502.3,
+   "output": 77,
+   "prompt": 4410,
+   "request_est": 1060,
+   "spent_usd": 0.013164,
+   "stable_est": 1022,
+   "tier": null,
+   "turn": 22
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 1346.2,
+   "llm_ms": 1344.1,
+   "output": 33,
+   "prompt": 1473,
+   "request_est": 1087,
+   "spent_usd": 0.013688400000000002,
+   "stable_est": 1060,
+   "tier": null,
+   "turn": 23
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 615.6,
+   "llm_ms": 614.0,
+   "output": 20,
+   "prompt": 1522,
+   "request_est": 1122,
+   "spent_usd": 0.014195000000000001,
+   "stable_est": 1087,
+   "tier": null,
+   "turn": 24
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 713.5,
+   "llm_ms": 711.9,
+   "output": 19,
+   "prompt": 1559,
+   "request_est": 1152,
+   "spent_usd": 0.014710200000000001,
+   "stable_est": 1122,
+   "tier": null,
+   "turn": 25
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 586.6,
+   "llm_ms": 585.2,
+   "output": 23,
+   "prompt": 1590,
+   "request_est": 1184,
+   "spent_usd": 0.015244700000000002,
+   "stable_est": 1152,
+   "tier": null,
+   "turn": 26
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 628.1,
+   "llm_ms": 626.3,
+   "output": 15,
+   "prompt": 1623,
+   "request_est": 1214,
+   "spent_usd": 0.015769100000000005,
+   "stable_est": 1184,
+   "tier": null,
+   "turn": 27
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 823.4,
+   "llm_ms": 821.5,
+   "output": 17,
+   "prompt": 1648,
+   "request_est": 1239,
+   "spent_usd": 0.016306000000000005,
+   "stable_est": 1214,
+   "tier": null,
+   "turn": 28
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 654.1,
+   "llm_ms": 652.5,
+   "output": 22,
+   "prompt": 1675,
+   "request_est": 1264,
+   "spent_usd": 0.016863500000000007,
+   "stable_est": 1239,
+   "tier": null,
+   "turn": 29
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 566.1,
+   "llm_ms": 564.4,
+   "output": 11,
+   "prompt": 1703,
+   "request_est": 1294,
+   "spent_usd": 0.017401900000000005,
+   "stable_est": 1264,
+   "tier": null,
+   "turn": 30
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 714.1,
+   "llm_ms": 712.3,
+   "output": 29,
+   "prompt": 1726,
+   "request_est": 1319,
+   "spent_usd": 0.017992200000000007,
+   "stable_est": 1294,
+   "tier": null,
+   "turn": 31
+  },
+  {
+   "cache_hit": null,
+   "cached": 0,
+   "calls": 1,
+   "h3_hits": 0,
+   "hot_ms": 756.2,
+   "llm_ms": 754.5,
+   "output": 69,
+   "prompt": 1777,
+   "request_est": 1355,
+   "spent_usd": 0.018697800000000004,
+   "stable_est": 1319,
+   "tier": null,
+   "turn": 32
+  }
+ ]
+}

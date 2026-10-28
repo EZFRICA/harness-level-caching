@@ -1,0 +1,42 @@
+{
+ "kind": "load",
+ "metrics": {
+  "config": {
+   "agents": 9,
+   "concurrency": 9,
+   "scenario": "/scenarios/agentic_fr_v1.jsonl",
+   "started_at": "20261023T175834Z",
+   "turns": 24,
+   "workers": "http://cama-w1:8797,http://cama-w2:8797,http://cama-w3:8797"
+  },
+  "facts": {
+   "fault": "kill -9 of w2, client without connect timeout",
+   "rpo_rows": 0,
+   "rto_per_agent_s": [
+    12.7,
+    47.1,
+    47.1,
+    47.1
+   ],
+   "rto_s": 47.1
+  },
+  "run_id": "cluster-s5-kill-w2-v2",
+  "summary": {
+   "by_worker": {
+    "http://cama-w1:8797": 108,
+    "http://cama-w2:8797": 24,
+    "http://cama-w3:8797": 84
+   },
+   "errors": 0,
+   "failovers": 45,
+   "ok": 216,
+   "p50_ms": 2373.1182619994797,
+   "p95_ms": 6536.085400499815,
+   "p99_ms": 40359.001207699555,
+   "requests": 216,
+   "takeovers": 4,
+   "throughput_rps": 1.973013821822553,
+   "wall_s": 109.4771854160008
+  }
+ }
+}

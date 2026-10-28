@@ -1,5 +1,5 @@
 .env
-runs/
+/runs/
 __pycache__/
 *.egg-info/
 .venv/
@@ -7,3 +7,10 @@ __pycache__/
 *.sqlite*
 models/
 mutants/
+.env.*
+!.env.example
+.hypothesis/
+.ruff_cache/
+node_modules/
+.DS_Store
+*.log

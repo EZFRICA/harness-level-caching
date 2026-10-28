@@ -22,18 +22,14 @@ was measured or found. A line leaves this page only through a ledger event that 
 | Over 200 turns on Nebius naive (97.7% cached) cost 0.0219 USD; the best cama (decision 0013, proposed) 0.0236, level only with batched extraction | `docs/measured/long-session.md` | with cheap cached reads an append-only history is hard to beat; cama's edge is a bounded prompt |
 | Extraction batched over 4 or 10 exchanges lost a correction in 3 of 6 runs; every 2 lost none in 6 | `docs/measured/recall-batching.md` | the cheapest extraction schedule is not safe yet |
 | On an implicit-only provider the stable order raised the cached share (75 to 78% against 55 to 63% for topk) but sent about 50% more prompt tokens, so the hot cost did not fall | `docs/measured/nebius.md` | a higher cached share is not a lower bill; extraction still dominates |
-
 | Implicit cache life, one sample per delay: Gemini 3.5 Flash-Lite hit at 15 s and 2 min, never from 5 min; Gemini 4 Argon never hit, even at 15 s on an identical 10k token prefix; Nebius hit at 15 s, 5, 15, 25 min and missed at 2, 10, 20, 30, 45, 60 min | `docs/measured/probes/cache-lifetime-2026-10-24.jsonl` | Flash-Lite's cache lasts minutes, not the 15 to 20 claimed by secondary sources; on Nebius the replica a request reaches matters as much as idle time |
 | Self-hosted vLLM: naive stopped at turn 198 when its history passed the 16384 token context | `docs/measured/vllm-l4.md` | naive's cheapness ends at the context window; cama's prompt stays bounded |
-
 | Extracting two exchanges per call (decision 0013, `CAMA_EXTRACT_EVERY=2`) lost facts with GLM-5.2 (8 of 13) and GLM-5.3 (11 of 13) where every-turn extraction kept them | `docs/measured/providers.md` | 0013's batching setting is model dependent; extract every turn unless a model is shown to tolerate batches |
 | A small extractor (DeepSeek-V2-Lite, 16B) timed out on 19 of 47 extraction calls and evicted planted facts | `docs/measured/providers.md` | cama needs an extractor that returns clean JSON |
-
 | **Decisive test, 500 turns: a history folded into a summary (compact) recalled 24 of 24 for about 0.05 USD; cama with decision 0013 recalled 21 and 22 for about 0.074 USD** | `docs/measured/decisive.md` | on this test cama loses to the simple alternative in both recall and cost; per-turn extraction is the cost. The three missed facts were stored and paged out to L3, and the page fault did not bring them back: a routing failure, not a loss (checked in both runs' stores) |
-
 | Gemini implicit cache on 2026-10-27, ~13.3k token prompts with a ~10.1k token identical prefix: 0 hits in 54 of 54 valid arms on the Gemini API and 41 of 41 on Vertex, every idle delay from 15 s to 30 min, and 0 in 20 sequential calls 2 s apart; on 2026-10-24 Flash-Lite had hit at 15 s and 2 min | `docs/measured/probes/cache-lifetime-*-2026-10-27.jsonl` | no cache life can be stated for Gemini; implicit caching did not reproduce across days on this account |
-
 | With apu-urithi's routing and statement-triggered extraction, cama recalled 24 of 24 like compact but cost 0.055 to 0.060 USD against 0.049 to 0.052 over 500 turns | `docs/measured/decisive-urithi.md` | both defects addressed; cama is level on recall, still not cheaper than a summary |
+| Over 1500 turns on DeepSeek-V4-Flash, compact recalled 24 of 24 for 0.131 and 0.136 USD; verbatim recall (H9) 24 of 24 for 0.174 and 0.177 (the search accepted a match on over 1400 turns and the summary folded twice as often); cama with urithi routing 24 of 24 for 0.173 to 0.199; with the cascade router 21 and 20 | `docs/measured/decisive-1500.md` | at 1500 turns the summary's lead grows; no memory arm tested beats it on cost |
 
 ## Open problems
 
@@ -46,8 +42,6 @@ was measured or found. A line leaves this page only through a ledger event that 
 - **The stable render order has no ablation.** With an implicit-only provider
   `CAMA_PREFIX_CACHE=none` changes the label, not the request; decision 0002 needs a switch that
   renders by recency to be tested directly.
-- **Run manifests carry the last commit's sha**, so runs on uncommitted code are not told apart
-  by code version.
 
 - **Conversation history is not replicated.** After a takeover the new owner serves an empty or
   stale recent window; only memory blocks and the journal are recovered.

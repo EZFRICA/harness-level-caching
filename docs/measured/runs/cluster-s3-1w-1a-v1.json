@@ -1,0 +1,32 @@
+{
+ "kind": "load",
+ "metrics": {
+  "config": {
+   "agents": 1,
+   "concurrency": 1,
+   "scenario": "/scenarios/agentic_fr_v1.jsonl",
+   "started_at": "20261023T212014Z",
+   "turns": 12,
+   "workers": "http://cama-w1:8797"
+  },
+  "facts": {
+   "fault": "none"
+  },
+  "run_id": "cluster-s3-1w-1a-v1",
+  "summary": {
+   "by_worker": {
+    "http://cama-w1:8797": 12
+   },
+   "errors": 0,
+   "failovers": 0,
+   "ok": 12,
+   "p50_ms": 2345.053524000832,
+   "p95_ms": 3207.312154650753,
+   "p99_ms": 3524.5110749313976,
+   "requests": 12,
+   "takeovers": 0,
+   "throughput_rps": 0.40302459171138366,
+   "wall_s": 29.7748580280022
+  }
+ }
+}

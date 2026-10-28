@@ -1,0 +1,8 @@
+flowchart LR
+  U([Your message]) --> R[Find what to remember<br/>embeddings]
+  R --> P[Build the prompt<br/>instructions, memory,<br/>recent history, question]
+  P --> M{{Model provider<br/>prefix cache?}}
+  M -->|asks for a tool| T[Tool call<br/>tool cache?]
+  T --> M
+  M --> A([Answer])
+  A -.-> C[Later, off the clock:<br/>update memory or summary]

@@ -23,7 +23,7 @@ COLD PATH (never awaited by a turn)
 | module | role |
 |---|---|
 | `memory/active_set.py` | bounded working memory, recency apart from render order, cache-aware eviction (0002, 0003) |
-| `memory/router.py` | H1 cascade, page faults |
+| `memory/router.py`, `memory/keywords.py` | H1: the cascade, or apu-urithi's whole-store search with BM25 fused to vectors (`CAMA_ROUTE_POLICY=urithi`); page faults; read-only recall for compact (H9) |
 | `memory/embed_cache.py` | H2, content addressed by text, kind and embedding space |
 | `teu/tools.py`, `teu/cache.py` | simulated tools, H3 with cache classes |
 | `agent/loop.py` | model and tools within a turn, bounded retries |
@@ -31,7 +31,7 @@ COLD PATH (never awaited by a turn)
 | `memory/extractor.py` | memory extraction, batched |
 | `store/sqlite_store.py` | local source of truth, journal, snapshots, rebuild (0001) |
 | `cost.py` | price table, run cost, budget guard (0008) |
-| `engine.py`, `scheduler.py` | one turn; modes `cama`, `topk`, `naive`; the cold path |
+| `engine.py`, `scheduler.py` | one turn; modes `cama`, `topk`, `naive`, `compact`; the cold path |
 | `cluster/` | coordinator, worker service, recovery, load generator (0007, 0011) |
 | `dash/` | read only dashboard on port 8797 |
 | `trace/` | ledger, generated figures, evidence linked decisions |
@@ -51,6 +51,9 @@ COLD PATH (never awaited by a turn)
 ## Modes for comparison
 
 `cama` renders the whole active set in stable order; `topk` renders pinned blocks plus this
-query's hits (the APU); `naive` sends the full conversation. Ablation switches:
+query's hits (the APU); `naive` sends the full conversation; `compact` sends the history and
+folds its older part into a running summary past `CAMA_COMPACT_AT` tokens, and with
+`CAMA_VERBATIM_RECALL=on` (H9) also appends the user's own past messages found by the urithi
+search, verbatim, at the end of the prompt. Ablation switches:
 `CAMA_PREFIX_CACHE=none`, `CAMA_TOOL_CACHE=off`, `CAMA_EMBED_CACHE=off`,
 `CAMA_CACHE_ADMISSION=always`, `CAMA_VICTIM_WINDOW=1`.

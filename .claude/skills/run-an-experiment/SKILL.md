@@ -1,12 +1,12 @@
 ---
 name: run-an-experiment
-description: How a CAMA question becomes a measured figure (the question, the arms and their ablation, fresh stores, the container limits, the budget, the report, freezing the runs, declaring the figure, the ledger event). Use whenever a number is to be produced, compared, published or claimed, including a claim that one mode, model or setting is better.
+description: How a research question becomes a measured figure (the question, the arms and their ablation, fresh stores, the container limits, the budget, the report, freezing the runs, declaring the figure, the ledger event). Use whenever a number is to be produced, compared, published or claimed, including a claim that one mode, model or setting is better.
 when_to_use: Comparing modes, models, embedders, cache settings or limits; answering "is it faster or cheaper"; adding to docs/measured; re-running an old figure.
 ---
 
 # Running an experiment
 
-A figure in CAMA is never typed: it is generated from frozen runs. So the path from a
+A figure in this study is never typed: it is generated from frozen runs. So the path from a
 question to a published number is always the same.
 
 ## 1. Write the question and the arms

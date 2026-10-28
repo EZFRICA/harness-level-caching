@@ -1,4 +1,4 @@
-"""The CAMA dashboard: a read-only FastAPI app on port 8797, assets served locally (no CDN)."""
+"""The dashboard: a read-only FastAPI app on port 8797, assets served locally (no CDN)."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ def create_app(cfg: Config):
     coord_dsn = os.environ.get("HC_COORDINATOR")
     state = {"coord": None}
 
-    app = FastAPI(title="CAMA dashboard")
+    app = FastAPI(title="Harness cache dashboard")
     app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
     def nocache(payload, status: int = 200):

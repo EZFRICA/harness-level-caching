@@ -1,4 +1,4 @@
-"""The ledger: CAMA's trace of every action, as typed events in one append-only file.
+"""The ledger: the study's trace of every action, as typed events in one append-only file.
 
 `docs/ledger.jsonl` holds one event per line. Each event carries the hash of the line
 before it, so an edited or deleted event breaks the chain and `harness-cache ledger check` says

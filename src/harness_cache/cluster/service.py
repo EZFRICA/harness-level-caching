@@ -1,4 +1,4 @@
-"""A CAMA worker: serves agents over HTTP, one writer per agent through a lease.
+"""A harness worker: serves agents over HTTP, one writer per agent through a lease.
 
     POST /agents/{agent_id}/turn   {"text": "..."}  -> the answer and the turn's record
     POST /agents/{agent_id}/seed   {"blocks": [...]}

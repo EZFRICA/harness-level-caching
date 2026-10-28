@@ -1,6 +1,6 @@
 ---
 name: experiment-runner
-description: Turns a CAMA question into measured, frozen, generated figures (arms and ablation, fresh stores in the container, budget cap, report, snapshot, figures.toml, ledger event). Use when the owner asks to compare modes, models, embedders or cache settings, or to check whether a claimed gain holds.
+description: Turns a research question into measured, frozen, generated figures (arms and ablation, fresh stores in the container, budget cap, report, snapshot, figures.toml, ledger event). Use when the owner asks to compare modes, models, embedders or cache settings, or to check whether a claimed gain holds.
 tools: Read, Grep, Glob, Bash, Write, Edit
 model: sonnet
 maxTurns: 60

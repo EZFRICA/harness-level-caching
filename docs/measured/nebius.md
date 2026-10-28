@@ -21,9 +21,9 @@ Latency statistics skip the first turn of each run. Reproduce: `HC_EMBEDDER=onnx
 
 **Reading.**
 
-- extract, which renders the whole active set in a stable order, had 75.0% to 78.5% of its prompt tokens served from the provider cache; topk, which selects blocks per query, had 55.2% to 62.7%, on three replicates each.
-- extract also sent more prompt tokens (about 77k against 50k to 54k), so its hot path cost is close to topk's: the higher cached share pays for the larger prompt, it does not make the run cheaper.
-- naive is the cheapest arm by a factor of about four because it has no cold path: memory extraction is more than half of extract's and topk's bill, as on Gemini.
+- The extract arm, which renders the whole active set in a stable order, had 75.0% to 78.5% of its prompt tokens served from the provider cache; topk, which selects blocks per query, had 55.2% to 62.7%, on three replicates each.
+- The extract arm also sent more prompt tokens (about 77k against 50k to 54k), so its hot path cost is close to topk's: the higher cached share pays for the larger prompt, it does not make the run cheaper.
+- naive is the cheapest arm by a factor of about four because it has no cold path: memory extraction is more than half of the extract arm's and topk's bill, as on Gemini.
 - naive also called fewer tools and answered faster; nothing here shows its answers were as good.
 - Switching H3 off (one run) left the cost inside the spread of the extract replicates.
 

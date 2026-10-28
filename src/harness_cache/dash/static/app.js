@@ -1,4 +1,4 @@
-// CAMA dashboard. Read only. Every number comes from the server, computed by the same code as the reports.
+// Harness cache dashboard. Read only. Every number comes from the server, computed by the same code as the reports.
 "use strict";
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -99,7 +99,7 @@ async function overview() {
   }).join("");
   return `
   <section class="panel fade"><p class="lead">An agent pays, on every step, for more than the model: finding its memory, embedding text,
-  calling tools, and sending the same long instructions again. <b>CAMA keeps what is stable reusable</b> across turns and steps,
+  calling tools, and sending the same long instructions again. <b>A harness-level cache keeps what is stable reusable</b> across turns and steps,
   measures what each reuse saves, and shows where it stops working.</p></section>
   <section class="panel"><h2>One turn</h2><div class="flow">
     <div class="step hot"><b>1. Find memory</b>words, then active block vectors, then the archive (H1, H2)</div>

@@ -47,7 +47,7 @@ columns = ["run", "date", "code", "mode", "model", "hot", "memory", "prompt", "c
 reproduce = "HC_LLM=gemini HC_EMBEDDER=onnx HC_PREFIX_CACHE=none docker compose up -d && docker compose exec hc harness-cache run /scenarios/assistant_fr_v1.jsonl --fresh --mode <mode>"
 limits = [
   "Prefix caching was not enabled in these runs (the feature did not exist yet).",
-  "extract v1 and v2 are two runs of the same configuration; their spread is a lower bound on run to run noise.",
+  "The extract arm v1 and v2 are two runs of the same configuration; their spread is a lower bound on run to run noise.",
 ]
 
 [[figure]]
@@ -78,9 +78,9 @@ reproduce = "HC_LLM=gemini HC_EMBEDDER=onnx docker compose up -d && docker compo
 reading = [
   "The explicit prefix cache cuts the hot path cost by about 60% against its ablation (nopc), and every agentic step reuses it.",
   "It also makes turns slower: the extract replicates sit around 2.4 to 2.7 s against 1.8 s without the cache, with confidence intervals apart. Explicit cached requests are slower on this provider.",
-  "The cold path dominates CAMA's bill: memory extraction costs more than the prefix cache saves, so naive, which has no cold path, is the cheapest arm over 24 turns.",
+  "The cold path dominates the extract arm's bill: memory extraction costs more than the prefix cache saves, so naive, which has no cold path, is the cheapest arm over 24 turns.",
   "The tool cache served 7 of 23 tool calls and removed about 200 ms of tool time per turn at the median; its effect on turn latency is inside the model's variance.",
-  "extract v2 and v3 were launched as ablations but the flag never reached the container; their manifests say so and they are kept as replicates.",
+  "The extract arm v2 and v3 were launched as ablations but the flag never reached the container; their manifests say so and they are kept as replicates.",
 ]
 limits = [
   "24 turns, one synthetic French scenario, simulated tools; latency stats skip the first turn.",
@@ -150,7 +150,7 @@ runs = ["echo-onnx-s1-zipf-cama-v1", "echo-onnx-s1-zipf-cama-stable-v1", "echo-o
 columns = ["run", "mode", "cache_mode", "request_last", "cached_share", "page_ins", "cost_projected"]
 reproduce = "uv run harness-cache gen --kind <zipf|churn> --turns 200 && docker compose exec -T -e HC_TOOL_LATENCY_SCALE=0 [-e HC_CACHE_ADMISSION=always] hc harness-cache run /scenarios/generated/<kind>_200_s20261023.jsonl --fresh --mode <mode>; then harness-cache figures snapshot --price-as gemini-3.5-flash-lite"
 reading = [
-  "naive's last request is about 5500 tokens and grows with every turn; extract's stays near 1600 and topk's near 700: the memory is bounded by construction.",
+  "naive's last request is about 5500 tokens and grows with every turn; the extract arm's stays near 1600 and topk's near 700: the memory is bounded by construction.",
   "On the hot path alone, naive costs more than extract from turn 4 in S1 and from turn 38 in S2, where every turn is a page fault.",
   "The v1 runs created a provider cache after every turn because the echo extractor rewrites memory every turn; the stable admission (decision 0010) removes that waste.",
 ]
@@ -169,8 +169,8 @@ runs = ["g35lite-onnx-s1-zipf-cama-v1", "g35lite-onnx-s1-zipf-topk-v1", "g35lite
 columns = ["run", "mode", "cache_mode", "hot", "request_last", "cached_share", "cost", "cost_cold"]
 reproduce = "HC_LLM=gemini HC_EMBEDDER=onnx docker compose up -d && docker compose exec -T hc harness-cache run /scenarios/generated/zipf_200_s20261023.jsonl --fresh --mode <mode>"
 reading = [
-  "extract cost 37% less than naive and answered faster, with the 95% intervals of the median turn apart.",
-  "extract created no provider cache: its stable part stayed just under the explicit minimum of 1024 tokens (163 creations skipped for that reason). Its saving came from the bounded prompt alone.",
+  "The extract arm cost 37% less than naive and answered faster, with the 95% intervals of the median turn apart.",
+  "The extract arm created no provider cache: its stable part stayed just under the explicit minimum of 1024 tokens (163 creations skipped for that reason). Its saving came from the bounded prompt alone.",
   "naive's prompt grew to about 11500 tokens and Gemini's implicit cache served 57% of its tokens, starting at turn 64 with a 3635 token prompt: implicit caching exists below the 5000 seen in the first probe.",
   "topk was the cheapest: per query selection keeps the prompt smallest when no cache can be used.",
   "Real extraction wrote memory 38 times in 200 turns (3 created, 35 updated) where the echo extractor wrote every turn.",
@@ -209,9 +209,9 @@ runs = ["nebius-dsv4flash-onnx-agentic-cama-v1", "nebius-dsv4flash-onnx-agentic-
 columns = ["run", "mode", "cache_mode", "hot", "model_calls", "prompt", "cached_share", "h3", "cost", "cost_cold"]
 reproduce = "HC_EMBEDDER=onnx docker compose up -d && docker compose exec -T -e HC_LLM=openai_compat -e HC_MODEL=deepseek-ai/DeepSeek-V4-Flash-0731 -e HC_OAI_BASE_URL=https://api.tokenfactory.nebius.com/v1 -e HC_OAI_KEY_ENV=NEBIUS_API_KEY -e HC_OAI_SALT=<run id> [-e HC_TOOL_CACHE=off] hc harness-cache run /scenarios/agentic_fr_v1.jsonl --fresh --mode <extract|topk|naive> --run-id <run id>"
 reading = [
-  "extract, which renders the whole active set in a stable order, had 75.0% to 78.5% of its prompt tokens served from the provider cache; topk, which selects blocks per query, had 55.2% to 62.7%, on three replicates each.",
-  "extract also sent more prompt tokens (about 77k against 50k to 54k), so its hot path cost is close to topk's: the higher cached share pays for the larger prompt, it does not make the run cheaper.",
-  "naive is the cheapest arm by a factor of about four because it has no cold path: memory extraction is more than half of extract's and topk's bill, as on Gemini.",
+  "The extract arm, which renders the whole active set in a stable order, had 75.0% to 78.5% of its prompt tokens served from the provider cache; topk, which selects blocks per query, had 55.2% to 62.7%, on three replicates each.",
+  "The extract arm also sent more prompt tokens (about 77k against 50k to 54k), so its hot path cost is close to topk's: the higher cached share pays for the larger prompt, it does not make the run cheaper.",
+  "naive is the cheapest arm by a factor of about four because it has no cold path: memory extraction is more than half of the extract arm's and topk's bill, as on Gemini.",
   "naive also called fewer tools and answered faster; nothing here shows its answers were as good.",
   "Switching H3 off (one run) left the cost inside the spread of the extract replicates.",
 ]
@@ -291,7 +291,7 @@ runs = ["nebius-dsv4flash-onnx-memory-cama-replace-v1", "nebius-dsv4flash-onnx-m
 columns = ["run", "recall", "hot", "prompt", "cached_share", "cost", "cost_cold"]
 reproduce = "as memory-recall-hypotheses, with -e HC_EXTRACT_REPLACE=on [-e HC_EXTRACT_EVERY=2]"
 reading = [
-  "With replace on, extract recalled 13 of 13 facts in all four runs, including the corrected talk length that plain extract missed once in two runs.",
+  "With replace on, the extract arm recalled 13 of 13 facts in all four runs, including the corrected talk length that the plain extract arm missed once in two runs.",
   "The extractor replaced 4 to 6 lines per run and never named a line it could not find.",
   "Replace with extraction every two turns had the lowest total cost of every harness-cache run on this scenario (0.0086 and 0.0090 USD), with full recall.",
 ]
@@ -311,9 +311,9 @@ reproduce = "docker compose exec -T -e HC_LLM=openai_compat -e HC_MODEL=deepseek
 reading = [
   "naive was the cheapest: its prompt grew to about 12900 tokens but stayed append-only, so 97.7% of it was read from cache at the cheap rate. This reverses the Gemini result over the same scenario (docs/measured/stress-sessions-gemini.md), where extract cost 37% less.",
   "Plain extract was 53% cached: memory changed on 57 of 199 turns, and each change left the first call almost uncached.",
-  "Freezing the rendered memory until the window drops (H7, memory refresh by epoch) cut extract's cost by 30% at E=20 and made it the fastest arm; the remaining breaks are page-ins, which still refresh the memory at the head.",
+  "Freezing the rendered memory until the window drops (H7, memory refresh by epoch) cut the extract arm's cost by 30% at E=20 and made it the fastest arm; the remaining breaks are page-ins, which still refresh the memory at the head.",
   "A growing window alone (epoch 20 with memory refreshed every turn) raised the cached share to 60% but its total did not fall.",
-  "Sending paged-in blocks after the window instead of refreshing the head (H8) raised the cached share to 82.9% and made extract's hot path cheaper than naive's (0.0126 against 0.0219 USD); extraction (0.0110) is what keeps its total just above naive.",
+  "Sending paged-in blocks after the window instead of refreshing the head (H8) raised the cached share to 82.9% and made the extract arm's hot path cheaper than naive's (0.0126 against 0.0219 USD); extraction (0.0110) is what keeps its total just above naive.",
   "Extracting once per epoch (h9e20) brought the total level with naive (0.0216 against 0.0219, one run each); every 4 turns cost more (0.0291) in its single run. On the recall scenario batched extraction lost corrections (docs/measured/recall-batching.md).",
 ]
 limits = [
@@ -366,8 +366,8 @@ columns = ["run", "mode", "recall", "hot", "prompt", "cached_share", "cost", "co
 reproduce = "docker compose exec -T -e HC_LLM=gemini -e HC_MODEL=gemini-4-argon -e HC_EMBEDDER=onnx -e HC_MAX_USD=1.0 -e HC_MAX_MEMORY_TOKENS=8000 -e HC_CAPACITY=24 [-e HC_EXTRACT_REPLACE=on -e HC_EXTRACT_EVERY=2 -e HC_MEMORY_REFRESH=epoch -e HC_PAGE_IN_TAIL=on -e HC_WINDOW_EPOCH=10] hc harness-cache run /scenarios/memory_large_fr_v1.jsonl --fresh --mode <naive|extract> --run-id <run id>"
 reading = [
   "naive was the cheapest (0.145 USD) with full recall: it carries no memory, so its prompt stayed under the 4096 token minimum and nothing was cached, but there was little to send.",
-  "extract sent its 4400 token memory on every call and only 17.5% of its prompt tokens were cached; it cost 0.54 USD. The caching page states that Gemini 4 caches the previous request only when the new one adds at least 2050 tokens, which most of these calls do not.",
-  "Decision 0013 raised the cached share to 56% and cut extract's cost by 41% (0.32 USD), but recalled 11 of 13: the door code was never written to memory, because the extraction call covering that turn proposed no operation.",
+  "The extract arm sent its 4400 token memory on every call and only 17.5% of its prompt tokens were cached; it cost 0.54 USD. The caching page states that Gemini 4 caches the previous request only when the new one adds at least 2050 tokens, which most of these calls do not.",
+  "Decision 0013 raised the cached share to 56% and cut the extract arm's cost by 41% (0.32 USD), but recalled 11 of 13: the door code was never written to memory, because the extraction call covering that turn proposed no operation.",
 ]
 limits = [
   "One run per arm on one scenario; the large memory is six synthetic note blocks added to the seed.",
@@ -385,9 +385,9 @@ columns = ["run", "mode", "turns", "recall", "hot", "prompt", "request_last", "c
 reproduce = "vllm serve Qwen/Qwen2.5-7B-Instruct --max-model-len 16384 --enable-auto-tool-choice --tool-call-parser hermes --enable-prompt-tokens-details (vLLM 0.32.0, one L4), SSH tunnel to port 18000, then docker compose exec -T -e HC_LLM=openai_compat -e HC_MODEL=Qwen/Qwen2.5-7B-Instruct -e HC_OAI_BASE_URL=http://host.docker.internal:18000/v1 -e HC_OAI_SALT=<run id> [-e HC_EXTRACT_REPLACE=on -e HC_EXTRACT_EVERY=2 -e HC_MEMORY_REFRESH=epoch -e HC_PAGE_IN_TAIL=on -e HC_WINDOW_EPOCH=<10|20>] hc harness-cache run <memory_fr_v1|generated/zipf_200_s20261023>.jsonl --fresh --mode <naive|extract> --run-id <run id>"
 reading = [
   "naive stopped at turn 198 of 200: its history reached 16385 tokens, one over the model's 16384 context. Up to then 99.6% of its prompt tokens were served from the prefix cache.",
-  "extract with decision 0013 ran all 200 turns with 95.8% of its prompt served from cache and its last request at 3706 tokens as counted by the server (the table's last request column is CAMA's own estimate); plain extract was 34.3% cached. On the recall scenario 0013 took extract from 62.5% to 92.3%.",
+  "The extract arm with decision 0013 ran all 200 turns with 95.8% of its prompt served from cache and its last request at 3706 tokens as counted by the server (the table's last request column is the harness's own estimate); the plain extract arm was 34.3% cached. On the recall scenario 0013 took extract from 62.5% to 92.3%.",
   "Recall with this 7B model was 9 and 10 of 13 for the extract arms against 13 for naive; with DeepSeek-V4-Flash on Nebius the same arms recalled 13 (docs/measured/recall.md): the extracting model limits recall here.",
-  "extract with 0013 had the slowest median turn over 200 turns (4.4 s against 3.0 s plain extract); its extraction calls share the same GPU as the answers, a cause not isolated here.",
+  "The extract arm with 0013 had the slowest median turn over 200 turns (4.4 s against 3.0 s for plain extract); its extraction calls share the same GPU as the answers, a cause not isolated here.",
 ]
 limits = [
   "One run per row, one GPU, one 7B model; the client ran on a laptop through an SSH tunnel to a US region, so turn times include that network path.",
@@ -405,7 +405,7 @@ columns = ["run", "model", "mode", "recall", "hot", "prompt", "cached_share", "c
 reproduce = "docker compose exec -T -e HC_EMBEDDER=onnx -e HC_OAI_SALT=<run id> <provider flags> [-e HC_EXTRACT_REPLACE=on -e HC_EXTRACT_EVERY=2 -e HC_MEMORY_REFRESH=epoch -e HC_PAGE_IN_TAIL=on -e HC_WINDOW_EPOCH=10] hc harness-cache run /scenarios/memory_fr_v1.jsonl --fresh --mode <naive|extract> --run-id <run id>; provider flags: Nebius HC_LLM=openai_compat HC_OAI_BASE_URL=https://api.tokenfactory.nebius.com/v1 HC_OAI_KEY_ENV=NEBIUS_API_KEY; Vertex MaaS HC_OAI_BASE_URL=https://aiplatform.googleapis.com/v1/projects/<project>/locations/global/endpoints/openapi HC_OAI_KEY_FILE=<token file>; Vertex Gemini HC_LLM=gemini HC_GEMINI_VERTEX_PROJECT=<project> HC_GEMINI_TOKEN_FILE=<token file> HC_PREFIX_CACHE=implicit; L4 HC_OAI_BASE_URL=<vLLM> HC_TOOLS=off"
 reading = [
   "naive recalled 13 of 13 on every hosted model and was the cheapest arm on each of them over these 32 turns.",
-  "extract with decision 0013 recalled 13 of 13 on Nemotron-3-Super, DeepSeek-V4-Flash, DeepSeek-V4.1-Flash and Gemini 3.5 Flash-Lite, but 11 on GLM-5.3, 8 on GLM-5.2 and 12 on Argon. In the GLM-5.2 run the flight number, the demo budget and the booking number never reached memory while plain extract, extracting every turn, stored all six checked facts: extracting two exchanges per call loses facts with GLM.",
+  "The extract arm with decision 0013 recalled 13 of 13 on Nemotron-3-Super, DeepSeek-V4-Flash, DeepSeek-V4.1-Flash and Gemini 3.5 Flash-Lite, but 11 on GLM-5.3, 8 on GLM-5.2 and 12 on Argon. In the GLM-5.2 run the flight number, the demo budget and the booking number never reached memory while the plain extract arm, extracting every turn, stored all six checked facts: extracting two exchanges per call loses facts with GLM.",
   "No Gemini run on Vertex reported a cached token: these prompts stay under the 4096 token implicit minimum of both models.",
   "DeepSeek-V2-Lite on the L4 (tools off) recalled 7, 1 and 3 of 13: 19 of its 47 extraction calls in the harness-cache run timed out on runaway outputs and its extractions evicted 13 blocks. The extracting model, not the cache, limits recall there.",
 ]
@@ -419,14 +419,14 @@ limits = [
 [[figure]]
 id = "decisive-long-facts"
 file = "decisive.md"
-title = "The decisive test: extract with decision 0013 against a history folded into a summary, over 500 turns"
+title = "The decisive test: the extract arm with decision 0013 against a history folded into a summary, over 500 turns"
 question = "Over a 500 turn session where 24 facts are stated, 6 corrected and each asked for 65 to 415 turns later, does extract with decision 0013 beat the realistic alternative (full history folded into a running summary when it grows) in recall and in cost?"
 runs = ["nebius-dsv4flash-onnx-longfacts-naive-v1", "nebius-dsv4flash-onnx-longfacts-naive-v2", "nebius-dsv4flash-onnx-longfacts-compact-v1", "nebius-dsv4flash-onnx-longfacts-compact-v2", "nebius-dsv4flash-onnx-longfacts-cama-v1", "nebius-dsv4flash-onnx-longfacts-cama-v2"]
 columns = ["run", "mode", "turns", "recall", "hot", "prompt", "request_last", "cached_share", "cost", "cost_cold"]
 reproduce = "docker compose exec -T -e HC_EMBEDDER=onnx -e HC_LLM=openai_compat -e HC_OAI_BASE_URL=https://api.tokenfactory.nebius.com/v1 -e HC_OAI_KEY_ENV=NEBIUS_API_KEY -e HC_MODEL=deepseek-ai/DeepSeek-V4-Flash-0731 -e HC_OAI_SALT=<run id> [-e HC_EXTRACT_REPLACE=on -e HC_EXTRACT_EVERY=1 -e HC_MEMORY_REFRESH=epoch -e HC_PAGE_IN_TAIL=on -e HC_WINDOW_EPOCH=20] hc harness-cache run /scenarios/long_facts_en_v1.jsonl --fresh --mode <naive|compact|extract> --run-id <run id> (scenario from scripts/gen_long_facts.py 500 20261025)"
 reading = [
   "compact (history folded into a running summary past 6000 tokens, last 4 exchanges verbatim) recalled every fact in both runs once scoring ignores thousands separators, and was the cheapest arm: 0.049 and 0.052 USD for 500 turns.",
-  "extract with decision 0013 (extraction every turn) recalled 21 and 22 of 24 and cost 0.073 and 0.075 USD: its hot path was the cheapest of the three, but memory extraction on every turn cost 0.036 to 0.039 USD against 0.006 to 0.010 for compaction. It answered that it had no record of a course, a doctor's name and a flight number that were stated earlier.",
+  "The extract arm with decision 0013 (extraction every turn) recalled 21 and 22 of 24 and cost 0.073 and 0.075 USD: its hot path was the cheapest of the three, but memory extraction on every turn cost 0.036 to 0.039 USD against 0.006 to 0.010 for compaction. It answered that it had no record of a course, a doctor's name and a flight number that were stated earlier.",
   "naive also recalled every fact, at about twice compact's cost; its last request reached 33k and 42k tokens.",
   "The recall column comes from the run manifests, scored before the separator fix: one probe (budget 9800, answered as 9,800) counts as missed there for every arm. Rescored with scripts in the ledger event: naive 24 and 24, compact 24 and 24, extract 21 and 22.",
 ]
@@ -445,8 +445,8 @@ runs = ["nebius-dsv4flash-onnx-longfacts-compact-v1", "nebius-dsv4flash-onnx-lon
 columns = ["run", "mode", "turns", "recall", "hot", "prompt", "cached_share", "cost", "cost_cold"]
 reproduce = "as decisive-long-facts, extract arms with -e HC_ROUTE_POLICY=urithi [-e HC_EXTRACT_EVERY=10 -e HC_EXTRACT_POLICY=statements | -e HC_EXTRACT_EVERY=1]"
 reading = [
-  "With apu-urithi's routing, extract recalled 24 of 24 in all four runs, against 21 of 24 with the cascade router: the three facts the cascade left in L3 were paged back in.",
-  "Extracting only the messages that state a fact, and the rest every 10 turns, cut extract's cold path from about 0.037 to 0.020 to 0.022 USD and its total to 0.055 and 0.060 USD, with full recall.",
+  "With apu-urithi's routing, the extract arm recalled 24 of 24 in all four runs, against 21 of 24 with the cascade router: the three facts the cascade left in L3 were paged back in.",
+  "Extracting only the messages that state a fact, and the rest every 10 turns, cut the extract arm's cold path from about 0.037 to 0.020 to 0.022 USD and its total to 0.055 and 0.060 USD, with full recall.",
   "compact stays the cheapest arm at 0.049 and 0.052 USD, also with full recall once its scores ignore thousands separators (the table shows its manifest scores, 23, recorded before that fix): extract is now level on recall and 6 to 22 percent dearer.",
 ]
 limits = [
@@ -465,7 +465,7 @@ reproduce = "as decisive-long-facts on /scenarios/long_facts_en_1500_v1.jsonl (s
 reading = [
   "compact recalled 24 of 24 in both runs and was the cheapest arm at 0.131 and 0.136 USD, with 11 and 12 folds and about 96 percent of input read from cache.",
   "Verbatim recall (H9) also recalled 24 of 24 but cost 0.177 and 0.174 USD: the urithi search accepted a match on more than 1400 of 1500 turns, the recalled lines stayed in the history, and the summary folded 24 and 25 times.",
-  "extract with apu-urithi's routing recalled 24 of 24 in all three runs at 0.173 to 0.199 USD; with the cascade router it recalled 21 and 20 at 0.208 and 0.219 USD. At 1500 turns the gap to compact grew to about 30 to 50 percent, against 6 to 22 percent at 500 turns.",
+  "The extract arm with apu-urithi's routing recalled 24 of 24 in all three runs at 0.173 to 0.199 USD; with the cascade router it recalled 21 and 20 at 0.208 and 0.219 USD. At 1500 turns the gap to compact grew to about 30 to 50 percent, against 6 to 22 percent at 500 turns.",
   "naive recalled every fact at 0.97 and 1.16 USD; its last request carried 121k and 142k tokens by the provider's count (the table shows the harness estimate).",
 ]
 limits = [

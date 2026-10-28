@@ -63,8 +63,8 @@ listed price: billing it at the input price stays an `assumption`, as the cost r
   (Gemini 6.1%).
 - **Finding**: naive full-context caching can increase latency; excluding dynamic tool
   results and putting dynamic content last is more consistent (abstract, Section 5.1).
-- **CAMA must show**: a gain over its best strategy ("system prompt only" or "exclude tool
-  results"), not only over no caching. This is the baseline closest to CAMA's setting.
+- **The study must show**: a gain over its best strategy ("system prompt only" or "exclude tool
+  results"), not only over no caching. This is the baseline closest to the harness cache's setting.
 
 ## Manus, "Context Engineering for AI Agents" (blog, Yichao Ji, 2025-07-18)
 
@@ -73,5 +73,5 @@ listed price: billing it at the input price stays an `assumption`, as the cost r
   top), an append-only context, deterministic serialization, masking tools instead of
   removing them, and the file system as external memory.
 - **Unverified**: the 100:1 input to output ratio is a self-report about Manus, with no data.
-- **CAMA must show**: that it mechanises these rules for a memory that changes (the advice
-  assumes an append-only context; CAMA's active set evicts and admits blocks) and measures it.
+- **The study must show**: that it mechanises these rules for a memory that changes (the advice
+  assumes an append-only context; the harness cache's active set evicts and admits blocks) and measures it.

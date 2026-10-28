@@ -1,6 +1,8 @@
 # Harness-Level Caching for LLM Agents
 
-Code name `cama`. Private research code. Nothing here is published before a patent filing.
+Private research code. Nothing here is published before a patent filing. The code is the
+`harness_cache` package; runs and ledger events recorded before 2026-10-28 carry its former
+name, cama, and the mode `cama` is read as `extract`.
 
 A measurement study: what an LLM agent gains, in cost and latency, from caching in its own
 harness (memory routing, embeddings, tool results, the prompt prefix sent to the provider),
@@ -13,6 +15,9 @@ existing work in `docs/prior-art.md`, every action in `docs/ledger.jsonl` (rende
 
 ## Main results so far
 
+- `docs/measured/decisive-1500.md`: over 1500 turns on DeepSeek-V4-Flash the running summary
+  recalls every fact and stays the cheapest arm; verbatim recall and the extracted memory
+  with apu-urithi's routing also recall every fact, at a higher cost.
 - `docs/measured/decisive.md` and `decisive-urithi.md`: over 500 turns a history folded into
   a running summary (`compact`) recalls every fact and stays the cheapest arm; an extracted
   memory with a stable render order catches up on recall only with apu-urithi's routing.
@@ -37,7 +42,8 @@ docker compose exec hc harness-cache run /scenarios/assistant_fr_v1.jsonl --fres
 docker compose exec hc harness-cache report /runs/<run_id>
 ```
 
-Modes: `naive`, `compact`, `topk`, `cama`. Each figure page in `docs/measured/` gives the exact
+Modes: `naive` (whole history), `compact` (running summary, add `HC_VERBATIM_RECALL=on` for
+verbatim recall), `topk` and `extract` (extracted memory, paged by a router). Each figure page in `docs/measured/` gives the exact
 command and switches that reproduce it. Long-session scenarios: `scripts/gen_long_facts.py`.
 
 Dashboard: http://localhost:8797 (read only, live): overview, live run, A/B comparison with

@@ -22,9 +22,9 @@ Latency statistics skip the first turn of each run. Reproduce: `docker compose e
 
 - naive was the cheapest: its prompt grew to about 12900 tokens but stayed append-only, so 97.7% of it was read from cache at the cheap rate. This reverses the Gemini result over the same scenario (docs/measured/stress-sessions-gemini.md), where extract cost 37% less.
 - Plain extract was 53% cached: memory changed on 57 of 199 turns, and each change left the first call almost uncached.
-- Freezing the rendered memory until the window drops (H7, memory refresh by epoch) cut extract's cost by 30% at E=20 and made it the fastest arm; the remaining breaks are page-ins, which still refresh the memory at the head.
+- Freezing the rendered memory until the window drops (H7, memory refresh by epoch) cut the extract arm's cost by 30% at E=20 and made it the fastest arm; the remaining breaks are page-ins, which still refresh the memory at the head.
 - A growing window alone (epoch 20 with memory refreshed every turn) raised the cached share to 60% but its total did not fall.
-- Sending paged-in blocks after the window instead of refreshing the head (H8) raised the cached share to 82.9% and made extract's hot path cheaper than naive's (0.0126 against 0.0219 USD); extraction (0.0110) is what keeps its total just above naive.
+- Sending paged-in blocks after the window instead of refreshing the head (H8) raised the cached share to 82.9% and made the extract arm's hot path cheaper than naive's (0.0126 against 0.0219 USD); extraction (0.0110) is what keeps its total just above naive.
 - Extracting once per epoch (h9e20) brought the total level with naive (0.0216 against 0.0219, one run each); every 4 turns cost more (0.0291) in its single run. On the recall scenario batched extraction lost corrections (docs/measured/recall-batching.md).
 
 **Limits.**

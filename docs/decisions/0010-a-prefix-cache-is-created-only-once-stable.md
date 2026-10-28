@@ -15,7 +15,7 @@ creations for 2 hits. At the official prices a creation pays back only if it is 
 
 ## Decision
 `HC_CACHE_ADMISSION=stable` (default): a prefix is cached when the turns that already sent it,
-plus one when extract's rendered set is unchanged since the last turn, reach two. `always` keeps
+plus one when the extract arm's rendered set is unchanged since the last turn, reach two. `always` keeps
 the previous behaviour and is the ablation.
 
 ## Consequences

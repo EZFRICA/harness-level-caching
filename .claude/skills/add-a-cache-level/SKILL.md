@@ -1,12 +1,12 @@
 ---
 name: add-a-cache-level
-description: The contract every level of CAMA's harness cache must satisfy (content-addressed key, where it is looked up and where it is filled, invalidation, what may never be cached, the per-turn record, its cost line, its ablation switch, its property test and fault, its decision). Use when adding or changing a cache level (routing, embeddings, tool results, prefix, any future one) or a cache key, TTL or invalidation rule.
+description: The contract every level of the harness cache must satisfy (content-addressed key, where it is looked up and where it is filled, invalidation, what may never be cached, the per-turn record, its cost line, its ablation switch, its property test and fault, its decision). Use when adding or changing a cache level (routing, embeddings, tool results, prefix, any future one) or a cache key, TTL or invalidation rule.
 when_to_use: Building H2 (embeddings) or H3 (tool results); changing the H4 prefix cache; adding a TTL or a class; reviewing whether something may be cached at all.
 ---
 
 # Adding a level to the harness cache
 
-CAMA is one hierarchy (decision 0006). A level earns its place only if it can be measured
+The harness cache is one hierarchy (decision 0006). A level earns its place only if it can be measured
 apart, switched off, and trusted under faults.
 
 ## The contract, one line each

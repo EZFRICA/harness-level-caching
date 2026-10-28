@@ -1,4 +1,4 @@
-/* CAMA dashboard. Each cache level and each path has one colour, used everywhere it appears. */
+/* Harness cache dashboard. Each cache level and each path has one colour, used everywhere it appears. */
 :root {
   --bg: #f4f6fa; --panel: #ffffff; --panel-2: #f8f9fc; --ink: #141a26; --muted: #5d6779; --faint: #8b94a6;
   --line: #e2e6ee; --shadow: 0 1px 2px rgba(20, 26, 38, .05), 0 4px 16px rgba(20, 26, 38, .05);

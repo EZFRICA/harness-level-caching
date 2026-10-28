@@ -9,4 +9,4 @@ def repo_root(start: Path | None = None) -> Path:
     for d in (here, *here.parents):
         if (d / "pyproject.toml").exists() and (d / "src" / "harness_cache").exists():
             return d
-    raise FileNotFoundError("not inside the CAMA repository")
+    raise FileNotFoundError("not inside the study's repository")

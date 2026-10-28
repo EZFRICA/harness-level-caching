@@ -1,6 +1,6 @@
 ---
 name: cluster-contract
-description: The rules CAMA's distributed tier must keep (one writer per agent through a lease and an epoch, fencing of stale writers, idempotent journal, recovery where the shared tier is the authority, replication on a clock, degradation without blocking, shared cache entries) and the tests that hold each. Use when touching src/harness_cache/cluster, the coordinator schema, replication, recovery, or anything a second worker could observe.
+description: The rules the distributed tier must keep (one writer per agent through a lease and an epoch, fencing of stale writers, idempotent journal, recovery where the shared tier is the authority, replication on a clock, degradation without blocking, shared cache entries) and the tests that hold each. Use when touching src/harness_cache/cluster, the coordinator schema, replication, recovery, or anything a second worker could observe.
 when_to_use: Changing the coordinator, the worker service, the load generator, recovery or a shared cache; reviewing split brain, data loss or recovery time.
 ---
 

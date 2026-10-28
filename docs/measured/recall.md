@@ -54,7 +54,7 @@ Latency statistics skip the first turn of each run. Reproduce: `as memory-recall
 
 **Reading.**
 
-- With replace on, extract recalled 13 of 13 facts in all four runs, including the corrected talk length that plain extract missed once in two runs.
+- With replace on, the extract arm recalled 13 of 13 facts in all four runs, including the corrected talk length that the plain extract arm missed once in two runs.
 - The extractor replaced 4 to 6 lines per run and never named a line it could not find.
 - Replace with extraction every two turns had the lowest total cost of every harness-cache run on this scenario (0.0086 and 0.0090 USD), with full recall.
 

@@ -18,9 +18,9 @@ Latency statistics skip the first turn of each run. Reproduce: `vllm serve Qwen/
 **Reading.**
 
 - naive stopped at turn 198 of 200: its history reached 16385 tokens, one over the model's 16384 context. Up to then 99.6% of its prompt tokens were served from the prefix cache.
-- extract with decision 0013 ran all 200 turns with 95.8% of its prompt served from cache and its last request at 3706 tokens as counted by the server (the table's last request column is CAMA's own estimate); plain extract was 34.3% cached. On the recall scenario 0013 took extract from 62.5% to 92.3%.
+- The extract arm with decision 0013 ran all 200 turns with 95.8% of its prompt served from cache and its last request at 3706 tokens as counted by the server (the table's last request column is the harness's own estimate); the plain extract arm was 34.3% cached. On the recall scenario 0013 took extract from 62.5% to 92.3%.
 - Recall with this 7B model was 9 and 10 of 13 for the extract arms against 13 for naive; with DeepSeek-V4-Flash on Nebius the same arms recalled 13 (docs/measured/recall.md): the extracting model limits recall here.
-- extract with 0013 had the slowest median turn over 200 turns (4.4 s against 3.0 s plain extract); its extraction calls share the same GPU as the answers, a cause not isolated here.
+- The extract arm with 0013 had the slowest median turn over 200 turns (4.4 s against 3.0 s for plain extract); its extraction calls share the same GPU as the answers, a cause not isolated here.
 
 **Limits.**
 

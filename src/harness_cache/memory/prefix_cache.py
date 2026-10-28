@@ -1,6 +1,6 @@
 """Explicit prefix cache (② online): the stable memory prefix lives in a provider cache.
 
-Providers only cache implicitly above a size threshold (and best-effort), so CAMA
+Providers only cache implicitly above a size threshold (and best-effort), so the harness
 manages an explicit cache instead:
 
 - the hot path only *looks up* a ready cache for the exact prefix it is about to

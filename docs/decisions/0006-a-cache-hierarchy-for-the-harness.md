@@ -4,7 +4,7 @@ status: accepted
 evidence: g35lite-onnx-cama-cache-v1
 held_by:
 ---
-# 0006: CAMA caches the agent harness, not only the model: levels H1 to H4
+# 0006: The study caches the agent harness, not only the model: levels H1 to H4
 
 Decided: 2026-10-23, by the owner (tool results and embeddings chosen for this iteration).
 

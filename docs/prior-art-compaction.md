@@ -2,7 +2,7 @@
 
 Read on 2026-10-25 in the arXiv PDFs and official docs listed at the end. Written after the
 decisive test (`docs/measured/decisive.md`), where a history folded into a summary beat extract
-with decision 0013 over 500 turns. It maps what exists against extract's two measured defects:
+with decision 0013 over 500 turns. It maps what exists against the extract arm's two measured defects:
 (1) memory extraction on every turn costs more than an occasional summary; (2) facts the
 summary kept were missed by extract. Correction after checking both runs' stores: those facts
 were extracted and paged out to L3, and the page fault did not bring them back. Defect (2) is
@@ -68,7 +68,7 @@ follows each provider's cache rules.
 ## What this changes for extract
 
 - Compaction that respects the prefix cache is TokenPilot's contribution, published June 2026;
-  extract's decision 0013 is a later, narrower instance and cannot claim it.
+  the extract arm's decision 0013 is a later, narrower instance and cannot claim it.
 - Keeping everything and recalling it is APU and Urithi's design already; ARC's addition is an
   explicit recall by id that the agent requests, beside similarity page-in. The defect to fix
   is the page fault's miss (thresholds uncalibrated, `docs/limits.md`). For cost: offline

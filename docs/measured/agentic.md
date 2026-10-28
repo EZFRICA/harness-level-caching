@@ -20,9 +20,9 @@ Latency statistics skip the first turn of each run. Reproduce: `HC_LLM=gemini HC
 
 - The explicit prefix cache cuts the hot path cost by about 60% against its ablation (nopc), and every agentic step reuses it.
 - It also makes turns slower: the extract replicates sit around 2.4 to 2.7 s against 1.8 s without the cache, with confidence intervals apart. Explicit cached requests are slower on this provider.
-- The cold path dominates CAMA's bill: memory extraction costs more than the prefix cache saves, so naive, which has no cold path, is the cheapest arm over 24 turns.
+- The cold path dominates the extract arm's bill: memory extraction costs more than the prefix cache saves, so naive, which has no cold path, is the cheapest arm over 24 turns.
 - The tool cache served 7 of 23 tool calls and removed about 200 ms of tool time per turn at the median; its effect on turn latency is inside the model's variance.
-- extract v2 and v3 were launched as ablations but the flag never reached the container; their manifests say so and they are kept as replicates.
+- The extract arm v2 and v3 were launched as ablations but the flag never reached the container; their manifests say so and they are kept as replicates.
 
 **Limits.**
 

@@ -1,12 +1,12 @@
 ---
 name: run-a-stress
-description: How CAMA is pushed until it breaks (long and churning generated scenarios, many agents on the cluster, a killed worker, a stopped Postgres, resource squeeze) and how the observed limits are recorded with RPO and RTO computed from raw files. Use when asked whether CAMA scales or survives faults, after a change to the scheduler, the cluster or a cache level, or to find the next limit.
+description: How the harness is pushed until it breaks (long and churning generated scenarios, many agents on the cluster, a killed worker, a stopped Postgres, resource squeeze) and how the observed limits are recorded with RPO and RTO computed from raw files. Use when asked whether the harness scales or survives faults, after a change to the scheduler, the cluster or a cache level, or to find the next limit.
 when_to_use: Running a stress profile; killing a worker or stopping Postgres; reading a breaking point; writing a stress figure.
 ---
 
 # Running a stress
 
-The question is never "does it hold" but "where does it stop, and what does CAMA still add
+The question is never "does it hold" but "where does it stop, and what does the harness cache still add
 there". Every limit found so far came from a run, not from reading code (ledger, fault events).
 
 ## Profiles and how to run them

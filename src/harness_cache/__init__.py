@@ -1,3 +1,3 @@
-"""CAMA: Cache-Aware Memory Architecture for agents."""
+"""Harness-Level Caching for LLM Agents: the research code."""
 
 __version__ = "0.1.0"

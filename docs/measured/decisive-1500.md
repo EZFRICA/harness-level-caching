@@ -24,7 +24,7 @@ Latency statistics skip the first turn of each run. Reproduce: `as decisive-long
 
 - compact recalled 24 of 24 in both runs and was the cheapest arm at 0.131 and 0.136 USD, with 11 and 12 folds and about 96 percent of input read from cache.
 - Verbatim recall (H9) also recalled 24 of 24 but cost 0.177 and 0.174 USD: the urithi search accepted a match on more than 1400 of 1500 turns, the recalled lines stayed in the history, and the summary folded 24 and 25 times.
-- extract with apu-urithi's routing recalled 24 of 24 in all three runs at 0.173 to 0.199 USD; with the cascade router it recalled 21 and 20 at 0.208 and 0.219 USD. At 1500 turns the gap to compact grew to about 30 to 50 percent, against 6 to 22 percent at 500 turns.
+- The extract arm with apu-urithi's routing recalled 24 of 24 in all three runs at 0.173 to 0.199 USD; with the cascade router it recalled 21 and 20 at 0.208 and 0.219 USD. At 1500 turns the gap to compact grew to about 30 to 50 percent, against 6 to 22 percent at 500 turns.
 - naive recalled every fact at 0.97 and 1.16 USD; its last request carried 121k and 142k tokens by the provider's count (the table shows the harness estimate).
 
 **Limits.**

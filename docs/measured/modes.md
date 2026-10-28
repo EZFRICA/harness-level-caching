@@ -41,4 +41,4 @@ Latency statistics skip the first turn of each run. Reproduce: `HC_LLM=gemini HC
 **Limits.**
 
 - Prefix caching was not enabled in these runs (the feature did not exist yet).
-- extract v1 and v2 are two runs of the same configuration; their spread is a lower bound on run to run noise.
+- The extract arm v1 and v2 are two runs of the same configuration; their spread is a lower bound on run to run noise.

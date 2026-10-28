@@ -1,6 +1,6 @@
 ---
 name: dashboard
-description: The contract of CAMA's dashboard (read only FastAPI app on port 8797, no external asset, every figure computed by harness_cache.report and harness_cache.cost, plain language for non specialists, verdicts only where evidence supports them, absent values shown as absent) and its look. Use when changing src/harness_cache/dash, adding a view, a chart, a KPI or a verdict, or explaining a metric on screen.
+description: The contract of the dashboard (read only FastAPI app on port 8797, no external asset, every figure computed by harness_cache.report and harness_cache.cost, plain language for non specialists, verdicts only where evidence supports them, absent values shown as absent) and its look. Use when changing src/harness_cache/dash, adding a view, a chart, a KPI or a verdict, or explaining a metric on screen.
 when_to_use: Editing app.py, data.py, app.js or style.css; adding a comparison or a cost view; styling.
 ---
 

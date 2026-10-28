@@ -19,7 +19,7 @@ Latency statistics skip the first turn of each run. Reproduce: `uv run harness-c
 
 **Reading.**
 
-- naive's last request is about 5500 tokens and grows with every turn; extract's stays near 1600 and topk's near 700: the memory is bounded by construction.
+- naive's last request is about 5500 tokens and grows with every turn; the extract arm's stays near 1600 and topk's near 700: the memory is bounded by construction.
 - On the hot path alone, naive costs more than extract from turn 4 in S1 and from turn 38 in S2, where every turn is a page fault.
 - The v1 runs created a provider cache after every turn because the echo extractor rewrites memory every turn; the stable admission (decision 0010) removes that waste.
 

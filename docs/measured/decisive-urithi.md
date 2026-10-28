@@ -19,8 +19,8 @@ Latency statistics skip the first turn of each run. Reproduce: `as decisive-long
 
 **Reading.**
 
-- With apu-urithi's routing, extract recalled 24 of 24 in all four runs, against 21 of 24 with the cascade router: the three facts the cascade left in L3 were paged back in.
-- Extracting only the messages that state a fact, and the rest every 10 turns, cut extract's cold path from about 0.037 to 0.020 to 0.022 USD and its total to 0.055 and 0.060 USD, with full recall.
+- With apu-urithi's routing, the extract arm recalled 24 of 24 in all four runs, against 21 of 24 with the cascade router: the three facts the cascade left in L3 were paged back in.
+- Extracting only the messages that state a fact, and the rest every 10 turns, cut the extract arm's cold path from about 0.037 to 0.020 to 0.022 USD and its total to 0.055 and 0.060 USD, with full recall.
 - compact stays the cheapest arm at 0.049 and 0.052 USD, also with full recall once its scores ignore thousands separators (the table shows its manifest scores, 23, recorded before that fix): extract is now level on recall and 6 to 22 percent dearer.
 
 **Limits.**

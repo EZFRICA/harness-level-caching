@@ -1,6 +1,6 @@
 ---
 name: keep-the-trace
-description: How CAMA records what happens (the hash-chained ledger of every action, run, decision, measurement, fault and review; journal pages rendered from it; decisions with evidence front matter; figures generated from frozen runs). Use after every action that changes the project or its data, when a choice between alternatives is made, and when a run must become a figure.
+description: How the study records what happens (the hash-chained ledger of every action, run, decision, measurement, fault and review; journal pages rendered from it; decisions with evidence front matter; figures generated from frozen runs). Use after every action that changes the project or its data, when a choice between alternatives is made, and when a run must become a figure.
 when_to_use: Just finished an edit, a run, a review or a decision; the owner asks what was done; a document seems out of date.
 ---
 

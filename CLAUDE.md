@@ -1,8 +1,10 @@
 # Working in this repository
 
-CAMA (Cache-Aware Memory Architecture) is the cache of the agent harness: everything around
-the model that an agent pays for on every step (routing, embeddings, tool results, the prompt
-prefix), organised so that what is stable stays reusable. It continues the owner's Agent OS
+Harness-Level Caching for LLM Agents is a measurement study of the cache of the agent harness:
+everything around the model that an agent pays for on every step (routing, embeddings, tool
+results, the prompt prefix), organised so that what is stable stays reusable. The code is the
+`harness_cache` package (command `harness-cache`, variables `HC_*`, compose service `hc`); runs
+and ledger events recorded before 2026-10-28 use the old name, cama. It continues the owner's Agent OS
 line: APU (memory hierarchy), CLE (lifecycle, measurement discipline), Urithi (guarantees,
 metering). The research question is **what an agent gains, in cost and latency, from a
 harness-level cache, and where it breaks**. The deliverable is architectures with their

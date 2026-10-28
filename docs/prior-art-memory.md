@@ -16,7 +16,7 @@ papers below (MemGPT, Mem0, Zep, A-MEM) for "prompt cach", "prefix cach", "KV ca
   3.2.1); no fault-tolerance story in the paper. Letta (f.k.a. MemGPT) now lives in
   `letta-ai/letta-code` per its README.
 - **Numbers**: DMR accuracy 93.4% with GPT-4 Turbo + MemGPT versus 35.3% without (Table 2).
-- **CAMA must show**: that paging into a bounded, stably rendered active set keeps provider
+- **The study must show**: that paging into a bounded, stably rendered active set keeps provider
   cache hits where MemGPT's summary rewrite and FIFO eviction would break them, with a DMR or
   equivalent recall metric beside the cost.
 
@@ -32,7 +32,7 @@ papers below (MemGPT, Mem0, Zep, A-MEM) for "prompt cach", "prefix cach", "KV ca
   footprint 7k tokens per conversation, Mem0g 14k, Zep above 600k (Section 4.5).
 - **Unverified**: the README benchmark table (LoCoMo 92.5, 7.0K tokens) reports Mem0's managed
   platform with "proprietary optimizations"; it is not in the paper.
-- **CAMA must show**: lower cost per turn than per-query top-k retrieval once prompt caching
+- **The study must show**: lower cost per turn than per-query top-k retrieval once prompt caching
   is counted (Mem0's baseline is full context without caching), at a comparable judge score.
 
 ## Zep / Graphiti (arXiv 2501.13956v1; repository getzep/graphiti)
@@ -46,7 +46,7 @@ papers below (MemGPT, Mem0, Zep, A-MEM) for "prompt cach", "prefix cach", "KV ca
 - **Numbers**: DMR 94.8% versus MemGPT 93.4% with gpt-4-turbo (Table 1); LongMemEval with
   gpt-4o: 71.2% versus 60.2% full context, latency 2.58 s versus 28.9 s, context 1.6k versus
   115k tokens (Table 2). The text says "18.5%" improvement; Table 2 gives 18.3% relative.
-- **CAMA must show**: a validity-time story for its own blocks at least as explicit as Zep's,
+- **The study must show**: a validity-time story for its own blocks at least as explicit as Zep's,
   or say it has none; and the cost of graph construction (cold path) against its own.
 
 ## LangMem (LangChain docs)
@@ -57,7 +57,7 @@ papers below (MemGPT, Mem0, Zep, A-MEM) for "prompt cach", "prefix cach", "KV ca
 - **Distributed**: inherits the LangGraph store; the docs show `InMemoryStore`.
 - **Numbers**: none in the docs. Mem0's Table 2 measured LangMem search at p50 17.99 s, p95
   59.82 s (a competitor's measurement, cited as such).
-- **CAMA must show**: nothing specific; its hot path versus cold path split is the same idea
+- **The study must show**: nothing specific; its hot path versus cold path split is the same idea
   as LangMem's background manager and must be presented as such, not as new.
 
 ## A-MEM (arXiv 2502.12110v1)
@@ -67,5 +67,5 @@ papers below (MemGPT, Mem0, Zep, A-MEM) for "prompt cach", "prefix cach", "KV ca
 - **Layer**: harness. **Invalidation**: evolution by the LLM. **Distributed**: not described.
 - **Numbers**: average 2,520 tokens per answer with GPT-4o-mini versus 16,910 for the LoCoMo
   baseline and 16,977 for MemGPT (Table 1).
-- **CAMA must show**: that rewriting old memory (A-MEM evolution) and a stable prefix can
+- **The study must show**: that rewriting old memory (A-MEM evolution) and a stable prefix can
   coexist: an edited block either moves to the tail or costs a measured cache miss.

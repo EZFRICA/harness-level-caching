@@ -1,6 +1,6 @@
 ---
 name: house-rules
-description: The owner's standing rules for CAMA (no commit without the owner, English in the repository and French with the owner, no em or en dash, Markdown files of 100 lines at most, secrets never shown, uv for Python, port 8797, paid calls capped, sibling projects read only). Use before any command, edit, document, commit, paid model call, or message to the owner.
+description: The owner's standing rules for this study (no commit without the owner, English in the repository and French with the owner, no em or en dash, Markdown files of 100 lines at most, secrets never shown, uv for Python, port 8797, paid calls capped, sibling projects read only). Use before any command, edit, document, commit, paid model call, or message to the owner.
 when_to_use: Starting a task; touching .env; writing any text that lands in the repository; about to commit, restart the service, or call a paid model; reporting to the owner.
 ---
 
@@ -17,7 +17,7 @@ make.
 | A Markdown file has 100 lines at most; split it | `tests/test_trace.py`; generated pages split themselves |
 | A key, token or `.env` value is never printed, logged or stored | the ledger refuses secret-shaped text; check config by variable name only |
 | Python on the host runs through `uv` (`uv run ...`, `uv add ...`) | the lockfile |
-| CAMA owns port 8797 and its compose services; nothing else is started, stopped or probed | compose file |
+| The study owns port 8797 and its compose services; nothing else is started, stopped or probed | compose file |
 | Paid model calls are capped by `HC_MAX_USD` (2 USD per run); scale and stress use the echo model | the budget guard |
 | `../` projects are read for ideas, never changed, never copied wholesale | review |
 

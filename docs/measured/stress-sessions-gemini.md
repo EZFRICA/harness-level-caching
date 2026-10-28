@@ -14,8 +14,8 @@ Latency statistics skip the first turn of each run. Reproduce: `HC_LLM=gemini HC
 
 **Reading.**
 
-- extract cost 37% less than naive and answered faster, with the 95% intervals of the median turn apart.
-- extract created no provider cache: its stable part stayed just under the explicit minimum of 1024 tokens (163 creations skipped for that reason). Its saving came from the bounded prompt alone.
+- The extract arm cost 37% less than naive and answered faster, with the 95% intervals of the median turn apart.
+- The extract arm created no provider cache: its stable part stayed just under the explicit minimum of 1024 tokens (163 creations skipped for that reason). Its saving came from the bounded prompt alone.
 - naive's prompt grew to about 11500 tokens and Gemini's implicit cache served 57% of its tokens, starting at turn 64 with a 3635 token prompt: implicit caching exists below the 5000 seen in the first probe.
 - topk was the cheapest: per query selection keeps the prompt smallest when no cache can be used.
 - Real extraction wrote memory 38 times in 200 turns (3 created, 35 updated) where the echo extractor wrote every turn.

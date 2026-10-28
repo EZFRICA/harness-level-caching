@@ -1,13 +1,13 @@
 ---
 name: review-a-change
-description: How a change to CAMA is reviewed before it is called done (which invariants it touches, the test and the mutant that hold each, the mutation run, the live run, the trace). Use after any change under src/harness_cache, before reporting a step as finished, and when the owner asks whether something is solid.
+description: How a change to the code is reviewed before it is called done (which invariants it touches, the test and the mutant that hold each, the mutation run, the live run, the trace). Use after any change under src/harness_cache, before reporting a step as finished, and when the owner asks whether something is solid.
 when_to_use: Finishing a feature or a fix; reviewing someone else's change; deciding whether a guarantee is really held.
 ---
 
 # Reviewing a change
 
 A passing suite says the code does something; it does not say a test would notice if it
-stopped. CAMA answers that with mutation testing (mutmut, configured in `pyproject.toml`).
+stopped. The study answers that with mutation testing (mutmut, configured in `pyproject.toml`).
 
 ## 1. Name the invariants touched
 

@@ -1,0 +1,101 @@
+{"seed": []}
+{"user": "What is the next step for trip to abidjan?"}
+{"user": "What did I note about devfest talk?"}
+{"user": "Remind me where I am with devfest talk."}
+{"user": "What is the next step for devfest talk?"}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "My gym locker code is 4831."}
+{"user": "Remind me where I am with trip to abidjan."}
+{"user": "Summarise cache-aware memory research in two lines."}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "My flight to Lisbon is TP 1438."}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Any update needed on health check?"}
+{"user": "New fact for trip to abidjan: it moved by one week."}
+{"user": "Remind me where I am with trip to abidjan."}
+{"user": "My dentist appointment is on March 14."}
+{"user": "What is the next step for developer community?"}
+{"user": "Remind me where I am with research funding."}
+{"user": "Any update needed on devfest talk?"}
+{"user": "Any update needed on hiring an intern?"}
+{"user": "Note for car maintenance: done the first part today."}
+{"user": "My cat is named Biscotte."}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Remind me where I am with reading list."}
+{"user": "What is the next step for half marathon plan?"}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "Any update needed on half marathon plan?"}
+{"user": "The research budget for the quarter is 12400 euros."}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "Note for pixel 4 xl tests: done the first part today."}
+{"user": "New fact for half marathon plan: it moved by one week."}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "My doctor is Dr Lemaire."}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "Remind me where I am with pixel 4 xl tests."}
+{"user": "Update devfest talk: I added a constraint about the budget."}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "New fact for cloud bill: it moved by one week."}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Correction: my gym locker code is 7290."}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "What did I note about half marathon plan?"}
+{"user": "Update devfest talk: I added a constraint about the budget."}
+{"user": "Summarise cache-aware memory research in two lines."}
+{"user": "Any update needed on devfest talk?"}
+{"user": "Correction: the research budget for the quarter is 9800 euros."}
+{"user": "What did I note about pixel 4 xl tests?"}
+{"user": "Any update needed on cache-aware memory research?"}
+{"user": "New fact for devfest talk: it moved by one week."}
+{"user": "Update attieke recipe: I added a constraint about the budget."}
+{"user": "What is the next step for devfest talk?"}
+{"user": "What did I note about attieke recipe?"}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "Any update needed on trip to abidjan?"}
+{"user": "Note for reading list: done the first part today."}
+{"user": "What is the next step for paper draft?"}
+{"user": "Remind me where I am with half marathon plan."}
+{"user": "What did I note about pixel 4 xl tests?"}
+{"user": "New fact for devfest talk: it moved by one week."}
+{"user": "Any update needed on attieke recipe?"}
+{"user": "Any update needed on family visit?"}
+{"user": "Note for tax return: done the first part today."}
+{"user": "What did I note about devfest talk?"}
+{"user": "Summarise online course in two lines."}
+{"user": "What is the next step for cache-aware memory research?"}
+{"user": "What is the next step for friend's wedding?"}
+{"user": "Any update needed on devfest talk?"}
+{"user": "Any update needed on car maintenance?"}
+{"user": "What is the next step for research funding?"}
+{"user": "Note for trip to abidjan: done the first part today."}
+{"user": "Any update needed on devfest talk?"}
+{"user": "What did I note about cache-aware memory research?"}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "What is my gym locker code?", "expect": ["7290"]}
+{"user": "What is the next step for half marathon plan?"}
+{"user": "Summarise cache-aware memory research in two lines."}
+{"user": "What did I note about visa paperwork?"}
+{"user": "Summarise conference cfp in two lines."}
+{"user": "Update cache-aware memory research: I added a constraint about the budget."}
+{"user": "What did I note about half marathon plan?"}
+{"user": "Summarise research funding in two lines."}
+{"user": "What is my flight number to Lisbon?", "expect": ["TP 1438"]}
+{"user": "Remind me where I am with half marathon plan."}
+{"user": "Any update needed on pixel 4 xl tests?"}
+{"user": "What is the next step for friend's wedding?"}
+{"user": "New fact for family visit: it moved by one week."}
+{"user": "Summarise cache-aware memory research in two lines."}
+{"user": "When is my dentist appointment?", "expect": ["March 14"]}
+{"user": "Update trip to abidjan: I added a constraint about the budget."}
+{"user": "What did I note about tax return?"}
+{"user": "Summarise trip to abidjan in two lines."}
+{"user": "What is my cat's name?", "expect": ["Biscotte"]}
+{"user": "What did I note about trip to abidjan?"}
+{"user": "Summarise learning swahili in two lines."}
+{"user": "Summarise pixel 4 xl tests in two lines."}
+{"user": "Remind me where I am with pixel 4 xl tests."}
+{"user": "What is the quarterly research budget?", "expect": ["9800"]}
+{"user": "Remind me where I am with trip to abidjan."}
+{"user": "What did I note about devfest talk?"}
+{"user": "Remind me where I am with cache-aware memory research."}
+{"user": "What is my doctor's name?", "expect": ["Lemaire"]}

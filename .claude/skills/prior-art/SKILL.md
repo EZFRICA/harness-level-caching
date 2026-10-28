@@ -1,6 +1,6 @@
 ---
 name: prior-art
-description: How CAMA positions itself against existing systems (agent memory, inference-side prefix and KV caching, tool and workflow caching, semantic caches), what may be cited and how, and what CAMA must show beyond each. Use before designing a mechanism, before claiming novelty, and when writing docs/prior-art or a comparison.
+description: How the study positions itself against existing systems (agent memory, inference-side prefix and KV caching, tool and workflow caching, semantic caches), what may be cited and how, and what the study must show beyond each. Use before designing a mechanism, before claiming novelty, and when writing docs/prior-art or a comparison.
 when_to_use: Designing a new cache level or policy; writing "unlike X"; citing a paper's number; choosing a baseline.
 ---
 
@@ -18,7 +18,7 @@ checking who already did it, and a claim of novelty names what it is new against
 | tool and workflow cache | hierarchical agentic caching, workload-aware multi-agent caching, agentic plan caching | tool calls, plans |
 | semantic response cache | GPTCache | whole answers |
 
-CAMA's claimed place: **the harness**, upstream of the inference server, making the prefix
+The study's claimed place: **the harness**, upstream of the inference server, making the prefix
 stable by construction (render order apart from recency, cache-aware eviction, cold-path cache
 creation) and caching the harness's own work (routing, embeddings, tools) in one hierarchy
 with one invalidation story. That claim stands only as long as the map above says nobody

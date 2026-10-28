@@ -1,8 +1,8 @@
 # Prior art: KV and prefix caching in the inference server
 
 Read on 2026-10-23 (URLs in `prior-art-sources.md`). All systems here run **inside a
-self-hosted inference server on GPUs**. CAMA calls a provider API and cannot touch KV
-tensors, so none of these numbers transfers to CAMA's setting; they show which ideas exist.
+self-hosted inference server on GPUs**. The harness calls a provider API and cannot touch KV
+tensors, so none of these numbers transfers to the harness cache's setting; they show which ideas exist.
 
 ## vLLM automatic prefix caching (design doc, docs.vllm.ai)
 
@@ -17,7 +17,7 @@ tensors, so none of these numbers transfers to CAMA's setting; they show which i
   cache-aware scheduler (longest shared prefix first) (Section 3).
 - **Numbers**: up to 6.4x throughput and 3.7x lower latency (Section 6.2); one month in
   Chatbot Arena, hit rate 52.4% (LLaVA-Next-34B) and 74.1% (Vicuna-33B), one worker per model.
-- **CAMA must show**: nothing against it directly; it is the server behind many providers.
+- **The study must show**: nothing against it directly; it is the server behind many providers.
 
 ## Prompt Cache (Gim et al., arXiv 2311.04934v2)
 
@@ -25,8 +25,8 @@ tensors, so none of these numbers transfers to CAMA's setting; they show which i
   non-prefix positions with their own position ids (Section 3).
 - **Numbers**: abstract says 8x (GPU) to 60x (CPU) TTFT; Section 5.2 says 1.5x to 3x (modules
   in CPU memory) and 5x to 10x (GPU memory) on GPUs, up to 70x and 20x on two CPUs (Llama 7B).
-- **CAMA must show**: Prompt Cache is the closest idea to CAMA's blocks rendered in a fixed
-  order. CAMA's difference is that it must work with exact-prefix provider caches, so it pays
+- **The study must show**: Prompt Cache is the closest idea to the harness cache's blocks rendered in a fixed
+  order. The harness cache's difference is that it must work with exact-prefix provider caches, so it pays
   for order changes that Prompt Cache avoids. Name Prompt Cache when claiming the block idea.
 
 ## LMCache (arXiv 2510.09665v2)
@@ -36,8 +36,8 @@ tensors, so none of these numbers transfers to CAMA's setting; they show which i
 - **Distributed**: yes, the only system here with a cross-engine KV story (abstract, Section 1).
 - **Numbers**: up to 15x throughput with vLLM (abstract). Real traces from one company:
   context truncation drops prefix hit ratio from about 85% to 45% (Section 9).
-- **CAMA must show**: Section 9 is independent evidence for CAMA's premise (editing the start
-  of the context destroys reuse); cite it as motivation, not as CAMA's result.
+- **The study must show**: Section 9 is independent evidence for the harness cache's premise (editing the start
+  of the context destroys reuse); cite it as motivation, not as the harness cache's result.
 
 ## CacheBlend (arXiv 2405.16444v3)
 
@@ -74,6 +74,6 @@ tensors, so none of these numbers transfers to CAMA's setting; they show which i
 - **Numbers**: replay cache hit 49.6% to 60.8% (+11.2 points) on SGLang, DeepSeek-V2-Lite,
   about 17K-token prompts; p50 latency up to 241 ms (4.4%) lower at C=8 (Section 5). Solve
   rate 10/32 to 15/33 (+14.3 points) on debug-gym: small samples (Table 2).
-- **CAMA must show**: Leyline states that production harnesses "fall back to re-prefill on
-  every edit". CAMA's answer through a provider API is to avoid edits in the cached prefix;
+- **The study must show**: Leyline states that production harnesses "fall back to re-prefill on
+  every edit". The harness cache's answer through a provider API is to avoid edits in the cached prefix;
   it must measure what that constraint costs in memory freshness.

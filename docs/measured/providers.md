@@ -36,7 +36,7 @@ Latency statistics skip the first turn of each run. Reproduce: `docker compose e
 **Reading.**
 
 - naive recalled 13 of 13 on every hosted model and was the cheapest arm on each of them over these 32 turns.
-- extract with decision 0013 recalled 13 of 13 on Nemotron-3-Super, DeepSeek-V4-Flash, DeepSeek-V4.1-Flash and Gemini 3.5 Flash-Lite, but 11 on GLM-5.3, 8 on GLM-5.2 and 12 on Argon. In the GLM-5.2 run the flight number, the demo budget and the booking number never reached memory while plain extract, extracting every turn, stored all six checked facts: extracting two exchanges per call loses facts with GLM.
+- The extract arm with decision 0013 recalled 13 of 13 on Nemotron-3-Super, DeepSeek-V4-Flash, DeepSeek-V4.1-Flash and Gemini 3.5 Flash-Lite, but 11 on GLM-5.3, 8 on GLM-5.2 and 12 on Argon. In the GLM-5.2 run the flight number, the demo budget and the booking number never reached memory while the plain extract arm, extracting every turn, stored all six checked facts: extracting two exchanges per call loses facts with GLM.
 - No Gemini run on Vertex reported a cached token: these prompts stay under the 4096 token implicit minimum of both models.
 - DeepSeek-V2-Lite on the L4 (tools off) recalled 7, 1 and 3 of 13: 19 of its 47 extraction calls in the harness-cache run timed out on runaway outputs and its extractions evicted 13 blocks. The extracting model, not the cache, limits recall there.
 

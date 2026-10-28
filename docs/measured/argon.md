@@ -15,8 +15,8 @@ Latency statistics skip the first turn of each run. Reproduce: `docker compose e
 **Reading.**
 
 - naive was the cheapest (0.145 USD) with full recall: it carries no memory, so its prompt stayed under the 4096 token minimum and nothing was cached, but there was little to send.
-- extract sent its 4400 token memory on every call and only 17.5% of its prompt tokens were cached; it cost 0.54 USD. The caching page states that Gemini 4 caches the previous request only when the new one adds at least 2050 tokens, which most of these calls do not.
-- Decision 0013 raised the cached share to 56% and cut extract's cost by 41% (0.32 USD), but recalled 11 of 13: the door code was never written to memory, because the extraction call covering that turn proposed no operation.
+- The extract arm sent its 4400 token memory on every call and only 17.5% of its prompt tokens were cached; it cost 0.54 USD. The caching page states that Gemini 4 caches the previous request only when the new one adds at least 2050 tokens, which most of these calls do not.
+- Decision 0013 raised the cached share to 56% and cut the extract arm's cost by 41% (0.32 USD), but recalled 11 of 13: the door code was never written to memory, because the extraction call covering that turn proposed no operation.
 
 **Limits.**
 

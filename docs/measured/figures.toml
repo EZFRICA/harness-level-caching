@@ -489,3 +489,74 @@ limits = [
   "A functional check, not a comparison: one run per arm, 100 turns, six probes, and a summary threshold lowered to 2000 tokens so that compact folds within the session.",
   "The scenario was cut by hand from the long-facts generator's facts (scripts/gen_long_facts.py cannot generate under a few hundred turns).",
 ]
+
+[[figure]]
+id = "models-1500-glm53"
+file = "models-1500-glm53.md"
+title = "The 1500 turn memory arms on GLM-5.3 at Nebius"
+question = "On a second Nebius model, GLM-5.3, do the 1500 turn memory arms keep the order seen on DeepSeek-V4-Flash: which recalls every fact, at what cost, and how much of the prompt the provider reads from its cache?"
+runs = ["nebius-glm53-lf1500-compact-v1", "nebius-glm53-lf1500-verbatim-v1", "nebius-glm53-lf1500-extract-v1", "nebius-glm53-lf1500-extract-urithi-v1", "nebius-glm53-lf1500-extract-urithi-stmt-v1"]
+columns = ["run", "mode", "turns", "recall", "prompt", "cached_share", "cost", "cost_cold"]
+reproduce = "as decisive-1500 with -e HC_MODEL=zai-org/GLM-5.3 (Nebius), HC_EMBEDDER=onnx, code f69071f, container at 3 CPUs and 4 GB, 4 runs at a time; extract arms: 0013 switches with HC_WINDOW_EPOCH=20 [-e HC_ROUTE_POLICY=urithi [-e HC_EXTRACT_EVERY=10 -e HC_EXTRACT_POLICY=statements]]"
+reading = [
+  "compact, verbatim, extract with apu-urithi's routing and extract with statement-triggered extraction recalled 24 of 24; extract with the cascade router recalled 20.",
+  "The cheapest arm was extract with statement-triggered extraction at 3.13 USD, then compact at 3.42 and verbatim at 3.56; extract cost 4.33 and 5.17 USD, most of the gap on the cold path.",
+  "The provider read 91 to 96 percent of the input from its cache in every arm.",
+]
+limits = [
+  "One run per arm (Nebius credit); no naive arm.",
+  "One generated English scenario; recall is a substring check of 24 facts, answer quality is not judged.",
+]
+
+[[figure]]
+id = "models-1500-g35lite"
+file = "models-1500-g35lite.md"
+title = "The 1500 turn memory arms on Gemini 3.5 Flash-Lite at Vertex AI"
+question = "On Gemini 3.5 Flash-Lite through Vertex AI, with the implicit cache only, which memory arm recalls every fact over 1500 turns, at what cost, and how much of the prompt is read from the provider's cache?"
+runs = ["vertex-g35lite-lf1500-compact-v1", "vertex-g35lite-lf1500-compact-v2", "vertex-g35lite-lf1500-verbatim-v1", "vertex-g35lite-lf1500-verbatim-v2", "vertex-g35lite-lf1500-extract-v1", "vertex-g35lite-lf1500-extract-v2", "vertex-g35lite-lf1500-extract-urithi-v1", "vertex-g35lite-lf1500-extract-urithi-v2", "vertex-g35lite-lf1500-extract-urithi-stmt-v1", "vertex-g35lite-lf1500-extract-urithi-stmt-v2"]
+columns = ["run", "mode", "turns", "recall", "prompt", "cached_share", "cost", "cost_cold"]
+reproduce = "as decisive-1500 with -e HC_LLM=gemini -e HC_GEMINI_VERTEX_PROJECT=<project> -e HC_GEMINI_TOKEN_FILE=/tmp/vertex.token -e HC_PREFIX_CACHE=implicit -e HC_MODEL=gemini-3.5-flash-lite, HC_EMBEDDER=onnx, code f69071f, container at 3 CPUs and 4 GB, 4 runs at a time"
+reading = [
+  "compact recalled 24 of 24 in both runs and was the cheapest arm at 0.98 and 0.96 USD; verbatim also recalled 24 of 24 at 1.09 and 1.10 USD.",
+  "The implicit cache read 58 to 64 percent of the input for compact and verbatim, but 0 to 18 percent for every extract arm, against 79 to 84 percent for the same extract arms on DeepSeek-V4-Flash (decisive-1500).",
+  "extract with statement-triggered extraction recalled 24 of 24 in both runs at 1.24 and 1.18 USD; apu-urithi's routing recalled 22 and 24; the cascade router recalled 21 and 18.",
+]
+limits = [
+  "Two runs per arm; no naive arm. The implicit cache is best effort: on 2026-10-27 the same model gave 0 hits (docs/measured/probes/).",
+  "One generated English scenario; recall is a substring check of 24 facts, answer quality is not judged.",
+]
+
+[[figure]]
+id = "models-1500-nemotron"
+file = "models-1500-nemotron.md"
+title = "The 1500 turn extract arms on Nemotron-3-Super at Nebius"
+question = "On Nemotron-3-Super at Nebius, how many facts do the extracted memory arms keep over 1500 turns, and how much of the prompt does the provider read from its cache?"
+runs = ["nebius-nemotron3super-lf1500-extract-v1", "nebius-nemotron3super-lf1500-extract-v2", "nebius-nemotron3super-lf1500-extract-urithi-v1", "nebius-nemotron3super-lf1500-extract-urithi-v2", "nebius-nemotron3super-lf1500-extract-urithi-stmt-v1", "nebius-nemotron3super-lf1500-extract-urithi-stmt-v2"]
+columns = ["run", "mode", "turns", "recall", "prompt", "cached_share", "cost", "cost_cold"]
+reproduce = "as decisive-1500 with -e HC_MODEL=nvidia/nemotron-3-super-120b-a12b (Nebius), HC_EMBEDDER=onnx, code f69071f, container at 3 CPUs and 4 GB, 4 runs at a time; 0013 switches with HC_WINDOW_EPOCH=20 [-e HC_ROUTE_POLICY=urithi [-e HC_EXTRACT_EVERY=10 -e HC_EXTRACT_POLICY=statements]]"
+reading = [
+  "No extract arm recalled every fact: statement-triggered extraction recalled 21 and 20 of 24, apu-urithi's routing 19 and 19, the cascade router 18 and 17.",
+  "The provider read 1.6 to 3.0 percent of the input from its cache, against 79 to 84 percent for the same arms on DeepSeek-V4-Flash at the same provider (decisive-1500).",
+]
+limits = [
+  "compact and verbatim are absent: they stopped at the 2 USD cap after 1142 to 1227 turns (runs/aborted, not frozen) and their reruns failed when the Nebius credit ran out.",
+  "Two runs per arm; one generated English scenario; recall is a substring check of 24 facts, answer quality is not judged.",
+]
+
+[[figure]]
+id = "verbatim-search-1500"
+file = "verbatim-search-1500.md"
+title = "Verbatim recall (H9) over 1500 turns: the search alone, per embedder and switch"
+question = "Before any paid run, does a better local embedder (EmbeddingGemma 2), storing only messages that state a fact, or sending quotes once make the H9 search bring back the right message and add fewer quotes?"
+runs = ["echo-minilm-lf1500-verbatim-v1", "echo-gemma-lf1500-verbatim-v1", "echo-minilm-lf1500-verbatim-stmt-v1", "echo-gemma-lf1500-verbatim-stmt-v1", "echo-gemma-lf1500-verbatim-stmt-once-v1"]
+columns = ["run", "embedder", "turns", "h9_found", "h9_turns", "h9_lines", "request_last", "prompt", "memory"]
+reproduce = "docker compose exec hc harness-cache run /scenarios/long_facts_en_1500_v1.jsonl --fresh --mode compact with -e HC_LLM=echo -e HC_VERBATIM_RECALL=on -e HC_EMBEDDER=onnx|gemma [-e HC_VERBATIM_STORE=statements [-e HC_VERBATIM_HISTORY=once]], one run at a time (EmbeddingGemma 2 fp32 needs most of the 1 GB container), code of the commit that adds HC_EMBEDDER=gemma"
+reading = [
+  "The message that last stated the probed value was recalled at 20 of 24 probes with MiniLM storing every message, and at 23 of 24 with EmbeddingGemma 2 or with statements only.",
+  "The one probe missed by every arm (turn 147) came before the first fold, so its statement was still in the unfolded history, which the search skips.",
+  "Every arm added quotes on 1273 to 1278 of 1500 turns; statements only cut the recalled messages from about 2530 to about 2410, and quotes sent once cut the estimated prompt tokens by about 2.5 percent.",
+]
+limits = [
+  "Echo model: no answer, so no fact recall, no provider cache and no cost are measured; the echo model's short answers fold the summary later than a real model.",
+  "One run per arm; one generated English scenario; EmbeddingGemma 2 thresholds carried over from MiniLM by percentile on this scenario (in sample).",
+]

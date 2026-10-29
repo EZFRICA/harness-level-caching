@@ -99,6 +99,8 @@ class Engine:
             cfg.mode = "extract"
         if cfg.mode not in {"extract", "topk", "naive", "compact"}:
             raise ValueError(f"unknown mode {cfg.mode!r}")
+        if cfg.verbatim_store not in {"all", "statements"} or cfg.verbatim_history not in {"keep", "once"}:
+            raise ValueError(f"unknown H9 switch: store {cfg.verbatim_store!r}, history {cfg.verbatim_history!r}")
         self.cfg = cfg
         self.recorder = recorder
         self.session = session
@@ -292,6 +294,7 @@ class Engine:
             history = self.store.history(self.session, last=2 * window_size(cfg, self.turn_index))
 
         sent_text = user_text
+        quoted = bool(self._tail) and cfg.mode == "compact"
         if self._tail:  # H8: what the query paged in, in front of the question, at the end of the prompt
             sent_text = ("[memory paged in for this question]\n" + "".join(render_block(b) for b in self._tail)
                          + "\n" + user_text)
@@ -320,7 +323,9 @@ class Engine:
         h2_hits = self.embedder.hits - h2_before[0]
         h2_misses = self.embedder.misses - h2_before[1]
 
-        self.store.append_history(self.session, "user", sent_text)  # the window replays what was sent
+        # The window replays what was sent; with H9 quotes sent once, the history keeps the question only.
+        kept = user_text if quoted and cfg.verbatim_history == "once" else sent_text
+        self.store.append_history(self.session, "user", kept)
         self.store.append_history(self.session, "assistant", out.text)
         hot_ms = (time.perf_counter() - t0) * 1000
         self.turn_index += 1
@@ -330,7 +335,8 @@ class Engine:
             if sum(approx_tokens(m.text) for m in unfolded) > cfg.compact_at:
                 self._compact_queued = True
                 await self.scheduler.push(f"compact#{self.turn_index}", self._compact, PRIORITY_EXTRACT)
-        if cfg.mode == "compact" and cfg.verbatim_recall:
+        if cfg.mode == "compact" and cfg.verbatim_recall and (
+                cfg.verbatim_store == "all" or states_a_fact(user_text)):
             turn_no = self.turn_index - 1
             await self.scheduler.push(f"verbatim#{self.turn_index}",
                                       lambda: self._store_verbatim(turn_no, user_text), PRIORITY_EXTRACT)

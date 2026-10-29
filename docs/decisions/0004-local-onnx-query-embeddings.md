@@ -24,5 +24,7 @@ quota.
 - Thresholds are per embedding space; the current ones are in sample.
 
 ## Alternatives set aside
-- Gemini embeddings: network on the hot path. EmbeddingGemma 2 ONNX: next candidate, needs its
-  own space, prefixes and calibration.
+- Gemini embeddings: network on the hot path.
+- EmbeddingGemma 2 ONNX: available as `HC_EMBEDDER=gemma` with its own prefixes and in sample
+  thresholds; its search finds more (`docs/measured/verbatim-search-1500.md`) but costs about
+  60 ms per uncached query and most of a 1 GB container. Not the default before a paid run.

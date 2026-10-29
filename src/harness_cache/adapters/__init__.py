@@ -36,7 +36,8 @@ _EMBEDDERS: dict[tuple, Embedder] = {}
 def make_embedder(cfg: Config) -> Embedder:
     """One embedder per process and space: a worker serving many agents must load a model once.
     Measured: one ONNX model per agent pushed a 1 GB worker out of memory with three agents."""
-    key = (cfg.embedder, cfg.embed_model, cfg.embed_dim, cfg.onnx_model, cfg.onnx_dim, cfg.onnx_cache_dir)
+    key = (cfg.embedder, cfg.embed_model, cfg.embed_dim, cfg.onnx_model, cfg.onnx_dim, cfg.onnx_cache_dir,
+           cfg.gemma_dir, cfg.gemma_dim, cfg.gemma_quantized)
     if key not in _EMBEDDERS:
         _EMBEDDERS[key] = _new_embedder(cfg)
     return _EMBEDDERS[key]
@@ -55,6 +56,10 @@ def _new_embedder(cfg: Config) -> Embedder:
         from harness_cache.adapters.onnx import OnnxEmbedder
 
         return OnnxEmbedder(cfg.onnx_model, cfg.onnx_dim, cfg.onnx_cache_dir)
+    if cfg.embedder == "gemma":
+        from harness_cache.adapters.gemma import GemmaEmbedder
+
+        return GemmaEmbedder(cfg.gemma_dir, cfg.gemma_dim, cfg.gemma_quantized)
     raise ValueError(f"unknown HC_EMBEDDER={cfg.embedder!r}")
 
 

@@ -14,7 +14,7 @@ import tomllib
 from pathlib import Path
 
 from harness_cache.cost import load_pricing
-from harness_cache.report import LEGACY_MODES, load_jsonl, metrics
+from harness_cache.report import LEGACY_MODES, load_jsonl, metrics, verbatim_retrieval
 
 MAX_LINES = 100
 
@@ -38,6 +38,9 @@ def snapshot(run_dir: Path, dest_dir: Path, skip_first: int = 1, pricing_path: P
     ]
     pricing = load_pricing(pricing_path) if pricing_path and pricing_path.exists() else None
     data = {"metrics": metrics(manifest, turns, tasks, skip_first, pricing), "series": series}
+    messages = _scenario_messages(manifest)
+    if messages is not None and manifest["config"].get("verbatim_recall"):
+        data["metrics"]["verbatim"] = verbatim_retrieval(manifest, turns, messages)
     if price_as and pricing:
         from harness_cache.cost import run_cost
         as_if = {**manifest, "config": {**manifest["config"], "llm": "gemini", "model": price_as}}
@@ -47,6 +50,17 @@ def snapshot(run_dir: Path, dest_dir: Path, skip_first: int = 1, pricing_path: P
     out = dest_dir / f"{manifest['run_id']}.json"
     out.write_text(json.dumps(data, indent=1, sort_keys=True) + "\n")
     return out
+
+
+def _scenario_messages(manifest: dict) -> list[str] | None:
+    """The scenario's user messages, if the file is found here and is the one the run replayed."""
+    import hashlib
+    name = manifest.get("scenario") or ""
+    for path in (Path(name), Path(__file__).resolve().parents[3] / name.lstrip("/")):
+        if name and path.is_file() and hashlib.blake2b(path.read_bytes(), digest_size=6).hexdigest() == manifest.get("scenario_sha"):
+            rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+            return [r["user"] for r in rows if "user" in r]
+    return None
 
 
 def _snapshot_load(run_dir: Path, dest_dir: Path) -> Path:
@@ -116,6 +130,11 @@ COLUMNS = {
     "request_last": ("last request tokens", lambda m: str(m["tokens"]["request_est_last"])),
     "page_ins": ("page faults", lambda m: str(m["routing"]["page_ins"]) if "routing" in m else "n/a"),
     "cache_mode": ("prefix cache", lambda m: m["pin"].get("cache_mode", m["pin"]["prefix_cache"])),
+    "h9_found": ("message stating the fact recalled",
+                 lambda m: f"{m['verbatim']['found']}/{m['verbatim']['needed']}" if "verbatim" in m else "n/a"),
+    "h9_turns": ("turns with a recall",
+                 lambda m: f"{m['verbatim']['turns_with_recall']}/{m['verbatim']['turns']}" if "verbatim" in m else "n/a"),
+    "h9_lines": ("messages recalled", lambda m: str(m["verbatim"]["lines"]) if "verbatim" in m else "n/a"),
     "recall": ("recall facts found", lambda m: f"{m['recall']['found']}/{m['recall']['facts']}" if "recall" in m else "n/a"),
 }
 

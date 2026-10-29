@@ -82,7 +82,8 @@ def test_every_decision_cites_frozen_runs_and_existing_tests():
 
 def _markdown_files():
     skip = {".venv", "runs", "node_modules", ".pytest_cache", "mutants",
-            "blog"}  # blog/ is gitignored: drafts for Medium, outside the repository
+            "blog",    # blog/ is gitignored: drafts for Medium, outside the repository
+            "models"}  # models/ is gitignored: downloaded model files and their cards
     return [p for p in ROOT.rglob("*.md") if not skip & set(p.relative_to(ROOT).parts)]
 
 

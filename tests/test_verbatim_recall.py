@@ -60,3 +60,54 @@ async def test_compact_without_the_switch_stores_no_message(tmp_path):
         assert "[memory paged in" not in eng.store.history(eng.session)[-2].text
     finally:
         await eng.close()
+
+
+async def test_statements_only_stores_what_states_a_fact_and_still_finds_it(tmp_path):
+    eng = _engine(tmp_path, verbatim_recall=True, verbatim_store="statements")
+    await eng.start()
+    try:
+        await _say(eng, ["My gym locker code is 4831.", "What is the weather like on Mars?"] + PAD
+                   + ["What is my gym locker code?"])
+        stored = [r["content"] for r in eng.store.db.execute("SELECT content FROM blocks").fetchall()]
+        assert "My gym locker code is 4831." in stored
+        assert not any("?" in c for c in stored)  # questions are not stored
+        assert "4831" in eng.store.history(eng.session)[-2].text
+    finally:
+        await eng.close()
+
+
+async def test_quotes_sent_once_reach_the_model_but_not_the_history(tmp_path):
+    eng = _engine(tmp_path, verbatim_recall=True, verbatim_history="once")
+    await eng.start()
+    sent = []
+    run = eng.loop.run
+
+    async def spy(system, messages, *a, **kw):
+        sent.append(messages[-1])
+        return await run(system, messages, *a, **kw)
+
+    eng.loop.run = spy
+    try:
+        await _say(eng, ["My gym locker code is 4831."] + PAD + ["What is my gym locker code?"])
+        assert "4831" in str(sent[-1])  # the model saw the quote this turn
+        assert eng.store.history(eng.session)[-2].text == "What is my gym locker code?"
+    finally:
+        await eng.close()
+
+
+def test_an_unknown_h9_switch_is_refused(tmp_path):
+    import pytest
+    for kw in ({"verbatim_store": "some"}, {"verbatim_history": "never"}):
+        with pytest.raises(ValueError):
+            _engine(tmp_path, verbatim_recall=True, **kw)
+
+
+def test_retrieval_counts_the_latest_statement_of_each_probed_value():
+    from harness_cache.report import verbatim_retrieval
+    messages = ["My code is 4831.", "hello", "Correction: my code is 7290.", "What is my code?", "What is my code?"]
+    manifest = {"probes": {"items": [{"turn": 4, "expect": ["7290"]}, {"turn": 5, "expect": ["7290"]}]}}
+    turns = [{"turn": 1, "route": None}, {"turn": 2, "route": {"hits": []}}, {"turn": 3, "route": {"hits": []}},
+             {"turn": 4, "route": {"hits": [["msg-000002", 0.9]]}},
+             {"turn": 5, "route": {"hits": [["msg-000000", 0.9], ["msg-000001", 0.5]]}}]  # only the stale value
+    assert verbatim_retrieval(manifest, turns, messages) == {
+        "found": 1, "needed": 2, "turns_with_recall": 2, "lines": 3, "turns": 5}

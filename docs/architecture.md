@@ -54,6 +54,9 @@ COLD PATH (never awaited by a turn)
 query's hits (the APU); `naive` sends the full conversation; `compact` sends the history and
 folds its older part into a running summary past `HC_COMPACT_AT` tokens, and with
 `HC_VERBATIM_RECALL=on` (H9) also appends the user's own past messages found by the urithi
-search, verbatim, at the end of the prompt. Ablation switches:
+search, verbatim, at the end of the prompt (`HC_VERBATIM_STORE=statements` stores only messages that
+state a fact, `HC_VERBATIM_HISTORY=once` sends the quotes once and keeps them out of the history).
+Embedders: `hash`, `onnx` (MiniLM, the default of decision 0004) and `gemma` (EmbeddingGemma 2,
+asymmetric prefixes, its own thresholds). Ablation switches:
 `HC_PREFIX_CACHE=none`, `HC_TOOL_CACHE=off`, `HC_EMBED_CACHE=off`,
 `HC_CACHE_ADMISSION=always`, `HC_VICTIM_WINDOW=1`.

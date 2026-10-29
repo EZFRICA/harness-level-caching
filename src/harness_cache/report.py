@@ -62,6 +62,24 @@ def recall_of(probes: dict) -> dict:
         "by_turn": [{"turn": i["turn"], "found": i["found"]} for i in probes["items"]]}
 
 
+def verbatim_retrieval(manifest: dict, turns: list[dict], messages: list[str]) -> dict:
+    """H9 search only, independent of the answer: at each probe, was the user message that last
+    stated the expected value among the recalled ones? `messages[i]` is the user message of turn
+    i+1, stored as msg-<i>. A probe whose statement was still in the unfolded history counts as
+    not recalled: the search skips it, the prompt holds it."""
+    hits = {t["turn"]: [h[0] for h in (t.get("route") or {}).get("hits") or []] for t in turns}
+    found = needed = 0
+    for item in (manifest.get("probes") or {}).get("items", []):
+        t = item["turn"]
+        stated = [i for i in range(t - 1) if any(v in messages[i] for v in item["expect"])]
+        if not stated or t not in hits:
+            continue
+        needed += 1
+        found += f"msg-{stated[-1]:06d}" in hits[t]
+    return {"found": found, "needed": needed, "turns_with_recall": sum(1 for h in hits.values() if h),
+            "lines": sum(len(h) for h in hits.values()), "turns": len(turns)}
+
+
 def metrics(manifest: dict, turns: list[dict], tasks: list[dict], skip_first: int = 0,
             pricing: dict | None = None) -> dict:
     all_turns = turns

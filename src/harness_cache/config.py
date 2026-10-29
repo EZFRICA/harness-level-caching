@@ -17,6 +17,9 @@ _DEFAULT_TAUS = {
     "hash": {"active": 0.35, "l3": 0.30},
     "gemini": {"active": 0.70, "l3": 0.65},
     "onnx": {"active": 0.40, "l3": 0.50},
+    # EmbeddingGemma 2 cosines run higher: the MiniLM values carried over by percentile on the
+    # 1500 turn scenario's user messages (in sample, not tuned on recall).
+    "gemma": {"active": 0.748, "l3": 0.775},
 }
 
 
@@ -28,13 +31,16 @@ def _default_pricing() -> Path:
 class Config:
     mode: str = "extract"  # extract | topk | naive
     llm: str = "echo"  # echo | gemini | openai_compat
-    embedder: str = "hash"  # hash | gemini | onnx
+    embedder: str = "hash"  # hash | gemini | onnx | gemma
     model: str = "gemini-3.5-flash-lite"
     embed_model: str = "gemini-embedding-001"
     embed_dim: int = 768
     onnx_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     onnx_dim: int = 384
     onnx_cache_dir: str = "/models"
+    gemma_dir: str = "/models/embeddinggemma-2-onnx"
+    gemma_dim: int = 768  # 768, or a Matryoshka cut: 512, 256, 128
+    gemma_quantized: bool = False  # int8 export: smaller, slower on this CPU
     temperature: float = 0.7
     oai_base_url: str = ""  # openai_compat: server base URL (Nebius, vLLM)
     oai_key_env: str = ""  # openai_compat: name of the variable holding the key (never the key)
@@ -55,6 +61,8 @@ class Config:
     compact_at: int = 6000  # compact mode: fold the history once its unfolded part passes this (approx tokens)
     compact_keep: int = 4  # compact mode: exchanges kept verbatim after a fold
     verbatim_recall: bool = False  # hypothesis H9 (compact): stored user messages recalled verbatim at the tail
+    verbatim_store: str = "all"  # H9: all user messages, or only those that state a fact (statements)
+    verbatim_history: str = "keep"  # H9: recalled quotes stay in the history (keep) or are sent once (once)
     page_in_tail: bool = False  # hypothesis H8 (with epoch refresh): a paged-in block is sent after the window
     render_order: str = "stable"  # stable (decision 0002) | recency: ablation, blocks in order of last access
     extract_policy: str = "every"  # every: batch by extract_every | statements: a stated fact is extracted at once
@@ -113,6 +121,9 @@ class Config:
             onnx_model=_env("HC_ONNX_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"),
             onnx_dim=int(_env("HC_ONNX_DIM", "384")),
             onnx_cache_dir=_env("HC_ONNX_CACHE_DIR", "/models"),
+            gemma_dir=_env("HC_GEMMA_DIR", "/models/embeddinggemma-2-onnx"),
+            gemma_dim=int(_env("HC_GEMMA_DIM", "768")),
+            gemma_quantized=_env("HC_GEMMA_QUANTIZED", "off") == "on",
             temperature=float(_env("HC_TEMPERATURE", "0.7")),
             oai_base_url=_env("HC_OAI_BASE_URL", ""),
             oai_key_env=_env("HC_OAI_KEY_ENV", ""),
@@ -132,6 +143,8 @@ class Config:
             compact_at=int(_env("HC_COMPACT_AT", "6000")),
             compact_keep=int(_env("HC_COMPACT_KEEP", "4")),
             verbatim_recall=_env("HC_VERBATIM_RECALL", "off") == "on",
+            verbatim_store=_env("HC_VERBATIM_STORE", "all"),
+            verbatim_history=_env("HC_VERBATIM_HISTORY", "keep"),
             page_in_tail=_env("HC_PAGE_IN_TAIL", "off") == "on",
             render_order=_env("HC_RENDER_ORDER", "stable"),
             extract_policy=_env("HC_EXTRACT_POLICY", "every"),

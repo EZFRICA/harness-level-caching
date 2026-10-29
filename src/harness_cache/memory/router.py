@@ -29,6 +29,11 @@ URITHI_LIMIT = 12  # candidates per search, as in apu-urithi search_block_index(
 # apu-urithi apu/config.py CERTAINTY_THRESHOLDS, calibrated on the same 384-dim MiniLM space:
 # fundamental 0.40, project and knowledge 0.45, temporary 0.50.
 URITHI_THRESHOLDS = {Kind.FONDAMENTAL: 0.40, Kind.PROJET: 0.45, Kind.TEMP: 0.50}
+# The same three thresholds in EmbeddingGemma 2's space, carried over by percentile of the cosines
+# between the 1500 turn scenario's user messages (in sample). A threshold never crosses embedders.
+URITHI_THRESHOLDS_BY_EMBEDDER = {
+    "gemma": {Kind.FONDAMENTAL: 0.748, Kind.PROJET: 0.762, Kind.TEMP: 0.775},
+}
 
 
 @dataclass
@@ -171,12 +176,13 @@ class Router:
         scores = keywords.bm25(query, [f"{r['title']}\n{r['content']}" for r in rows])
         by_words = [rows[i]["id"] for i in sorted(range(len(rows)), key=lambda i: -scores[i]) if scores[i] > 0]
         cos = dict(by_meaning)
+        thresholds = URITHI_THRESHOLDS_BY_EMBEDDER.get(self.cfg.embedder, URITHI_THRESHOLDS)
         accepted = []
         for bid in keywords.fuse([b for b, _ in by_meaning], by_words[:URITHI_LIMIT]):
             block = self.active.get(bid) or self.store.get(bid)
             if block is None:
                 continue
-            passes = cos.get(bid, -1.0) >= URITHI_THRESHOLDS.get(block.kind, 0.45)
+            passes = cos.get(bid, -1.0) >= thresholds[block.kind]
             if passes or (by_words and bid == by_words[0]):
                 accepted.append((block, cos.get(bid, 0.0)))
             if len(accepted) >= self.cfg.page_in_k:

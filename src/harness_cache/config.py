@@ -63,6 +63,8 @@ class Config:
     verbatim_recall: bool = False  # hypothesis H9 (compact): stored user messages recalled verbatim at the tail
     verbatim_store: str = "all"  # H9: all user messages, or only those that state a fact (statements)
     verbatim_history: str = "keep"  # H9: recalled quotes stay in the history (keep) or are sent once (once)
+    verbatim_pin: bool = False  # H10 (compact): folded statements kept word for word in a block beside the summary
+    pin_summary: str = "all"  # H10: the summary still reads pinned statements (all) or only the rest (rest)
     page_in_tail: bool = False  # hypothesis H8 (with epoch refresh): a paged-in block is sent after the window
     render_order: str = "stable"  # stable (decision 0002) | recency: ablation, blocks in order of last access
     extract_policy: str = "every"  # every: batch by extract_every | statements: a stated fact is extracted at once
@@ -145,6 +147,8 @@ class Config:
             verbatim_recall=_env("HC_VERBATIM_RECALL", "off") == "on",
             verbatim_store=_env("HC_VERBATIM_STORE", "all"),
             verbatim_history=_env("HC_VERBATIM_HISTORY", "keep"),
+            verbatim_pin=_env("HC_VERBATIM_PIN", "off") == "on",
+            pin_summary=_env("HC_PIN_SUMMARY", "all"),
             page_in_tail=_env("HC_PAGE_IN_TAIL", "off") == "on",
             render_order=_env("HC_RENDER_ORDER", "stable"),
             extract_policy=_env("HC_EXTRACT_POLICY", "every"),

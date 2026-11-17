@@ -53,7 +53,13 @@ def pin(manifest: dict) -> dict:
         "cpus": lim.get("cpus_limit"), "memory_bytes": lim.get("memory_max_bytes"),
         "capacity": c["capacity"], "max_memory_tokens": c["max_memory_tokens"],
         "victim_window": c["victim_window"], "scenario": manifest.get("scenario"),
+        **({k: c[k] for k in _COMPACT_KEYS if k in c} if c["mode"] == "compact" else {}),
     }
+
+
+# The memory switches of compact mode (H9, H10): part of a compact run's pinning key only.
+_COMPACT_KEYS = ("compact_at", "compact_keep", "verbatim_recall", "verbatim_store", "verbatim_history",
+                 "verbatim_pin")
 
 
 def recall_of(probes: dict) -> dict:
@@ -78,6 +84,32 @@ def verbatim_retrieval(manifest: dict, turns: list[dict], messages: list[str]) -
         found += f"msg-{stated[-1]:06d}" in hits[t]
     return {"found": found, "needed": needed, "turns_with_recall": sum(1 for h in hits.values() if h),
             "lines": sum(len(h) for h in hits.values()), "turns": len(turns)}
+
+
+def statement_in_prompt(manifest: dict, turns: list[dict], messages: list[str]) -> dict:
+    """Independent of the answer: at each probe, was the user message that last stated the
+    expected value in the prompt word for word? It is when its turn is not folded yet; with
+    HC_VERBATIM_PIN=on (H10) when it was folded and states a fact (the pinned block holds exactly
+    those); with HC_VERBATIM_RECALL=on (H9) when the search recalled it at the tail."""
+    from harness_cache.engine import states_a_fact
+    pin = bool(manifest.get("config", {}).get("verbatim_pin"))
+    ctx = {t["turn"]: t.get("context") or {} for t in turns}
+    hits = {t["turn"]: {h[0] for h in (t.get("route") or {}).get("hits") or []} for t in turns}
+    found = needed = unfolded = 0
+    for item in (manifest.get("probes") or {}).get("items", []):
+        t = item["turn"]
+        stated = [i for i in range(t - 1) if any(v in messages[i] for v in item["expect"])]
+        if not stated or "folded_turns" not in ctx.get(t, {}):
+            continue
+        needed += 1
+        i = stated[-1]
+        if i >= ctx[t]["folded_turns"]:
+            unfolded += 1
+            found += 1
+        else:
+            found += (pin and states_a_fact(messages[i])) or f"msg-{i:06d}" in hits.get(t, ())
+    last = [c["pinned"] for c in ctx.values() if "pinned" in c]
+    return {"found": found, "needed": needed, "unfolded": unfolded, "pinned_last": last[-1] if last else 0}
 
 
 def metrics(manifest: dict, turns: list[dict], tasks: list[dict], skip_first: int = 0,

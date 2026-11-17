@@ -16,6 +16,7 @@ from harness_cache.config import Config
 from harness_cache.cost import load_pricing, run_cost
 from harness_cache.memory.active_set import block_tokens, render_key
 from harness_cache.report import LEGACY_MODES, load_jsonl, metrics
+from harness_cache.trace.figures import memory_scores
 from harness_cache.types import Block, Kind
 
 
@@ -71,7 +72,7 @@ class DashData:
         if (d / "manifest.json").exists():
             manifest = json.loads((d / "manifest.json").read_text())
             turns, tasks = load_jsonl(d / "turns.jsonl"), load_jsonl(d / "tasks.jsonl")
-            m = metrics(manifest, turns, tasks, skip_first=1, pricing=pricing)
+            m = metrics(manifest, turns, tasks, skip_first=1, pricing=pricing) | memory_scores(manifest, turns)
             cost = run_cost(manifest, turns, tasks, pricing) if turns else {"priced": False}
             series = [_point(t) for t in turns]
             for p, c in zip(series, cost.get("per_turn", [])):

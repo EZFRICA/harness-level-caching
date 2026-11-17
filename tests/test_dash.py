@@ -90,3 +90,20 @@ def test_a_run_marked_invalid_is_never_shown(tmp_path, monkeypatch):
     c = _client(tmp_path, monkeypatch)
     assert "broken" not in {r["id"] for r in c.get("/api/runs").json()}
     assert "broken" not in {r["id"] for r in c.get("/api/loads").json()}
+
+
+def test_a_live_compact_run_shows_whether_the_fact_was_in_the_prompt(tmp_path, monkeypatch):
+    from harness_cache.cli import main
+    scenario = tmp_path / "s.jsonl"
+    rows = [{"seed": []}, {"user": "My gym locker code is 4831."}]
+    rows += [{"user": "Tell me something about clouds and rain please. " + "pad " * 30}] * 4
+    rows += [{"user": "What is my gym locker code?", "expect": ["4831"]}]
+    scenario.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    for k, v in {"HC_LLM": "echo", "HC_EMBEDDER": "hash", "HC_RUNS_DIR": tmp_path / "runs", "HC_DATA_DIR": tmp_path / "d",
+                 "HC_ARCHIVE_DIR": tmp_path / "a", "HC_VERBATIM_PIN": "on", "HC_COMPACT_AT": "60", "HC_COMPACT_KEEP": "1"}.items():
+        monkeypatch.setenv(k, str(v))
+    main(["run", str(scenario), "--fresh", "--mode", "compact", "--run-id", "pin"])
+    c = _client(tmp_path, monkeypatch)
+    d = c.get("/api/compare", params={"a": "pin", "b": "pin"}).json()
+    assert d["a"]["metrics"]["in_prompt"]["found"] == d["a"]["metrics"]["in_prompt"]["needed"] == 1
+    assert "verbatim" not in d["a"]["metrics"]  # no search in this run: shown as absent, not as zero

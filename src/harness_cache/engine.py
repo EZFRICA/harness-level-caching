@@ -80,6 +80,27 @@ Keep every fact the user stated about themselves, their work and their plans: na
 codes, dates, places, references. When a fact was corrected, keep only the latest value.
 Drop small talk and the assistant's suggestions. Output the summary only, as short bullet points."""
 
+# H10 with HC_PIN_SUMMARY=rest: the pinned statements are left out of the fold, so the summary
+# does not carry a second, paraphrased copy of them.
+COMPACT_REST = """
+The user's own statements of facts are kept word for word outside this summary and are left out
+of the conversation below: do not restate them; keep what they do not hold (decisions, outcomes, context)."""
+
+
+def pin_statements(pinned: dict[str, int], rows: list[Message], first_turn: int) -> dict[str, int]:
+    """H10: the folded user messages that state a fact, word for word. A statement said again
+    moves to its latest turn, so the newest value of a corrected fact is read last."""
+    out = dict(pinned)
+    for i, m in enumerate(r for r in rows if r.role == "user"):
+        if states_a_fact(m.text):
+            out.pop(m.text, None)
+            out[m.text] = first_turn + i
+    return out
+
+
+def pinned_text(pinned: dict[str, int]) -> str:
+    return "\n".join(f"- turn {t}: {text}" for text, t in pinned.items())
+
 
 def _verbatim_turn(block_id: str) -> int:
     """The turn of a stored user message (H9 ids are msg-<turn>); other blocks sort first."""
@@ -101,6 +122,10 @@ class Engine:
             raise ValueError(f"unknown mode {cfg.mode!r}")
         if cfg.verbatim_store not in {"all", "statements"} or cfg.verbatim_history not in {"keep", "once"}:
             raise ValueError(f"unknown H9 switch: store {cfg.verbatim_store!r}, history {cfg.verbatim_history!r}")
+        if cfg.verbatim_pin and (cfg.mode != "compact" or cfg.verbatim_recall):
+            raise ValueError("HC_VERBATIM_PIN needs compact mode and replaces HC_VERBATIM_RECALL")
+        if cfg.pin_summary not in {"all", "rest"} or (cfg.pin_summary == "rest" and not cfg.verbatim_pin):
+            raise ValueError(f"HC_PIN_SUMMARY={cfg.pin_summary!r} needs all or rest, and rest needs HC_VERBATIM_PIN=on")
         self.cfg = cfg
         self.recorder = recorder
         self.session = session
@@ -157,6 +182,7 @@ class Engine:
         self._summary = ""  # compact mode: the running summary of the folded history
         self._compact_from = 0  # compact mode: history rows already folded into the summary
         self._compact_queued = False
+        self._pinned: dict[str, int] = {}  # H10: folded statement -> turn it was last said, oldest first
         self._tail: list[Block] = []  # blocks paged in this turn, sent after the window (H8)
         self._last_sent_hash: str | None = None  # the prefix the last turn actually sent
         self._sightings: dict[str, int] = {}  # prefix hash -> turns that sent it
@@ -271,6 +297,7 @@ class Engine:
         cpu0 = time.process_time()
         timings: dict[str, float] = {}
         route = None
+        compact_view: dict = {}  # compact mode: what the prompt held when it was built
         h2_before = self.embedder.counters()  # routing embeds the query: count from the start
 
         if cfg.mode == "naive":
@@ -279,7 +306,11 @@ class Engine:
         elif cfg.mode == "compact":  # baseline: full history, older part folded into a summary
             blocks = [Block("conversation-summary", Kind.PROJET, "Conversation summary", self._summary)] \
                 if self._summary else []
+            if self._pinned:  # H10: after the summary, changed only by a fold, so the head stays cacheable
+                blocks.append(Block("pinned-statements", Kind.PROJET, "What the user stated, word for word",
+                                    pinned_text(self._pinned)))
             history = self.store.history(self.session)[self._compact_from:]
+            compact_view = {"folded_turns": self._compact_from // 2, "pinned": len(self._pinned)}
             if cfg.verbatim_recall:
                 route = await self._recall_verbatim(user_text)
         else:
@@ -369,6 +400,7 @@ class Engine:
                 "active_size": len(self.active),
                 "memory_tokens_est": req.memory_tokens, "window_tokens_est": req.window_tokens,
                 "total_tokens_est": req.total_tokens, "stable_prefix_tokens_est": req.stable_prefix_tokens,
+                **compact_view,
             },
             "llm": {"prompt_tokens": out.prompt_tokens, "cached_tokens": out.cached_tokens,
                     "output_tokens": out.output_tokens, "calls": len(out.steps)},
@@ -418,13 +450,19 @@ class Engine:
             fold = rows[:max(0, len(rows) - 2 * self.cfg.compact_keep)]
             if not fold:
                 return {"folded": 0}
-            convo = "\n".join(f"{m.role.upper()}: {m.text}" for m in fold)
+            rest = self.cfg.pin_summary == "rest"
+            convo = "\n".join(f"{m.role.upper()}: {m.text}" for m in fold
+                              if not (rest and m.role == "user" and states_a_fact(m.text)))
             prompt = f"PREVIOUS SUMMARY:\n{self._summary or '(none)'}\n\nCONVERSATION TO FOLD:\n{convo}"
-            out = await self.llm.generate(COMPACT_SYSTEM, [Message("user", prompt)], temperature=0.0)
+            system = COMPACT_SYSTEM + COMPACT_REST if rest else COMPACT_SYSTEM
+            out = await self.llm.generate(system, [Message("user", prompt)], temperature=0.0)
             if out.text.strip():
+                if self.cfg.verbatim_pin:
+                    self._pinned = pin_statements(self._pinned, fold, self._compact_from // 2 + 1)
                 self._summary = out.text.strip()
                 self._compact_from += len(fold)
             return {"folded": len(fold), "summary_tokens_est": approx_tokens(self._summary),
+                    "pinned": len(self._pinned),
                     "prompt_tokens": out.prompt_tokens, "cached_tokens": out.cached_tokens,
                     "output_tokens": out.output_tokens}
         finally:

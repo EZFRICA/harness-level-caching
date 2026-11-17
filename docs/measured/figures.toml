@@ -560,3 +560,40 @@ limits = [
   "Echo model: no answer, so no fact recall, no provider cache and no cost are measured; the echo model's short answers fold the summary later than a real model.",
   "One run per arm; one generated English scenario; EmbeddingGemma 2 thresholds carried over from MiniLM by percentile on this scenario (in sample).",
 ]
+
+[[figure]]
+id = "verbatim-pin-1500"
+file = "verbatim-pin-1500.md"
+title = "Statements pinned word for word at each fold (H10) over 1500 turns, beside the H9 search"
+question = "Before any paid run, if compact copies the statements it folds word for word into a block after the summary, is the message that stated each probed value still in the prompt, how much larger is the prompt, and what does it save against searching every turn (H9)?"
+runs = ["echo-lf1500-compact-v1", "echo-lf1500-compact-pin-v1", "echo-lf1500-compact-pin-rest-v1", "echo-onnx-lf1500-verbatim-stmt-v2", "echo-gemma-lf1500-verbatim-stmt-v2"]
+columns = ["run", "embedder", "turns", "in_prompt", "pinned", "h9_turns", "request_last", "prompt", "memory"]
+reproduce = "docker compose exec -e HC_LLM=echo -e HC_EMBEDDER=hash|onnx|gemma [-e HC_VERBATIM_PIN=on [-e HC_PIN_SUMMARY=rest]] [-e HC_VERBATIM_RECALL=on -e HC_VERBATIM_STORE=statements] hc harness-cache run /scenarios/long_facts_en_1500_v1.jsonl --fresh --mode compact, one run at a time, code of the commit that adds HC_PIN_SUMMARY"
+reading = [
+  "The message that last stated the probed value was in the prompt word for word at 24 of 24 probes with pinning, with or without HC_PIN_SUMMARY=rest, and with the H9 search under either embedder; compact alone had it at 4 of 24, only where it was not folded yet.",
+  "Pinning added no quote on any turn and kept 56 distinct statements at the end; H9 added quotes on 1273 of 1500 turns.",
+  "The pinned arms sent about 20 percent more prompt tokens than compact alone and about 12 percent more than H9.",
+  "Memory time per turn had a median of 1.9 to 2.3 ms for the compact arms against 3.9 to 4.1 ms for H9, whose p95 was 57 ms with MiniLM and 170 ms with EmbeddingGemma 2 in these runs.",
+]
+limits = [
+  "Echo model: no answer, so no fact recall, no provider cache and no cost are measured; the echo summary does not shrink, so HC_PIN_SUMMARY=rest cannot show a smaller prompt here (its fold input fell from 53684 to 49458 tokens).",
+  "One run per arm, all in the container; one generated English scenario whose 341 statements reduce to 56 distinct texts; latency tails vary between runs (H9 p95 was 10 and 64 ms in the runs of figure verbatim-search-1500).",
+]
+
+[[figure]]
+id = "verbatim-pin-flashlite-500"
+file = "verbatim-pin-flashlite-500.md"
+title = "Statements pinned word for word (H10) on Gemini 3.5 Flash-Lite, 500 turns"
+question = "On a real model, does pinning the statements a fold removes keep facts a summary alone loses, at what extra cost, and does leaving them out of the fold (HC_PIN_SUMMARY=rest) make the summary smaller?"
+runs = ["gemapi-g35lite-lf500-compact-v1", "gemapi-g35lite-lf500-compact-pin-v1", "gemapi-g35lite-lf500-compact-pin-rest-v1"]
+columns = ["run", "turns", "recall", "in_prompt", "pinned", "prompt", "cached_share", "cost", "cost_cold", "hot"]
+reproduce = "scripts/h10-flashlite.sh (the compact arm with KEY_VAR=GEMINI_API_KEY, the two pinned arms with KEY_VAR=GEMINI_API_KEY_2), code of the commit that adds HC_PIN_SUMMARY"
+reading = [
+  "Compact alone recalled 23 of 24 facts: the sister's birthday, stated at turn 37 and folded before its probe at turn 148, was not in the summary the model read; both pinned arms recalled 24 of 24 with the statement in the prompt word for word at every probe.",
+  "The pinned arms cost 0.478 and 0.479 USD against 0.455 for compact alone, about 5 percent more, for about 13 percent more prompt tokens; the provider served 36 percent of their prompt from cache against 33 percent.",
+  "Leaving pinned statements out of the fold did not shrink the summary: its median was 545 estimated tokens against 453 with them, over 4 folds each.",
+]
+limits = [
+  "One run per arm; one generated English scenario of 500 turns; the compact arm ran on one Gemini API key and the pinned arms on another, on different days, so the cache share and the turn times are not attributable to the arm alone.",
+  "Recall is scored by string match on the answer; one missed fact in one run is an observation, not a rate.",
+]

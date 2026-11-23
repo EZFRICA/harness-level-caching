@@ -14,7 +14,7 @@ cd "$(dirname "$0")/.."
 
 SCENARIO=/scenarios/long_facts_en_v1.jsonl
 TURNS=$(grep -c '"user"' "scenarios/long_facts_en_v1.jsonl")
-ARMS=("compact:off:all" "compact-pin:on:all" "compact-pin-rest:on:rest")
+ARMS=("compact:off:all:rule" "compact-pin:on:all:rule" "compact-pin-rest:on:rest:rule" "compact-pin-decisions:on:all:decisions")
 KEY_VAR=${KEY_VAR:-GEMINI_API_KEY}  # the variable's name only; its value is read inside the container
 [[ "$KEY_VAR" =~ ^GEMINI_API_KEY(_[0-9]+)?$ ]] || { echo "KEY_VAR must name a GEMINI_API_KEY variable"; exit 2; }
 
@@ -26,7 +26,7 @@ finished() {
 }
 
 for arm in "${ARMS[@]}"; do
-  IFS=: read -r name pin rest <<< "$arm"
+  IFS=: read -r name pin rest judge <<< "$arm"
   id="gemapi-g35lite-lf500-$name-v1"
   if finished "$id"; then echo "done     $id"; continue; fi
   if [ "${1:-}" = "status" ]; then echo "to run   $id"; continue; fi
@@ -38,7 +38,7 @@ for arm in "${ARMS[@]}"; do
   echo "running  $id (key from $KEY_VAR)"
   docker compose exec -T -e HC_LLM=gemini -e HC_MODEL=gemini-3.5-flash-lite -e HC_EMBEDDER=onnx \
     -e HC_PREFIX_CACHE=implicit -e HC_MAX_USD=2 -e HC_LOG_LEVEL=WARNING \
-    -e HC_VERBATIM_PIN="$pin" -e HC_PIN_SUMMARY="$rest" -e KEY_VAR="$KEY_VAR" \
+    -e HC_VERBATIM_PIN="$pin" -e HC_PIN_SUMMARY="$rest" -e HC_PIN_JUDGE="$judge" -e KEY_VAR="$KEY_VAR" \
     hc sh -c 'GEMINI_API_KEY="$(printenv "$KEY_VAR")" exec harness-cache run "$@"' sh \
     "$SCENARIO" --fresh --mode compact --run-id "$id" | tail -3
 done

@@ -87,12 +87,14 @@ The user's own statements of facts are kept word for word outside this summary a
 of the conversation below: do not restate them; keep what they do not hold (decisions, outcomes, context)."""
 
 
-def pin_statements(pinned: dict[str, int], rows: list[Message], first_turn: int) -> dict[str, int]:
+def pin_statements(pinned: dict[str, int], rows: list[Message], first_turn: int,
+                   keep=None) -> dict[str, int]:
     """H10: the folded user messages that state a fact, word for word. A statement said again
-    moves to its latest turn, so the newest value of a corrected fact is read last."""
+    moves to its latest turn, so the newest value of a corrected fact is read last. `keep` is the
+    set the judge kept (HC_PIN_JUDGE); without one, the rule decides."""
     out = dict(pinned)
     for i, m in enumerate(r for r in rows if r.role == "user"):
-        if states_a_fact(m.text):
+        if (m.text in keep) if keep is not None else states_a_fact(m.text):
             out.pop(m.text, None)
             out[m.text] = first_turn + i
     return out
@@ -126,6 +128,8 @@ class Engine:
             raise ValueError("HC_VERBATIM_PIN needs compact mode and replaces HC_VERBATIM_RECALL")
         if cfg.pin_summary not in {"all", "rest"} or (cfg.pin_summary == "rest" and not cfg.verbatim_pin):
             raise ValueError(f"HC_PIN_SUMMARY={cfg.pin_summary!r} needs all or rest, and rest needs HC_VERBATIM_PIN=on")
+        if cfg.pin_judge not in {"rule", "decisions"} or (cfg.pin_judge == "decisions" and not cfg.verbatim_pin):
+            raise ValueError(f"HC_PIN_JUDGE={cfg.pin_judge!r} needs rule or decisions, and decisions needs HC_VERBATIM_PIN=on")
         self.cfg = cfg
         self.recorder = recorder
         self.session = session
@@ -183,6 +187,11 @@ class Engine:
         self._compact_from = 0  # compact mode: history rows already folded into the summary
         self._compact_queued = False
         self._pinned: dict[str, int] = {}  # H10: folded statement -> turn it was last said, oldest first
+        self.pin_judge = None  # H10 with HC_PIN_JUDGE=decisions: the Decisions API on top of the rule
+        if cfg.pin_judge == "decisions":
+            from harness_cache.adapters import _api_key
+            from harness_cache.memory.pin_judge import DecisionsJudge, gemini_asker, load_probes
+            self.pin_judge = DecisionsJudge(gemini_asker(_api_key()), states_a_fact, load_probes())
         self._tail: list[Block] = []  # blocks paged in this turn, sent after the window (H8)
         self._last_sent_hash: str | None = None  # the prefix the last turn actually sent
         self._sightings: dict[str, int] = {}  # prefix hash -> turns that sent it
@@ -456,13 +465,20 @@ class Engine:
             prompt = f"PREVIOUS SUMMARY:\n{self._summary or '(none)'}\n\nCONVERSATION TO FOLD:\n{convo}"
             system = COMPACT_SYSTEM + COMPACT_REST if rest else COMPACT_SYSTEM
             out = await self.llm.generate(system, [Message("user", prompt)], temperature=0.0)
+            judged = {}
+            keep = None
+            if self.cfg.verbatim_pin and self.pin_judge is not None:
+                v = await self.pin_judge.judge([m.text for m in fold if m.role == "user"])
+                keep = v.keep
+                judged = {"judge_calls": v.calls, "judge_tokens": v.tokens, "judge_kept": len(v.keep),
+                          "judge_fallback": v.fallback}
             if out.text.strip():
                 if self.cfg.verbatim_pin:
-                    self._pinned = pin_statements(self._pinned, fold, self._compact_from // 2 + 1)
+                    self._pinned = pin_statements(self._pinned, fold, self._compact_from // 2 + 1, keep)
                 self._summary = out.text.strip()
                 self._compact_from += len(fold)
             return {"folded": len(fold), "summary_tokens_est": approx_tokens(self._summary),
-                    "pinned": len(self._pinned),
+                    "pinned": len(self._pinned), **judged,
                     "prompt_tokens": out.prompt_tokens, "cached_tokens": out.cached_tokens,
                     "output_tokens": out.output_tokens}
         finally:

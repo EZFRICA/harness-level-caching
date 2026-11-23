@@ -65,7 +65,7 @@ docker compose exec hc harness-cache report /runs/<run_id>
 ```
 
 Modes: `naive` (whole history), `compact` (running summary; `HC_VERBATIM_RECALL=on` adds
-verbatim recall, with `HC_VERBATIM_STORE=statements` and `HC_VERBATIM_HISTORY=once`; `HC_VERBATIM_PIN=on` pins folded statements instead, `HC_PIN_SUMMARY=rest` keeps them out of the summary), `topk`
+verbatim recall, with `HC_VERBATIM_STORE=statements` and `HC_VERBATIM_HISTORY=once`; `HC_VERBATIM_PIN=on` pins folded statements instead, `HC_PIN_SUMMARY=rest` keeps them out of the summary, `HC_PIN_JUDGE=decisions` lets the Decisions API choose them), `topk`
 and `extract` (extracted memory, paged by a router). Each figure page in `docs/measured/`
 gives the command that reproduces it. Long-session scenarios: `scripts/gen_long_facts.py`.
 

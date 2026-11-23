@@ -38,6 +38,16 @@ cache_write_status = "none"
 explicit_cache = false      # "not supported for Gemini 4 Argon and onward" (caching page)
 implicit_min_tokens = 4096
 
+[models."gemini-decision-1"]
+read_on = "2026-11-17"
+source = "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api/ (via K. Weinmeister, Routing models with the Gemini Decisions API); the pricing page was not read"
+status = "assumption"
+input = 0.10               # per million input tokens; a decision bills no output token
+output = 0.0
+cache_read = 0.10          # no context caching for decisions in the preview
+cache_storage_hour = 0.0
+cache_write = 0.0
+
 [models."echo"]
 read_on = "2026-10-23"
 source = "src/harness_cache/adapters/local.py"

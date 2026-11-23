@@ -585,15 +585,17 @@ id = "verbatim-pin-flashlite-500"
 file = "verbatim-pin-flashlite-500.md"
 title = "Statements pinned word for word (H10) on Gemini 3.5 Flash-Lite, 500 turns"
 question = "On a real model, does pinning the statements a fold removes keep facts a summary alone loses, at what extra cost, and does leaving them out of the fold (HC_PIN_SUMMARY=rest) make the summary smaller?"
-runs = ["gemapi-g35lite-lf500-compact-v1", "gemapi-g35lite-lf500-compact-pin-v1", "gemapi-g35lite-lf500-compact-pin-rest-v1"]
+runs = ["gemapi-g35lite-lf500-compact-v1", "gemapi-g35lite-lf500-compact-pin-v1", "gemapi-g35lite-lf500-compact-pin-rest-v1", "gemapi-g35lite-lf500-compact-pin-decisions-v1"]
 columns = ["run", "turns", "recall", "in_prompt", "pinned", "prompt", "cached_share", "cost", "cost_cold", "hot"]
-reproduce = "scripts/h10-flashlite.sh (the compact arm with KEY_VAR=GEMINI_API_KEY, the two pinned arms with KEY_VAR=GEMINI_API_KEY_2), code of the commit that adds HC_PIN_SUMMARY"
+reproduce = "scripts/h10-flashlite.sh (the compact arm with KEY_VAR=GEMINI_API_KEY, the pinned arms with KEY_VAR=GEMINI_API_KEY_2), code of the commit that adds HC_PIN_SUMMARY; the decisions arm needs the commit that adds HC_PIN_JUDGE and google-genai 3.4"
 reading = [
   "Compact alone recalled 23 of 24 facts: the sister's birthday, stated at turn 37 and folded before its probe at turn 148, was not in the summary the model read; both pinned arms recalled 24 of 24 with the statement in the prompt word for word at every probe.",
   "The pinned arms cost 0.478 and 0.479 USD against 0.455 for compact alone, about 5 percent more, for about 13 percent more prompt tokens; the provider served 36 percent of their prompt from cache against 33 percent.",
   "Leaving pinned statements out of the fold did not shrink the summary: its median was 545 estimated tokens against 453 with them, over 4 folds each.",
+  "With HC_PIN_JUDGE=decisions the Decisions API kept 34 statements at the end against 56 with the rule, with no fallback, for 125 calls and about 0.0023 USD; the run cost 0.468 USD and recalled 23 of 24.",
+  "Its one miss is the scenario's: a filler note at turn 398 says the dentist appointment moved by one week, after the fact (March 14) was stated at turn 192; this arm answered March 21, the other arms March 14, which the probe expects.",
 ]
 limits = [
   "One run per arm; one generated English scenario of 500 turns; the compact arm ran on one Gemini API key and the pinned arms on another, on different days, so the cache share and the turn times are not attributable to the arm alone.",
-  "Recall is scored by string match on the answer; one missed fact in one run is an observation, not a rate.",
+  "Recall is scored by string match on the answer; one missed fact in one run is an observation, not a rate. The generated filler can contradict a planted fact (the dentist note), so a probe can expect a value a careful reader would not give.",
 ]

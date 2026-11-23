@@ -14,7 +14,7 @@ import tomllib
 from pathlib import Path
 
 from harness_cache.cost import load_pricing
-from harness_cache.report import LEGACY_MODES, load_jsonl, metrics, verbatim_retrieval
+from harness_cache.report import LEGACY_MODES, load_jsonl, metrics, statement_in_prompt, verbatim_retrieval
 
 MAX_LINES = 100
 
@@ -38,9 +38,7 @@ def snapshot(run_dir: Path, dest_dir: Path, skip_first: int = 1, pricing_path: P
     ]
     pricing = load_pricing(pricing_path) if pricing_path and pricing_path.exists() else None
     data = {"metrics": metrics(manifest, turns, tasks, skip_first, pricing), "series": series}
-    messages = _scenario_messages(manifest)
-    if messages is not None and manifest["config"].get("verbatim_recall"):
-        data["metrics"]["verbatim"] = verbatim_retrieval(manifest, turns, messages)
+    data["metrics"].update(memory_scores(manifest, turns))
     if price_as and pricing:
         from harness_cache.cost import run_cost
         as_if = {**manifest, "config": {**manifest["config"], "llm": "gemini", "model": price_as}}
@@ -49,6 +47,18 @@ def snapshot(run_dir: Path, dest_dir: Path, skip_first: int = 1, pricing_path: P
     dest_dir.mkdir(parents=True, exist_ok=True)
     out = dest_dir / f"{manifest['run_id']}.json"
     out.write_text(json.dumps(data, indent=1, sort_keys=True) + "\n")
+    return out
+
+
+def memory_scores(manifest: dict, turns: list[dict]) -> dict:
+    """Scores that need the scenario's messages (H9 search, H10 presence); empty when the file is
+    not found or is not the one the run replayed. Shared by the snapshot and the dashboard."""
+    messages = _scenario_messages(manifest)
+    out = {}
+    if messages is not None and manifest["config"].get("verbatim_recall"):
+        out["verbatim"] = verbatim_retrieval(manifest, turns, messages)
+    if messages is not None and any("folded_turns" in (t.get("context") or {}) for t in turns):
+        out["in_prompt"] = statement_in_prompt(manifest, turns, messages)
     return out
 
 
@@ -135,6 +145,9 @@ COLUMNS = {
     "h9_turns": ("turns with a recall",
                  lambda m: f"{m['verbatim']['turns_with_recall']}/{m['verbatim']['turns']}" if "verbatim" in m else "n/a"),
     "h9_lines": ("messages recalled", lambda m: str(m["verbatim"]["lines"]) if "verbatim" in m else "n/a"),
+    "in_prompt": ("message stating the fact in the prompt word for word",
+                  lambda m: f"{m['in_prompt']['found']}/{m['in_prompt']['needed']}" if "in_prompt" in m else "n/a"),
+    "pinned": ("statements pinned at the end", lambda m: str(m["in_prompt"]["pinned_last"]) if "in_prompt" in m else "n/a"),
     "recall": ("recall facts found", lambda m: f"{m['recall']['found']}/{m['recall']['facts']}" if "recall" in m else "n/a"),
 }
 

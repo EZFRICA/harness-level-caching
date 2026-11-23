@@ -19,6 +19,8 @@ const TIPS = {
   pc: "Turns whose stable prefix (instructions, memory, tool declarations) was sent by cache name.",
   stable: "Share of the request identical to the previous one, from the start: what a prefix cache can reuse.",
   backlog: "Cold path tasks waiting: extraction, cache creation, replication.",
+  inprompt: "At each question about a planted fact, was the user's own message that stated it in the prompt, word for word? Not whether the answer was right.",
+  found: "At each question about a planted fact, did the search over the user's past messages bring back the one that stated it?",
 };
 const GLOSSARY = [
   ["Hot path", "Everything the user waits for during a turn."],
@@ -214,6 +216,8 @@ async function compare() {
       ${row("tool calls from cache", (m) => m.harness ? `${m.harness.h3_hits}/${m.harness.tool_calls}` : "n/a")}
       ${row("cost", (m) => m.cost?.priced ? usd(m.cost.total_usd) : m.cost_projected?.priced ? usd(m.cost_projected.total_usd) + " *" : "n/a")}
       ${row("of which cold path", (m) => m.cost?.priced ? usd(m.cost.cold_usd) : "n/a")}
+      ${row(`<span title="${esc(TIPS.inprompt)}">fact's message in the prompt, word for word</span>`, (m) => m.in_prompt ? `${m.in_prompt.found}/${m.in_prompt.needed}` : "n/a")}
+      ${row(`<span title="${esc(TIPS.found)}">fact's message found by search (H9)</span>`, (m) => m.verbatim ? `${m.verbatim.found}/${m.verbatim.needed}` : "n/a")}
       ${row("turns", (m) => show(m.n_turns))}
     </table></div><p class="small muted">* projected price. Intervals overlap: no measured difference.</p></div>
     <div class="panel"><h2>What differs in the setup</h2>${diff.length ? `<div class="tbl"><table><tr><th class="l">setting</th><th class="l">A</th><th class="l">B</th></tr>${diff.map((k) => `<tr><td class="l">${esc(k)}</td><td class="l mono small">${esc(A.pin[k])}</td><td class="l mono small">${esc(B.pin[k])}</td></tr>`).join("")}</table></div>` : '<div class="muted">Same setup: only run to run noise separates them.</div>'}</div>

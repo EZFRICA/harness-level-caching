@@ -54,6 +54,7 @@ of these is marked unverified in the other files.
   https://arxiv.org/abs/2607.20495
 - Agentic Plan Caching, Zhang et al., arXiv 2506.14852v2: https://arxiv.org/abs/2506.14852
 - GPTCache repository: https://github.com/zilliztech/GPTCache
+- Anthropic, The components of agent memory (read 2026-11-11): https://www.anthropic.com/research/components-of-agent-memory
 
 ## Not read in a primary source
 

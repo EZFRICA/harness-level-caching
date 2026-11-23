@@ -55,7 +55,12 @@ query's hits (the APU); `naive` sends the full conversation; `compact` sends the
 folds its older part into a running summary past `HC_COMPACT_AT` tokens, and with
 `HC_VERBATIM_RECALL=on` (H9) also appends the user's own past messages found by the urithi
 search, verbatim, at the end of the prompt (`HC_VERBATIM_STORE=statements` stores only messages that
-state a fact, `HC_VERBATIM_HISTORY=once` sends the quotes once and keeps them out of the history).
+state a fact, `HC_VERBATIM_HISTORY=once` sends the quotes once and keeps them out of the history);
+with `HC_VERBATIM_PIN=on` (H10) a fold instead copies the folded messages that state a fact, word
+for word and once each, into a block after the summary: no search, and the head changes only at a fold;
+`HC_PIN_SUMMARY=rest` leaves those statements out of the fold, so the summary does not copy them again;
+`HC_PIN_JUDGE=decisions` asks the Gemini Decisions API which of the rule's statements to keep, replays
+frozen probes before each fold and falls back to the rule on drift or error (`memory/pin_judge.py`).
 Embedders: `hash`, `onnx` (MiniLM, the default of decision 0004) and `gemma` (EmbeddingGemma 2,
 asymmetric prefixes, its own thresholds). Ablation switches:
 `HC_PREFIX_CACHE=none`, `HC_TOOL_CACHE=off`, `HC_EMBED_CACHE=off`,

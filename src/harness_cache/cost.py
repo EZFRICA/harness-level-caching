@@ -68,7 +68,10 @@ def run_cost(manifest: dict, turns: list[dict], tasks: list[dict], pricing: dict
     comp = [x for x in tasks if x["task"].startswith("compact") and x.get("ok")]
     compaction = sum(sum(call_cost(p, x.get("prompt_tokens", 0), x.get("cached_tokens", 0),
                                    x.get("output_tokens", 0)).values()) for x in comp)
-    cold = {"extraction": extraction, "compaction": compaction, "cache_write": cache_write, "cache_storage": storage}
+    judge = price_for(pricing, "gemini-decision-1")  # HC_PIN_JUDGE=decisions: billed input tokens only
+    pin_judge = sum(x.get("judge_tokens", 0) for x in comp) * judge["input"] / M if judge else 0.0
+    cold = {"extraction": extraction, "compaction": compaction, "cache_write": cache_write, "cache_storage": storage,
+            "pin_judge": pin_judge}
     total_hot, total_cold = sum(hot.values()), sum(cold.values())
     assumptions = []
     if p.get("cache_write_status") == "assumption" and creates:

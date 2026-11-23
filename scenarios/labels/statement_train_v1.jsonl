@@ -1,0 +1,124 @@
+{"note": "Training set for the fact classifier (H10). label 1: a durable fact about the user's life or work that a later question could ask for word for word. label 0: questions, requests, small talk, opinions, vague progress notes. Written by hand on 2026-11-17; none of the 24 facts of scripts/gen_long_facts.py and none of the filler templates of scenarios/generated/zipf_200_s20261023.jsonl appear here."}
+{"text": "My daughter's school is Lycée Victor Hugo.", "label": 1}
+{"text": "My passport expires on October 3, 2028.", "label": 1}
+{"text": "I live at 14 rue des Acacias.", "label": 1}
+{"text": "My blood type is O negative.", "label": 1}
+{"text": "My landlord is Mr Kouassi.", "label": 1}
+{"text": "The team standup is at 9:15 every morning.", "label": 1}
+{"text": "My employee number is E-20417.", "label": 1}
+{"text": "I drink my coffee without sugar.", "label": 1}
+{"text": "Our wedding anniversary is on June 21.", "label": 1}
+{"text": "My bank advisor is called Sophie Martin.", "label": 1}
+{"text": "The repository for the thesis is named lumen-core.", "label": 1}
+{"text": "My son is allergic to peanuts.", "label": 1}
+{"text": "The conference badge pickup code is 77AF.", "label": 1}
+{"text": "My mother's phone number ends in 4412.", "label": 1}
+{"text": "I wear size 43 shoes.", "label": 1}
+{"text": "The VPN gateway is vpn2.internal.", "label": 1}
+{"text": "My train to Lyon leaves at 07:42 from platform 9.", "label": 1}
+{"text": "The client's purchase order number is PO-55102.", "label": 1}
+{"text": "I am vegetarian.", "label": 1}
+{"text": "My piano teacher is Madame Diallo.", "label": 1}
+{"text": "The apartment door code is 1907B.", "label": 1}
+{"text": "My favourite football club is ASEC Mimosas.", "label": 1}
+{"text": "My laptop is a ThinkPad X1 Carbon from 2024.", "label": 1}
+{"text": "Our product launch is planned for September 30.", "label": 1}
+{"text": "The shared drive folder is called Q3-partners.", "label": 1}
+{"text": "My grandmother lives in Porto-Novo.", "label": 1}
+{"text": "I speak Fon, French and English.", "label": 1}
+{"text": "The invoice number for the venue is INV-2026-118.", "label": 1}
+{"text": "My yoga class is on Thursdays at 19:00.", "label": 1}
+{"text": "I moved to Cotonou in 2019.", "label": 1}
+{"text": "The production database runs on port 6543.", "label": 1}
+{"text": "My mentor at work is Aminata Traoré.", "label": 1}
+{"text": "I take 10 mg of cetirizine in spring.", "label": 1}
+{"text": "My locker at the pool is number 58.", "label": 1}
+{"text": "Correction: my train to Lyon leaves at 08:05, not 07:42.", "label": 1}
+{"text": "Correction: the launch moved to October 14.", "label": 1}
+{"text": "Actually, my employee number is E-20471.", "label": 1}
+{"text": "Update: my landlord is now Mrs Adjovi.", "label": 1}
+{"text": "Mon médecin traitant est le docteur Agossou.", "label": 1}
+{"text": "Ma fille est née le 2 avril 2017.", "label": 1}
+{"text": "Le code du portail est 4590.", "label": 1}
+{"text": "Mon numéro de client chez l'opérateur est 88310452.", "label": 1}
+{"text": "La réunion d'équipe a lieu le mardi à 14 h.", "label": 1}
+{"text": "Je suis intolérant au lactose.", "label": 1}
+{"text": "Mon vol pour Dakar est le AF 718.", "label": 1}
+{"text": "Le serveur de test s'appelle colibri.", "label": 1}
+{"text": "Correction : le code du portail est 4950.", "label": 1}
+{"text": "Ma voiture est une Toyota Corolla grise.", "label": 1}
+{"text": "My partner's name is Kofi.", "label": 1}
+{"text": "The grant reference is ANR-26-CE23-0041.", "label": 1}
+{"text": "Our office is on the fourth floor, desk 4C-12.", "label": 1}
+{"text": "My electricity meter number is 0457-221.", "label": 1}
+{"text": "The book club meets on the first Sunday of the month.", "label": 1}
+{"text": "My driving licence was issued in Abidjan.", "label": 1}
+{"text": "I prefer meetings in the morning, never after 17:00.", "label": 1}
+{"text": "The backup password manager entry is under 'family'.", "label": 1}
+{"text": "My tailor is on avenue Steinmetz.", "label": 1}
+{"text": "The dog's vet is Dr Hounkpè.", "label": 1}
+{"text": "My brother works at the port authority.", "label": 1}
+{"text": "The deposit for the flat was 300000 CFA francs.", "label": 1}
+{"text": "What time does my train leave?", "label": 0}
+{"text": "Can you summarise my week?", "label": 0}
+{"text": "Remind me what I said about the grant.", "label": 0}
+{"text": "How do I convert 50 euros to CFA francs?", "label": 0}
+{"text": "Thanks, that helps.", "label": 0}
+{"text": "Good morning!", "label": 0}
+{"text": "Let's continue later.", "label": 0}
+{"text": "I think the second option is better.", "label": 0}
+{"text": "That sounds a bit expensive to me.", "label": 0}
+{"text": "Ok, noted.", "label": 0}
+{"text": "Write a short email to the landlord about the heating.", "label": 0}
+{"text": "Find me a vegetarian restaurant near the office.", "label": 0}
+{"text": "Draft three titles for the talk.", "label": 0}
+{"text": "Explain the difference between RAG and fine-tuning.", "label": 0}
+{"text": "Book a table for four on Friday.", "label": 0}
+{"text": "Search the web for the visa requirements for Ghana.", "label": 0}
+{"text": "Give me a checklist for the move.", "label": 0}
+{"text": "Is it going to rain tomorrow?", "label": 0}
+{"text": "Which of my projects is late?", "label": 0}
+{"text": "Show me the notes on the thesis.", "label": 0}
+{"text": "I worked a bit on the slides today.", "label": 0}
+{"text": "Made some progress on the report.", "label": 0}
+{"text": "Still thinking about the budget.", "label": 0}
+{"text": "Things are going fine with the course.", "label": 0}
+{"text": "I spent the afternoon on emails.", "label": 0}
+{"text": "Nothing new on the visa side.", "label": 0}
+{"text": "The meeting was long but useful.", "label": 0}
+{"text": "I'm a bit tired today.", "label": 0}
+{"text": "Let's look at that again next week.", "label": 0}
+{"text": "Maybe we should move it, not sure yet.", "label": 0}
+{"text": "Progress on the website: halfway through.", "label": 0}
+{"text": "Worked on the wedding plans, more to do.", "label": 0}
+{"text": "The draft needs another pass.", "label": 0}
+{"text": "Can you make it shorter?", "label": 0}
+{"text": "Translate this paragraph into French.", "label": 0}
+{"text": "What did we decide yesterday?", "label": 0}
+{"text": "List my open tasks.", "label": 0}
+{"text": "Compare the two laptops for me.", "label": 0}
+{"text": "Haha, good one.", "label": 0}
+{"text": "Yes please.", "label": 0}
+{"text": "No, the other one.", "label": 0}
+{"text": "I like this structure.", "label": 0}
+{"text": "Python or Go for the CLI, what do you think?", "label": 0}
+{"text": "Bonjour, comment ça va ?", "label": 0}
+{"text": "Peux-tu résumer la réunion ?", "label": 0}
+{"text": "Quel est le prochain rendez-vous ?", "label": 0}
+{"text": "Merci beaucoup.", "label": 0}
+{"text": "J'ai avancé sur le rapport aujourd'hui.", "label": 0}
+{"text": "Rien de neuf pour le moment.", "label": 0}
+{"text": "Cherche un hôtel pas cher à Lomé.", "label": 0}
+{"text": "Je ne suis pas sûr, on verra.", "label": 0}
+{"text": "Fais-moi une liste de courses.", "label": 0}
+{"text": "C'était une bonne journée.", "label": 0}
+{"text": "Explain how prompt caching works.", "label": 0}
+{"text": "Generate a test plan for the API.", "label": 0}
+{"text": "Things slipped a little on the move.", "label": 0}
+{"text": "The plan changed slightly again.", "label": 0}
+{"text": "I need to think about the visa more.", "label": 0}
+{"text": "Another step done for the thesis.", "label": 0}
+{"text": "A small change to the schedule, nothing big.", "label": 0}
+{"text": "Could you check the numbers again?", "label": 0}
+{"text": "Please be more concise.", "label": 0}
+{"text": "Start over with a friendlier tone.", "label": 0}

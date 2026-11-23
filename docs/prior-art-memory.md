@@ -69,3 +69,18 @@ papers below (MemGPT, Mem0, Zep, A-MEM) for "prompt cach", "prefix cach", "KV ca
   baseline and 16,977 for MemGPT (Table 1).
 - **The study must show**: that rewriting old memory (A-MEM evolution) and a stable prefix can
   coexist: an edited block either moves to the tail or costs a measured cache miss.
+
+## Anthropic, "The components of agent memory" (research post, read 2026-11-11)
+
+- **Caches**: memory notes in a folder, written in session when the model judges something
+  salient; "dreaming", an offline pass over transcripts that corrects notes, builds linked
+  wikis and promotes a few notes to a small layer loaded into every session (Claude Code's
+  MEMORY.md, first 200 lines or 25 KB, used as an index).
+- **Layer**: harness. **Invalidation**: dreaming checks notes against the transcript.
+- **Numbers**: wiki plus search 61% against 53% for search alone over a 420M token corpus, about
+  20,000 tokens saved per question; contract terms quoted word for word kept 57 of 57 graded
+  facts against 41 of 57 when agents summarised them into a shared table.
+- **What it does not measure**: the cost and latency of dreaming, and provider cache reuse.
+- **The study must show**: the cost side. Dreaming is our cold path (hot path never waits); its
+  word for word lesson is tested as H10 (`HC_VERBATIM_PIN`): statements quoted at fold time
+  instead of searched every turn (H9), and the small injected layer is our cacheable head.
